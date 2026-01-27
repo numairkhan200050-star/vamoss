@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, ShoppingBag } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,14 +10,7 @@ const Navbar = () => {
     { 
       name: 'Gadgets', 
       href: '#',
-      subItems: [
-        'Smart Electronics',
-        'Kitchen Essentials',
-        'Men\'s Care',
-        'Women\'s Wellness',
-        'Hair & Beauty',
-        'Drinkware & Tumblers'
-      ]
+      subItems: ['Smart Electronics', 'Kitchen Essentials', 'Men\'s Care', 'Women\'s Wellness', 'Hair & Beauty', 'Drinkware & Tumblers']
     },
     { 
       name: 'Wearables', 
@@ -32,14 +25,16 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           
-          {/* Logo */}
-          <div className="flex-shrink-0 flex items-center">
-            <span className="text-2xl font-extrabold tracking-tight text-indigo-600 cursor-pointer">
-              VAMOSS<span className="text-gray-900">.SHOP</span>
-            </span>
+          {/* Logo Container */}
+          <div className="flex-shrink-0 flex items-center cursor-pointer group">
+            <img 
+              src="/logo-transparent.png" 
+              alt="Kevin11 Logo" 
+              className="h-10 w-auto md:h-12 object-contain transition-transform duration-300 group-hover:scale-105" 
+            />
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - No Blue anymore! */}
           <div className="hidden md:flex space-x-8 items-center">
             {menuItems.map((item) => (
               <div 
@@ -50,23 +45,28 @@ const Navbar = () => {
               >
                 <a
                   href={item.href}
-                  className="flex items-center text-gray-600 hover:text-indigo-600 px-1 py-2 text-sm font-semibold transition-all duration-300 ease-in-out"
+                  className="flex items-center text-black hover:text-[#D4AF37] px-1 py-2 text-sm font-bold uppercase tracking-widest transition-all duration-300"
                 >
                   {item.name}
-                  {item.subItems && <ChevronDown size={14} className="ml-1 group-hover:rotate-180 transition-transform duration-300" />}
+                  {item.subItems && (
+                    <ChevronDown 
+                      size={14} 
+                      className={`ml-1 transition-transform duration-300 ${activeDropdown === item.name ? 'rotate-180 text-[#D4AF37]' : ''}`} 
+                    />
+                  )}
                 </a>
                 
-                {/* Underline Animation */}
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 transition-all duration-300 group-hover:w-full"></div>
+                {/* Gold Underline Animation */}
+                <div className={`absolute bottom-0 left-0 h-0.5 bg-[#D4AF37] transition-all duration-300 ${activeDropdown === item.name ? 'w-full' : 'w-0'}`}></div>
 
                 {/* Dropdown Menu */}
                 {item.subItems && activeDropdown === item.name && (
-                  <div className="absolute left-0 mt-0 w-56 bg-white border border-gray-100 shadow-xl rounded-xl py-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="absolute left-0 mt-0 w-64 bg-white border border-gray-100 shadow-2xl rounded-none py-3 animate-in fade-in slide-in-from-top-2 duration-200">
                     {item.subItems.map((sub) => (
                       <a
                         key={sub}
                         href={`#${sub.toLowerCase().replace(/ /g, '-')}`}
-                        className="block px-4 py-2.5 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                        className="block px-6 py-3 text-sm text-black hover:bg-gray-50 hover:text-[#D4AF37] hover:pl-8 transition-all font-bold border-l-4 border-transparent hover:border-[#D4AF37]"
                       >
                         {sub}
                       </a>
@@ -77,9 +77,15 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Button */}
-          <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-600 p-2">
+          {/* Right Side Icons */}
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-black hover:text-[#D4AF37] transition-colors relative">
+              <ShoppingBag size={24} />
+              <span className="absolute top-1 right-1 bg-black text-[#D4AF37] text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-[#D4AF37]">
+                0
+              </span>
+            </button>
+            <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-black hover:text-[#D4AF37]">
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
@@ -89,17 +95,19 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 animate-in slide-in-from-right duration-300">
-          <div className="px-4 pt-2 pb-6 space-y-2">
+          <div className="px-6 py-8 space-y-6">
             {menuItems.map((item) => (
-              <div key={item.name}>
-                <div className="font-bold text-indigo-600 py-2 border-b border-gray-50">{item.name}</div>
-                {item.subItems ? (
-                  <div className="pl-4 space-y-1 mt-1">
+              <div key={item.name} className="border-b border-gray-50 pb-4">
+                <div className="text-sm font-black text-[#D4AF37] uppercase tracking-widest mb-3">{item.name}</div>
+                {item.subItems && (
+                  <div className="grid grid-cols-1 gap-3 pl-4">
                     {item.subItems.map((sub) => (
-                      <a key={sub} href="#" className="block py-2 text-sm text-gray-500">{sub}</a>
+                      <a key={sub} href="#" className="text-gray-800 text-base font-bold hover:text-[#D4AF37]">
+                        {sub}
+                      </a>
                     ))}
                   </div>
-                ) : null}
+                )}
               </div>
             ))}
           </div>
