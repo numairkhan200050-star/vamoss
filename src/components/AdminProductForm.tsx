@@ -1,143 +1,175 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Trash2, Calculator, Info } from 'lucide-react';
+import { Plus, Trash2, Calculator, Save, Globe } from 'lucide-react';
 import type { Category, ShippingSetting } from '../lib/database.types';
 
+// THE SLUG MACHINE: Turns "My Watch!" into "my-watch"
+const slugify = (text: string) => {
+  return text.toString().toLowerCase().trim()
+    .replace(/\s+/g, '-')     
+    .replace(/[^\w-]+/g, '')  
+    .replace(/--+/g, '-');    
+};
+
 export const AdminProductForm = () => {
-  // 1. Basic Info State
+  // --- FORM STATES ---
   const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [description, setDescription] = useState('');
+  const [mainImage, setMainImage] = useState('');
   const [costPrice, setCostPrice] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
   const [weight, setWeight] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState('');
   
-  // 2. Database Data State
+  // --- DATABASE STATES ---
   const [categories, setCategories] = useState<Category[]>([]);
   const [shippingRates, setShippingRates] = useState<ShippingSetting[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-
-  // 3. Variants State (Color Swapping Logic)
   const [variants, setVariants] = useState([{ color_name: '', variant_image_url: '' }]);
 
+  // Load Categories and Shipping Rates from Supabase
   useEffect(() => {
+    const fetchData = async () => {
+      const { data: cat } = await supabase.from('categories').select('*');
+      const { data: ship } = await supabase.from('shipping_settings').select('*');
+      if (cat) setCategories(cat);
+      if (ship) setShippingRates(ship);
+    };
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    const { data: catData } = await supabase.from('categories').select('*');
-    const { data: shipData } = await supabase.from('shipping_settings').select('*').order('weight_limit_grams', { ascending: true });
-    if (catData) setCategories(catData);
-    if (shipData) setShippingRates(shipData);
-  };
+  // AUTO-SLUG LOGIC: Updates whenever title changes
+  useEffect(() => {
+    setSlug(slugify(title));
+  }, [title]);
 
-  // --- KEVIN11 SMART MATH LOGIC ---
-  const getShippingCost = () => {
-    const rate = shippingRates.find(r => weight <= r.weight_limit_grams);
-    return rate ? rate.price : (shippingRates[shippingRates.length - 1]?.price || 0);
-  };
-
-  const shippingCost = getShippingCost();
+  // --- SMART MATH LOGIC ---
+  const shippingCost = shippingRates.find(r => weight <= r.weight_limit_grams)?.price || 0;
   const netProfit = sellingPrice - costPrice - shippingCost;
-  const profitMargin = sellingPrice > 0 ? ((netProfit / sellingPrice) * 100).toFixed(1) : 0;
 
-  const addVariant = () => setVariants([...variants, { color_name: '', variant_image_url: '' }]);
+  // --- SAVE TO DATABASE ---
+  const handleSaveProduct = async () => {
+    if (!title || !selectedCategory) return alert("Please fill Title and Category");
+
+    const { data: product, error } = await supabase.from('products').insert([{
+      title, slug, description, main_image_url: mainImage,
+      category_id: selectedCategory, price_now: sellingPrice,
+      cost_price: costPrice, weight_grams: weight
+    }]).select().single();
+
+    if (product) {
+      // Save variants if they have data
+      const variantsToSave = variants.filter(v => v.color_name).map(v => ({
+        ...v, product_id: product.id
+      }));
+      if (variantsToSave.length > 0) {
+        await supabase.from('product_variants').insert(variantsToSave);
+      }
+      alert("Product successfully added to Kevin11!");
+    } else {
+      console.error(error);
+      alert("Error saving product.");
+    }
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-      <h2 className="text-3xl font-black uppercase italic mb-8 border-b-4 border-[#D4AF37] inline-block">Add New Product</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* Left Side: General Info */}
-        <div className="space-y-6">
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Product Title</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full border-2 border-black p-3 font-bold focus:bg-gray-50 outline-none" placeholder="e.g. Luxury Quartz Watch" />
-          </div>
+    <div className="max-w-5xl mx-auto p-6 font-sans">
+      <div className="bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
+        <h1 className="text-4xl font-black uppercase italic mb-8">Add New Product</h1>
 
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Category</label>
-            <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="w-full border-2 border-black p-3 font-bold outline-none bg-white">
-              <option value="">Select Category</option>
-              {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-            </select>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* COLUMN 1: BASIC INFO */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="p-4 bg-gray-50 border-2 border-black">
+              <label className="block text-xs font-black uppercase mb-2">Product Title</label>
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} 
+                className="w-full p-3 border-2 border-black font-bold outline-none" placeholder="Enter product name..." />
+              
+              <div className="mt-4 flex items-center gap-2 text-blue-600 bg-blue-50 p-2 border border-blue-200">
+                <Globe size={14} />
+                <span className="text-[10px] font-bold uppercase">URL: vamoss.shop/product/{slug}</span>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Cost Price (PKR)</label>
-              <input type="number" value={costPrice} onChange={(e) => setCostPrice(Number(e.target.value))} className="w-full border-2 border-black p-3 font-bold" />
+            <div className="p-4 bg-gray-50 border-2 border-black">
+              <label className="block text-xs font-black uppercase mb-2">Category</label>
+              <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-3 border-2 border-black font-bold bg-white">
+                <option value="">Select Category</option>
+                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
             </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Selling Price (PKR)</label>
-              <input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} className="w-full border-2 border-black p-3 font-bold" />
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest mb-2">Weight (Grams)</label>
-            <input type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))} className="w-full border-2 border-black p-3 font-bold" placeholder="e.g. 600" />
-          </div>
-        </div>
-
-        {/* Right Side: The Smart Dashboard (Secret) */}
-        <div className="bg-black p-6 text-white space-y-6">
-          <div className="flex items-center gap-2 text-[#D4AF37]">
-            <Calculator size={20} />
-            <span className="font-black uppercase italic tracking-widest text-sm">Profit Analysis</span>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between border-b border-gray-800 pb-2">
-              <span className="text-gray-400 text-[10px] uppercase font-bold">Shipping (Leopard)</span>
-              <span className="font-bold">Rs. {shippingCost}</span>
-            </div>
-            <div className="flex justify-between border-b border-gray-800 pb-2">
-              <span className="text-gray-400 text-[10px] uppercase font-bold">Net Profit</span>
-              <span className="font-black text-green-400 text-xl">Rs. {netProfit}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400 text-[10px] uppercase font-bold">Margin</span>
-              <span className="font-black text-[#D4AF37]">{profitMargin}%</span>
+            <div className="p-4 bg-gray-50 border-2 border-black">
+              <label className="block text-xs font-black uppercase mb-2">Color Variants</label>
+              {variants.map((v, i) => (
+                <div key={i} className="flex gap-2 mb-2">
+                  <input placeholder="Color" className="w-1/3 p-2 border-2 border-black" 
+                    onChange={(e) => {
+                      const newV = [...variants];
+                      newV[i].color_name = e.target.value;
+                      setVariants(newV);
+                    }} />
+                  <input placeholder="Image URL" className="w-2/3 p-2 border-2 border-black" 
+                    onChange={(e) => {
+                      const newV = [...variants];
+                      newV[i].variant_image_url = e.target.value;
+                      setVariants(newV);
+                    }} />
+                </div>
+              ))}
+              <button onClick={() => setVariants([...variants, { color_name: '', variant_image_url: '' }])}
+                className="text-[10px] font-black uppercase flex items-center gap-1 mt-2 underline">
+                <Plus size={12} /> Add Another Color
+              </button>
             </div>
           </div>
 
-          <div className="bg-gray-900 p-4 flex gap-3 items-start">
-            <Info size={16} className="text-[#D4AF37] shrink-0 mt-1" />
-            <p className="text-[10px] text-gray-400 leading-relaxed font-bold uppercase">
-              This calculation includes the weight-based shipping rate you set in your dashboard.
-            </p>
+          {/* COLUMN 2: THE SECRET MATH BOX */}
+          <div className="bg-black text-white p-6 h-fit sticky top-6 border-4 border-[#D4AF37]">
+            <div className="flex items-center gap-2 mb-6 border-b border-gray-700 pb-4 text-[#D4AF37]">
+              <Calculator size={24} />
+              <h2 className="font-black uppercase tracking-widest">Admin Dashboard</h2>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] text-gray-400 font-bold uppercase">Cost Price</label>
+                <input type="number" value={costPrice} onChange={(e) => setCostPrice(Number(e.target.value))}
+                  className="w-full bg-transparent border-b border-gray-600 p-2 font-black text-xl text-white outline-none" />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-gray-400 font-bold uppercase">Selling Price</label>
+                <input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))}
+                  className="w-full bg-transparent border-b border-gray-600 p-2 font-black text-xl text-white outline-none" />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-gray-400 font-bold uppercase">Weight (Grams)</label>
+                <input type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))}
+                  className="w-full bg-transparent border-b border-gray-600 p-2 font-black text-xl text-white outline-none" />
+              </div>
+
+              <div className="pt-6 border-t border-gray-700 space-y-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-400 uppercase font-bold">Shipping Fee:</span>
+                  <span className="font-black">Rs. {shippingCost}</span>
+                </div>
+                <div className="flex justify-between items-center bg-[#D4AF37] p-3 text-black rounded-sm">
+                  <span className="text-[10px] font-black uppercase">Net Profit:</span>
+                  <span className="text-2xl font-black">Rs. {netProfit}</span>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={handleSaveProduct}
+              className="w-full mt-8 bg-white text-black py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#D4AF37] transition-colors">
+              <Save size={18} /> Publish Product
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Color Variants Section */}
-      <div className="mt-12">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="font-black uppercase italic text-xl tracking-tighter">Color Variants</h3>
-          <button onClick={addVariant} className="bg-[#D4AF37] text-black px-4 py-2 text-xs font-black uppercase flex items-center gap-2 hover:bg-black hover:text-[#D4AF37] transition-all">
-            <Plus size={14} /> Add Color
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {variants.map((v, index) => (
-            <div key={index} className="flex gap-4 items-end bg-gray-50 p-4 border border-gray-200">
-              <div className="flex-1">
-                <label className="block text-[8px] font-black uppercase mb-1">Color Name</label>
-                <input type="text" placeholder="Midnight Blue" className="w-full border-b border-black bg-transparent p-2 font-bold text-sm outline-none" />
-              </div>
-              <div className="flex-[2]">
-                <label className="block text-[8px] font-black uppercase mb-1">Variant Image URL</label>
-                <input type="text" placeholder="https://supabase.com/..." className="w-full border-b border-black bg-transparent p-2 font-bold text-sm outline-none" />
-              </div>
-              <button className="text-red-500 p-2 hover:bg-red-50 transition-all"><Trash2 size={18} /></button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <button className="w-full mt-10 bg-black text-[#D4AF37] py-5 font-black uppercase tracking-[0.3em] hover:bg-[#D4AF37] hover:text-black transition-all duration-500 border-2 border-black">
-        Upload Product to Kevin11
-      </button>
     </div>
   );
 };
