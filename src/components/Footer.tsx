@@ -12,7 +12,6 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           
-          {/* Brand & Socials */}
           <div className="space-y-6">
             <h3 className="text-3xl font-black italic text-[#D4AF37] tracking-tighter">KEVIN11</h3>
             <div className="flex space-x-5 pt-2">
@@ -24,17 +23,15 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Policy Links */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#D4AF37] mb-8">Customer Care</h4>
             <ul className="space-y-4 text-sm font-bold text-gray-400">
-              <li><button onClick={() => window.dispatchEvent(new CustomEvent('open-policy', {detail: 'privacy'}))} className="hover:text-white transition-colors">Privacy Policy</button></li>
-              <li><button onClick={() => window.dispatchEvent(new CustomEvent('open-policy', {detail: 'refund'}))} className="hover:text-white transition-colors">Refund & Return Policy</button></li>
-              <li><button onClick={() => window.dispatchEvent(new CustomEvent('open-policy', {detail: 'terms'}))} className="hover:text-white transition-colors">Terms & Conditions</button></li>
+              <li><button className="hover:text-white transition-colors">Privacy Policy</button></li>
+              <li><button className="hover:text-white transition-colors">Refund & Return Policy</button></li>
+              <li><button className="hover:text-white transition-colors">Terms & Conditions</button></li>
             </ul>
           </div>
 
-          {/* RESTORED MISSION SECTION */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#D4AF37] mb-8">Our Mission</h4>
             <p className="text-sm text-gray-400 leading-relaxed font-medium">
@@ -42,7 +39,6 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Contact Information */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#D4AF37] mb-8">Contact Us</h4>
             <ul className="space-y-4 text-sm font-medium text-gray-400">
@@ -52,7 +48,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-[#D4AF37] shrink-0" />
-                <a href={whatsappLink} target="_blank" className="hover:text-white">0328 2519507</a>
+                <a href={whatsappLink} target="_blank" className="hover:text-white font-bold">0328 2519507</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-[#D4AF37] shrink-0" />
@@ -64,7 +60,7 @@ const Footer = () => {
 
         <div className="pt-10 border-t border-gray-900 text-center">
           <p className="text-[10px] text-gray-600 tracking-[0.3em] uppercase">
-            © {new Date().getFullYear()} KEVIN11. All Rights Reserved.
+            © 2026 KEVIN11. All Rights Reserved.
           </p>
         </div>
       </div>
