@@ -25,7 +25,6 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           
-          {/* Logo Container */}
           <div className="flex-shrink-0 flex items-center cursor-pointer group">
             <img 
               src="/logo-transparent.png" 
@@ -34,7 +33,6 @@ const Navbar = () => {
             />
           </div>
 
-          {/* Desktop Menu - No Blue anymore! */}
           <div className="hidden md:flex space-x-8 items-center">
             {menuItems.map((item) => (
               <div 
@@ -56,10 +54,8 @@ const Navbar = () => {
                   )}
                 </a>
                 
-                {/* Gold Underline Animation */}
                 <div className={`absolute bottom-0 left-0 h-0.5 bg-[#D4AF37] transition-all duration-300 ${activeDropdown === item.name ? 'w-full' : 'w-0'}`}></div>
 
-                {/* Dropdown Menu */}
                 {item.subItems && activeDropdown === item.name && (
                   <div className="absolute left-0 mt-0 w-64 bg-white border border-gray-100 shadow-2xl rounded-none py-3 animate-in fade-in slide-in-from-top-2 duration-200">
                     {item.subItems.map((sub) => (
@@ -77,7 +73,6 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Side Icons */}
           <div className="flex items-center gap-4">
             <button className="p-2 text-black hover:text-[#D4AF37] transition-colors relative">
               <ShoppingBag size={24} />
@@ -91,28 +86,6 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 animate-in slide-in-from-right duration-300">
-          <div className="px-6 py-8 space-y-6">
-            {menuItems.map((item) => (
-              <div key={item.name} className="border-b border-gray-50 pb-4">
-                <div className="text-sm font-black text-[#D4AF37] uppercase tracking-widest mb-3">{item.name}</div>
-                {item.subItems && (
-                  <div className="grid grid-cols-1 gap-3 pl-4">
-                    {item.subItems.map((sub) => (
-                      <a key={sub} href="#" className="text-gray-800 text-base font-bold hover:text-[#D4AF37]">
-                        {sub}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </nav>
   );
 };
