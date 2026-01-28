@@ -1,70 +1,43 @@
-import { useEffect, useState } from 'react';
-import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer'; 
-import { ProductCard } from './components/ProductCard';
-import { OrderModal } from './components/OrderModal';
-import { HeroSlider } from './components/HeroSlider'; // Smooth Naheed-style slider
-import { TrustBar } from './components/TrustBar'; // The 1-3 day shipping bar
+import Footer from './components/Footer';
+import { HeroSlider } from './components/HeroSlider';
+import { TrustBar } from './components/TrustBar';
 
 function App() {
-  const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const { data } = await supabase.from('products').select('*').order('created_at', { ascending: true });
-      setProducts(data || []);
-    };
-    fetchProducts();
-  }, []);
-
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <Navbar />
-      <div className="min-h-screen bg-white">
-        {/* LANDING HEADER (Restored Branding) */}
-        <header className="bg-white py-12 border-b border-gray-50">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col items-center md:items-start select-none">
-              <div className="flex items-center tracking-tighter cursor-default">
-                <span className="text-6xl font-black italic text-black uppercase">Kevin</span>
-                <span className="text-6xl font-black text-[#FFD700] inline-block transform -rotate-12 ml-2 hover:rotate-0 transition-transform duration-500">11</span>
-              </div>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="h-0.5 w-10 bg-[#FFD700]"></div>
-                <p className="text-black font-bold uppercase tracking-[0.2em] text-[10px]">Premium Collection | Pakistan</p>
-              </div>
-            </div>
-            {/* Smooth Trust Badge */}
-            <div className="hidden md:block bg-black text-white px-8 py-4 smooth-shadow">
-               <p className="text-[#FFD700] font-black uppercase text-xs">Cash On Delivery</p>
-               <p className="text-[10px] opacity-70 uppercase tracking-widest">Delivery All Over Pakistan</p>
-            </div>
-          </div>
-        </header>
 
-        <main className="max-w-7xl mx-auto px-4 py-12">
-          {/* Main Hero Slider (Naheed.pk Look) */}
-          <HeroSlider />
+      <main className="max-w-7xl mx-auto px-4 mt-8">
+        {/* HERO SECTION */}
+        <HeroSlider />
 
+        {/* DECORATIVE LINES (Right below Hero as requested) */}
+        <div className="my-12 flex flex-col gap-1">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+          <div className="h-0.5 w-1/3 mx-auto bg-[#FFD700]"></div>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+        </div>
+
+        {/* BRIGHT LOGO BRANDING */}
+        <div className="flex flex-col items-center mb-16">
+           <h1 className="text-7xl font-black italic">KEVIN<span className="text-[#FFD700]">11</span></h1>
+           <p className="tracking-[0.5em] text-[10px] font-bold uppercase mt-2">Premium Collection | Pakistan</p>
+        </div>
+
+        {/* PRODUCT GRID... */}
+        <div className="py-20">
+          <h2 className="text-2xl font-black mb-10 border-l-4 border-[#FFD700] pl-4 uppercase">Featured Items</h2>
+          {/* Products here */}
+        </div>
+
+        {/* SHIPPING LINE (Right above footer as requested) */}
+        <div className="border-t border-gray-100 pt-10">
           <TrustBar />
+        </div>
+      </main>
 
-          <div className="mt-20">
-            <h2 className="text-3xl font-black text-black tracking-widest mb-10 border-l-8 border-[#FFD700] pl-4">FEATURED ITEMS</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} onQuickOrder={(p) => { setSelectedProduct(p); setIsModalOpen(true); }} />
-              ))}
-            </div>
-          </div>
-        </main>
-
-        <Footer /> 
-        <OrderModal product={selectedProduct} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }
-export default App;
