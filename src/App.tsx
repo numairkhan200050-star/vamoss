@@ -1,50 +1,82 @@
-import React, { Suspense } from 'react';
-
-// Import all components from your file list
-// We use 'any' or simple imports here to prevent crashes during your updates
-const AnnouncementBar = () => <div className="h-8 bg-black" />; 
-const Navbar = () => <div className="h-16 border-b" />;
-const HeroSlider = () => <div className="h-64 bg-gray-50" />;
-const SpotlightGrid = () => <div className="h-40" />;
-const ProductRow = () => <div className="h-60" />;
-const TrustBar = () => <div className="h-20" />;
-const Footer = () => <div className="h-40 bg-black" />;
+import React, { useState } from 'react';
+import { FlashSaleBar } from './components/FlashSaleBar';
+import { Header } from './components/Header';
+import { HeroSlider } from './components/HeroSlider'; // Assuming you have this
+import { SpotlightGrid } from './components/SpotlightGrid';
+import { SpotlightSidebar } from './components/SpotlightSidebar';
+import { ProductRow } from './components/ProductRow';
+import { ReviewSlider } from './components/ReviewSlider';
+import { Footer } from './components/Footer';
 
 function App() {
-  return (
-    <div className="min-h-screen bg-white">
-      {/* 1. Top Banner */}
-      <AnnouncementBar />
+  // Check if we are on the Home Page
+  const isHomePage = window.location.pathname === '/';
 
-      {/* 2. Header & Search */}
-      <Navbar />
+  // These would ideally come from your Supabase 'settings' table
+  const adminSettings = {
+    homeSpotlightCollection: 'summer-sale',
+    innerSpotlightCollection: 'trending-now',
+    showReviews: true,
+  };
+
+  return (
+    <div className="min-h-screen bg-white font-sans text-black">
+      {/* 1. TOP TOP BANNER (Flash Sale with Timer) */}
+      <FlashSaleBar />
+
+      {/* 2, 3, 4. HEADER (Includes Logo, Categories, FOMO, and Collapsible Search) */}
+      <Header />
 
       <main className="max-w-[1440px] mx-auto">
-        {/* 3. Hero Section */}
-        <HeroSlider />
+        {isHomePage ? (
+          /* --- HOME PAGE LAYOUT --- */
+          <div className="space-y-16">
+            <HeroSlider />
 
-        {/* 4. Decorative Lines Placeholder */}
-        <div className="py-10 flex flex-col items-center gap-1">
-          <div className="h-px w-full bg-gray-100" />
-          <div className="h-1 w-20 bg-yellow-400" />
-        </div>
+            {/* SPOTLIGHT 1: The 4-Box Grid (Controlled by Admin) */}
+            <section className="px-4">
+               <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 border-l-4 border-[#D4AF37] pl-3">
+                 Featured Collections
+               </h2>
+               <SpotlightGrid collectionSlug={adminSettings.homeSpotlightCollection} />
+            </section>
 
-        {/* 5. Spotlight (4 Boxes) */}
-        <SpotlightGrid />
+            {/* MAIN PRODUCT ROWS */}
+            <div className="px-4 space-y-20">
+              <ProductRow title="New Arrivals" />
+              <ProductRow title="Trending Now" />
+            </div>
+          </div>
+        ) : (
+          /* --- INNER PAGES LAYOUT (Category/Product Pages) --- */
+          <div className="flex flex-col lg:flex-row gap-8 px-4 py-10">
+            {/* Sidebar with SPOTLIGHT 2 (The Rotator) */}
+            <aside className="w-full lg:w-1/4">
+               <h2 className="text-xs font-black uppercase mb-4 tracking-widest">Hot Deals</h2>
+               <SpotlightSidebar collectionSlug={adminSettings.innerSpotlightCollection} />
+            </aside>
 
-        {/* 6. Product Rows */}
-        <div className="space-y-10 my-10">
-          <ProductRow />
-          <ProductRow />
-        </div>
+            {/* Main Category Content */}
+            <div className="w-full lg:w-3/4">
+               <ProductRow title="Category Results" />
+            </div>
+          </div>
+        )}
 
-        {/* 7. Trust Zone */}
-        <div className="mt-20">
-          <TrustBar />
+        {/* REVIEWS SECTION: Shown right above shipping if enabled in Admin */}
+        {adminSettings.showReviews && (
+          <div className="mt-20">
+            <ReviewSlider />
+          </div>
+        )}
+
+        {/* SHIPPING/TRUST BAR (Right above footer) */}
+        <div className="mt-10 py-10 border-t border-gray-100 bg-gray-50/50">
+           {/* Your Shipping/TrustBar Component goes here */}
         </div>
       </main>
 
-      {/* 8. Footer */}
+      {/* FOOTER */}
       <Footer />
     </div>
   );
