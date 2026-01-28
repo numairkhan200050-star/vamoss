@@ -1,31 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Search, ChevronLeft, ChevronRight, Menu, ShoppingCart } from 'lucide-react';
+import { SearchBar } from './SearchBar'; // We will build this next
 
 export const Header = () => {
+  const [isSearchOpen, setIsSearchOpen] = useState(true);
+
   return (
-    <header className="bg-white border-b border-gray-100 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-10">
-          
-          {/* Brand Identity */}
-          <div className="flex flex-col items-center md:items-start">
-            <div className="flex items-center tracking-tighter">
-              <span className="text-6xl font-black italic text-black uppercase">Kevin</span>
-              <span className="text-6xl font-black text-[#D4AF37] inline-block transform -rotate-12 ml-2 hover:rotate-0 transition-transform duration-500 cursor-default">11</span>
-            </div>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="h-0.5 w-10 bg-[#D4AF37]"></div>
-              <p className="text-black font-bold uppercase tracking-[0.3em] text-xs">Premium Collection | Pakistan</p>
-            </div>
-          </div>
+    <header className="w-full bg-white border-b-2 border-black sticky top-0 z-50">
+      {/* TOP AD BAR (Naheed Style) */}
+      <div className="bg-black text-white text-[10px] py-1.5 text-center font-black uppercase tracking-[0.2em]">
+        🔥 FLAT 25% OFF - LIMITED TIME OFFER - ORDER NOW 🔥
+      </div>
 
-          {/* Value Proposition Badge */}
-          <div className="bg-black px-10 py-6 border border-black flex items-center gap-5 shadow-xl group hover:bg-[#D4AF37] transition-colors duration-300">
-            <div className="text-left">
-              <p className="text-[#D4AF37] group-hover:text-black font-black leading-tight uppercase text-sm tracking-widest transition-colors">Cash on Delivery</p>
-              <p className="text-gray-400 group-hover:text-black text-xs font-medium mt-1 uppercase transition-colors">Delivery All Over Pakistan</p>
-            </div>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
+        {/* LOGO */}
+        <div className="flex-shrink-0">
+          <h1 className="text-2xl font-black italic tracking-tighter uppercase">Kevin11</h1>
+        </div>
 
+        {/* DYNAMIC SEARCH AREA */}
+        <div className={`flex items-center transition-all duration-300 ease-in-out ${isSearchOpen ? 'flex-grow' : 'w-10'}`}>
+          {isSearchOpen ? (
+            <div className="flex items-center w-full gap-2">
+              <SearchBar />
+              <button 
+                onClick={() => setIsSearchOpen(false)}
+                className="p-2 bg-gray-100 hover:bg-black hover:text-white transition-colors border border-black"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 border-2 border-black bg-white hover:bg-[#D4AF37] transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            >
+              <Search size={20} />
+            </button>
+          )}
+        </div>
+
+        {/* MENU & CART icons */}
+        <div className="flex items-center gap-6">
+          <button className="hidden md:block font-bold uppercase text-xs hover:underline">Track Order</button>
+          <div className="relative cursor-pointer">
+            <ShoppingCart size={24} />
+            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+          </div>
+          <Menu size={24} className="cursor-pointer" />
         </div>
       </div>
     </header>
