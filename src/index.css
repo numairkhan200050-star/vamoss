@@ -4,18 +4,59 @@
 
 @layer base {
   body {
-    @apply bg-luxury-black text-white antialiased;
+    /* Updated to a cleaner off-white background for a modern retail look */
+    @apply bg-[#fcfcfc] text-black antialiased;
   }
 }
 
-/* Custom Gold Scrollbar */
+/* 1. Custom Gold Scrollbar (Better for Product Rows) */
 ::-webkit-scrollbar {
+  height: 4px; /* Thin height for horizontal scroll */
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
   background: #D4AF37;
   border-radius: 10px;
+}
+
+/* 2. Hide Scrollbar for Carousels (Keeps it clean) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 3. WhatsApp Wiggle Animation */
+@keyframes wiggle {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+/* 4. Smooth Typewriter Cursor */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.animate-pulse {
+  animation: blink 0.7s step-end infinite;
+}
+
+/* 5. Luxury Shadow Effect (Neo-brutalism style) */
+.luxury-shadow {
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+}
+.luxury-shadow:hover {
+  box-shadow: 8px 8px 0px 0px rgba(212,175,55,1);
+  transform: translate(-2px, -2px);
 }
