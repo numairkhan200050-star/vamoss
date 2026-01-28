@@ -4,23 +4,20 @@
 
 @layer base {
   body {
-    /* Pure white background as requested */
-    @apply bg-white text-black antialiased;
+    @apply bg-white text-black antialiased overflow-x-hidden;
   }
 }
 
-/* Bright Gold Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #ffffff; }
-::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
-
-/* Naheed-style Smoothness */
-.smooth-shadow {
+/* Smooth "Naheed" retail shadows */
+.retail-shadow {
   box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-@keyframes wiggle {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
+/* Typing Animation for Search */
+@keyframes blink {
+  50% { border-color: transparent; }
 }
-.animate-wiggle { animation: wiggle 0.3s ease-in-out infinite; }
+.typing-cursor::after {
+  content: '|';
+  animation: blink 0.7s infinite;
+}
