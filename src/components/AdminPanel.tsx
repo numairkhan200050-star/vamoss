@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Package, Star, Clock, EyeOff, Eye, Plus } from 'lucide-react';
+import { Settings, Package, Star, Clock, EyeOff, Eye, Plus, Layout, Zap } from 'lucide-react';
 
 export const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('products');
   
+  // New State for the Dynamic Layout Controls (Spotlights & Reviews)
+  const [layoutSettings, setLayoutSettings] = useState({
+    announcementText: "FLAT 25% OFF - ORDER NOW",
+    flashSaleMinutes: 45,
+    homeSpotlightCollection: 'summer-sale', // Links to Spotlight 1 (4 Boxes)
+    innerSpotlightCollection: 'july-deals', // Links to Spotlight 2 (Inner Page Rotator)
+    showReviewSlider: false, // Control for the Review Slider above shipping
+  });
+
+  const handleSettingChange = (key: string, value: any) => {
+    setLayoutSettings(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-black text-white p-6 space-y-8">
+      {/* --- SIDEBAR NAVIGATION --- */}
+      <div className="w-64 bg-black text-white p-6 space-y-8 sticky top-0 h-screen">
         <h1 className="text-2xl font-black italic tracking-tighter text-[#D4AF37]">KEVIN11 ADMIN</h1>
         <nav className="space-y-4">
           <button onClick={() => setActiveTab('products')} className={`w-full flex items-center gap-3 p-3 font-bold uppercase text-xs transition-all ${activeTab === 'products' ? 'bg-[#D4AF37] text-black' : 'hover:bg-gray-900'}`}>
@@ -17,13 +30,15 @@ export const AdminPanel = () => {
             <Star size={18} /> Review Control
           </button>
           <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center gap-3 p-3 font-bold uppercase text-xs transition-all ${activeTab === 'settings' ? 'bg-[#D4AF37] text-black' : 'hover:bg-gray-900'}`}>
-            <Settings size={18} /> Home Page Settings
+            <Settings size={18} /> Master Settings
           </button>
         </nav>
       </div>
 
-      {/* Main Content Area */}
+      {/* --- MAIN CONTENT AREA --- */}
       <div className="flex-1 p-10">
+        
+        {/* 1. PRODUCT INVENTORY (KEPT AS IS) */}
         {activeTab === 'products' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -39,18 +54,13 @@ export const AdminPanel = () => {
                   <tr>
                     <th className="p-4 font-black uppercase text-xs">Product</th>
                     <th className="p-4 font-black uppercase text-xs">Collection</th>
-                    <th className="p-4 font-black uppercase text-xs">Spotlight?</th>
                     <th className="p-4 font-black uppercase text-xs">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {/* Example Row */}
                   <tr className="hover:bg-yellow-50 transition-colors">
                     <td className="p-4 font-bold">Hair Dryer Brush 5-in-1</td>
                     <td className="p-4"><span className="bg-blue-100 px-2 py-1 text-[10px] font-bold rounded">New Arrivals</span></td>
-                    <td className="p-4">
-                      <input type="checkbox" checked className="w-5 h-5 accent-black" />
-                    </td>
                     <td className="p-4"><span className="text-green-600 font-bold uppercase text-[10px]">● Live</span></td>
                   </tr>
                 </tbody>
@@ -59,6 +69,7 @@ export const AdminPanel = () => {
           </div>
         )}
 
+        {/* 2. REVIEW CONTROL (KEPT AS IS) */}
         {activeTab === 'reviews' && (
           <div className="space-y-6">
             <h2 className="text-3xl font-black uppercase italic">Customer Reviews</h2>
@@ -79,27 +90,85 @@ export const AdminPanel = () => {
           </div>
         )}
 
+        {/* 3. MASTER SETTINGS (INTEGRATED WITH NEW CONTROLS) */}
         {activeTab === 'settings' && (
-          <div className="max-w-2xl space-y-8">
-            <h2 className="text-3xl font-black uppercase italic">Global Settings</h2>
+          <div className="max-w-4xl space-y-8">
+            <h2 className="text-3xl font-black uppercase italic">Global Store Settings</h2>
             
-            <div className="bg-white p-8 border-4 border-black luxury-shadow space-y-6">
-              <div>
-                <label className="block font-black uppercase text-xs mb-2">Announcement Bar Text</label>
-                <input type="text" className="w-full p-3 border-2 border-black outline-none font-bold" defaultValue="FLAT 25% OFF - ORDER NOW" />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              <div>
-                <label className="block font-black uppercase text-xs mb-2 flex items-center gap-2">
-                  <Clock size={14} /> Flash Sale Duration (Minutes)
-                </label>
-                <input type="number" className="w-full p-3 border-2 border-black outline-none font-bold" defaultValue="45" />
+              {/* Basic Announcements */}
+              <div className="bg-white p-8 border-4 border-black luxury-shadow space-y-6">
+                <h3 className="font-black uppercase flex items-center gap-2 border-b-2 border-black pb-2">
+                  <Zap size={18} /> Promotions
+                </h3>
+                <div>
+                  <label className="block font-black uppercase text-xs mb-2">Announcement Bar Text</label>
+                  <input 
+                    type="text" 
+                    className="w-full p-3 border-2 border-black outline-none font-bold" 
+                    value={layoutSettings.announcementText}
+                    onChange={(e) => handleSettingChange('announcementText', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-black uppercase text-xs mb-2 flex items-center gap-2">
+                    <Clock size={14} /> Flash Sale Duration (Minutes)
+                  </label>
+                  <input 
+                    type="number" 
+                    className="w-full p-3 border-2 border-black outline-none font-bold" 
+                    value={layoutSettings.flashSaleMinutes}
+                    onChange={(e) => handleSettingChange('flashSaleMinutes', e.target.value)}
+                  />
+                </div>
               </div>
 
-              <button className="w-full bg-black text-white py-4 font-black uppercase hover:bg-[#D4AF37] hover:text-black transition-all">
-                Save Changes
-              </button>
+              {/* Spotlight & Collection Links (THE NEW STUFF) */}
+              <div className="bg-white p-8 border-4 border-black luxury-shadow space-y-6">
+                <h3 className="font-black uppercase flex items-center gap-2 border-b-2 border-black pb-2">
+                  <Layout size={18} /> Marketing Layout
+                </h3>
+                
+                {/* Spotlight 1 Link */}
+                <div>
+                  <label className="block font-black uppercase text-[10px] mb-2">Spotlight 1: Home Grid (Collection Slug)</label>
+                  <input 
+                    type="text" 
+                    className="w-full p-3 border-2 border-[#D4AF37] outline-none font-bold bg-yellow-50" 
+                    value={layoutSettings.homeSpotlightCollection}
+                    onChange={(e) => handleSettingChange('homeSpotlightCollection', e.target.value)}
+                  />
+                </div>
+
+                {/* Spotlight 2 Link */}
+                <div>
+                  <label className="block font-black uppercase text-[10px] mb-2">Spotlight 2: Inner Sidebar (Collection Slug)</label>
+                  <input 
+                    type="text" 
+                    className="w-full p-3 border-2 border-[#D4AF37] outline-none font-bold bg-yellow-50" 
+                    value={layoutSettings.innerSpotlightCollection}
+                    onChange={(e) => handleSettingChange('innerSpotlightCollection', e.target.value)}
+                  />
+                </div>
+
+                {/* Review Slider Toggle */}
+                <div className="flex items-center justify-between p-3 bg-gray-100 border-2 border-black">
+                  <label className="font-black uppercase text-xs">Enable Review Slider</label>
+                  <input 
+                    type="checkbox" 
+                    className="w-6 h-6 accent-black"
+                    checked={layoutSettings.showReviewSlider}
+                    onChange={(e) => handleSettingChange('showReviewSlider', e.target.checked)}
+                  />
+                </div>
+              </div>
+
             </div>
+
+            <button className="w-full bg-black text-white py-6 font-black uppercase tracking-widest text-xl hover:bg-[#D4AF37] hover:text-black transition-all">
+              Save All Master Changes
+            </button>
           </div>
         )}
       </div>
