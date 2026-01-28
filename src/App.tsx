@@ -1,93 +1,70 @@
-import React, { useState } from 'react';
-import { AnnouncementBar } from './components/AnnouncementBar';
-import { Header } from './components/Header';
-import { FlashSaleBar } from './components/FlashSaleBar';
-import { HeroSlider } from './components/HeroSlider';
-import { SpotlightSidebar } from './components/SpotlightSidebar';
-import { ProductRow } from './components/ProductRow';
-import { ReviewSlider } from './components/ReviewSlider';
-import { TrustBar } from './components/TrustBar';
-import { WhatsAppButton } from './components/WhatsAppButton';
-import { AdminPanel } from './components/AdminPanel';
-import { CheckoutForm } from './components/CheckoutForm';
+import { useEffect, useState } from 'react';
+import { supabase } from './lib/supabase';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer'; 
+import { ProductCard } from './components/ProductCard';
+import { OrderModal } from './components/OrderModal';
+import { HeroSlider } from './components/HeroSlider'; // Smooth Naheed-style slider
+import { TrustBar } from './components/TrustBar'; // The 1-3 day shipping bar
 
 function App() {
-  // Simple "Router" - If URL ends in /admin, show Admin Panel
-  const isAdmin = window.location.pathname === '/admin';
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (isAdmin) return <AdminPanel />;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase.from('products').select('*').order('created_at', { ascending: true });
+      setProducts(data || []);
+    };
+    fetchProducts();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] selection:bg-[#D4AF37] selection:text-black">
-      {/* 1. TOP SECTION */}
-      <AnnouncementBar />
-      <Header />
-      <FlashSaleBar />
-
-      {/* 2. HERO & MAIN CONTENT */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          
-          {/* LEFT SIDEBAR (Spotlight Box) */}
-          <aside className="w-full lg:w-1/4 space-y-6">
-            <h3 className="font-black uppercase italic text-xs tracking-widest border-l-4 border-black pl-2">
-              Promoted Now
-            </h3>
-            <SpotlightSidebar />
-            
-            {/* Category Quick Links */}
-            <div className="hidden lg:block border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <h4 className="font-black text-xs uppercase mb-4">Categories</h4>
-              <ul className="space-y-2 text-sm font-bold uppercase italic">
-                <li className="hover:text-[#D4AF37] cursor-pointer">→ Luxury Watches</li>
-                <li className="hover:text-[#D4AF37] cursor-pointer">→ Hair Care</li>
-                <li className="hover:text-[#D4AF37] cursor-pointer">→ Tech Gadgets</li>
-              </ul>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-white">
+        {/* LANDING HEADER (Restored Branding) */}
+        <header className="bg-white py-12 border-b border-gray-50">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col items-center md:items-start select-none">
+              <div className="flex items-center tracking-tighter cursor-default">
+                <span className="text-6xl font-black italic text-black uppercase">Kevin</span>
+                <span className="text-6xl font-black text-[#FFD700] inline-block transform -rotate-12 ml-2 hover:rotate-0 transition-transform duration-500">11</span>
+              </div>
+              <div className="mt-2 flex items-center gap-3">
+                <div className="h-0.5 w-10 bg-[#FFD700]"></div>
+                <p className="text-black font-bold uppercase tracking-[0.2em] text-[10px]">Premium Collection | Pakistan</p>
+              </div>
             </div>
-          </aside>
-
-          {/* RIGHT CONTENT (Slider & Rows) */}
-          <div className="w-full lg:w-3/4">
-            <HeroSlider />
-            
-            {/* Dynamic Rows */}
-            <ProductRow title="New Arrivals" />
-            <ProductRow title="Summer Collection" />
-          </div>
-        </div>
-
-        {/* 3. CHECKOUT SECTION (Conditional) */}
-        {showCheckout && (
-          <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="relative w-full max-w-2xl">
-              <button 
-                onClick={() => setShowCheckout(false)}
-                className="absolute -top-10 right-0 text-white font-bold uppercase"
-              >
-                Close [X]
-              </button>
-              <CheckoutForm />
+            {/* Smooth Trust Badge */}
+            <div className="hidden md:block bg-black text-white px-8 py-4 smooth-shadow">
+               <p className="text-[#FFD700] font-black uppercase text-xs">Cash On Delivery</p>
+               <p className="text-[10px] opacity-70 uppercase tracking-widest">Delivery All Over Pakistan</p>
             </div>
           </div>
-        )}
-      </main>
+        </header>
 
-      {/* 4. FOOTER & SOCIAL PROOF */}
-      <ReviewSlider />
-      <TrustBar />
-      
-      <footer className="bg-black text-white py-12 px-4 text-center">
-        <p className="text-2xl font-black italic tracking-tighter text-[#D4AF37] mb-4">KEVIN11</p>
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-50">
-          © 2024 Kevin11 Premium Collection | Pakistan
-        </p>
-      </footer>
+        <main className="max-w-7xl mx-auto px-4 py-12">
+          {/* Main Hero Slider (Naheed.pk Look) */}
+          <HeroSlider />
 
-      {/* 5. STICKY ELEMENTS */}
-      <WhatsAppButton />
-    </div>
+          <TrustBar />
+
+          <div className="mt-20">
+            <h2 className="text-3xl font-black text-black tracking-widest mb-10 border-l-8 border-[#FFD700] pl-4">FEATURED ITEMS</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} onQuickOrder={(p) => { setSelectedProduct(p); setIsModalOpen(true); }} />
+              ))}
+            </div>
+          </div>
+        </main>
+
+        <Footer /> 
+        <OrderModal product={selectedProduct} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      </div>
+    </>
   );
 }
-
 export default App;
