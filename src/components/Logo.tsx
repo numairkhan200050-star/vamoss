@@ -5,17 +5,17 @@ const Logo = () => {
     <div className="flex flex-col items-start select-none cursor-pointer group">
       {/* Main Logo Text */}
       <div className="flex items-baseline leading-none">
-        {/* KEVIN: text-5xl (Standard Size) */}
+        {/* KEVIN: Standard font size (48px / text-5xl) */}
         <span className="text-5xl font-black italic tracking-tighter text-black uppercase">
           KEVIN
         </span>
         
         {/* The Animated 11: 
-            1. text-5xl: Matches KEVIN exactly
-            2. ml-2: Clean gap for equal sizes
-            3. skewX(20deg): Keeps that perfect LEFT lean
+            1. text-[60px]: The size you requested
+            2. ml-2: Clean spacing
+            3. [transform:skewX(20deg)]: The tilt you confirmed as perfect (Leaning LEFT)
         */}
-        <span className="inline-block text-5xl font-black text-[#FFD700] ml-2 
+        <span className="inline-block text-[60px] font-black text-[#FFD700] ml-2 
                        transition-all duration-500 ease-in-out 
                        [transform:skewX(20deg)] group-hover:[transform:skewX(0deg)]">
           11
