@@ -9,8 +9,10 @@ const Logo = () => {
           KEVIN
         </span>
         
-        {/* The Animated 11 */}
-        <span className="inline-block text-5xl font-black italic text-[#FFD700] ml-1 transition-transform duration-500 ease-in-out group-hover:rotate-0 group-hover:not-italic">
+        {/* The Animated 11 - Tilted Left by default, Straight on hover */}
+        <span className="inline-block text-5xl font-black text-[#FFD700] ml-1 
+                       transition-all duration-500 ease-in-out 
+                       -skew-x-[15deg] group-hover:skew-x-0 group-hover:rotate-0">
           11
         </span>
       </div>
