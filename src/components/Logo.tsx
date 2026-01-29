@@ -5,13 +5,17 @@ const Logo = () => {
     <div className="flex flex-col items-start select-none cursor-pointer group">
       {/* Main Logo Text */}
       <div className="flex items-baseline leading-none">
-        {/* KEVIN: Italic tilts it Right */}
+        {/* KEVIN: Tilted Right (Italic) */}
         <span className="text-5xl font-black italic tracking-tighter text-black uppercase">
           KEVIN
         </span>
         
-        {/* The Animated 11: Negative Skew pulls the top to the LEFT */}
-        <span className="inline-block text-5xl font-black text-[#FFD700] ml-1 
+        {/* The Animated 11: 
+            1. text-6xl makes it slightly larger than KEVIN
+            2. ml-3 adds the space you requested
+            3. -skewX(-20deg) keeps the left lean
+        */}
+        <span className="inline-block text-6xl font-black text-[#FFD700] ml-3 
                        transition-all duration-500 ease-in-out 
                        [transform:skewX(-20deg)] group-hover:[transform:skewX(0deg)]">
           11
