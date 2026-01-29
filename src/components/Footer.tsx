@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, X } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, X, PackageSearch } from 'lucide-react';
 
 const Footer = () => {
   const [activePolicy, setActivePolicy] = useState<{ title: string; content: string } | null>(null);
@@ -46,6 +46,12 @@ const Footer = () => {
         <div className="space-y-4">
           <h3 className="text-[#FFD700] font-black uppercase text-sm tracking-widest">Customer Care</h3>
           <ul className="space-y-3 text-gray-300 font-medium">
+            {/* ADDED TRACKING LINK HERE */}
+            <li>
+              <a href="/track-order" className="flex items-center gap-2 text-[#FFD700] font-black hover:underline transition-all">
+                <PackageSearch size={18} /> Track Your Order
+              </a>
+            </li>
             <li><button onClick={() => openPolicy('Privacy Policy')} className="hover:text-white transition-all">Privacy Policy</button></li>
             <li><button onClick={() => openPolicy('Refund & Return Policy')} className="hover:text-white transition-all">Refund & Return Policy</button></li>
             <li><button onClick={() => openPolicy('Terms & Conditions')} className="hover:text-white transition-all">Terms & Conditions</button></li>
