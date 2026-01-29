@@ -5,8 +5,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import { ServiceBar } from './components/ServiceBar'; // Fixed braces
-import { ReviewTicker } from './components/ReviewTicker'; // Fixed braces
+import ServiceBar from './components/ServiceBar'; 
+import ReviewTicker from './components/ReviewTicker';
 
 // Public Pages
 import { HeroSlider } from './components/HeroSlider';
