@@ -1,28 +1,72 @@
 import React from 'react';
-import Footer from './components/Footer'; // Adjust path if your file is named differently
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
-// This is your main Application entry point
+// Core Layout & UI
+import Header from './components/Header';
+import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
+import { ServiceBar } from './components/ServiceBar';
+import { ReviewTicker } from './components/ReviewTicker';
+
+// Public Pages
+import { HeroSlider } from './components/HeroSlider';
+import { ContentArea } from './components/ContentArea';
+import { ProductListingPage } from './components/ProductListingPage';
+import { ProductDetailPage } from './components/ProductDetailPage';
+import { TrackOrder } from './components/TrackOrder';
+
+// Private Admin Area
+import { AdminDashboard } from './components/AdminDashboard';
+
+// Helper component to hide Header/Footer on Admin pages
+const PageWrapper = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith('/admin');
+
+  return (
+    <>
+      {!isAdminPage && <Header />}
+      <main>{children}</main>
+      {!isAdminPage && (
+        <>
+          <ReviewTicker />
+          <ServiceBar />
+          <Footer />
+        </>
+      )}
+      <ScrollToTop />
+    </>
+  );
+};
+
 function App() {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Main Content Area 
-          As we build more sections (Header, Hero, etc.), 
-          we will place them here.
-      */}
-      <main className="flex-grow flex items-center justify-center">
-        <div className="text-center p-10">
-          <h1 className="text-5xl font-black italic tracking-tighter mb-4">
-            KEVIN11 <span className="text-[#FFD700]">STORE</span>
-          </h1>
-          <p className="text-gray-500 uppercase tracking-widest font-bold text-xs">
-            Site Construction in Progress...
-          </p>
-        </div>
-      </main>
+    <Router>
+      <PageWrapper>
+        <Routes>
+          {/* --- PUBLIC STOREFRONT ROUTES --- */}
+          <Route path="/" element={
+            <>
+              <HeroSlider />
+              <ContentArea />
+            </>
+          } />
+          
+          <Route path="/shop" element={<ProductListingPage />} />
+          
+          <Route path="/product/:id" element={<ProductDetailPage productId="" />} /> {/* ID is handled via params in component */}
+          
+          <Route path="/track" element={<TrackOrder />} />
 
-      {/* The Footer we just designed */}
-      <Footer />
-    </div>
+          {/* --- PRIVATE ADMIN ROUTE --- */}
+          {/* AdminDashboard handles its own Login check internally */}
+          <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* 404 Redirect - Optional */}
+          <Route path="*" element={<div className="h-screen flex items-center justify-center font-black italic">404 | PAGE NOT FOUND</div>} />
+        </Routes>
+      </PageWrapper>
+    </Router>
   );
 }
 
