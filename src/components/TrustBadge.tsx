@@ -1,26 +1,26 @@
 import React from 'react';
-import { Truck, Banknote } from 'lucide-react';
 
 const TrustBadge = () => {
   return (
-    <div className="flex items-center gap-3 bg-white border-2 border-black p-2 pr-4 luxury-shadow-sm select-none">
-      {/* Icon Section */}
-      <div className="bg-black text-[#FFD700] p-2">
-        <Banknote size={24} strokeWidth={2.5} />
+    <div className="bg-black px-6 py-3 flex items-center gap-4 border border-gray-800 shadow-lg">
+      {/* The Cash Icon from your screenshot */}
+      <div className="flex-shrink-0">
+        <div className="w-10 h-7 border-2 border-[#FFD700] rounded-sm flex items-center justify-center relative">
+          <div className="w-3 h-3 rounded-full bg-[#FFD700]" />
+          <div className="absolute -left-1 top-1 w-1 h-4 bg-black" />
+          <div className="absolute -right-1 top-1 w-1 h-4 bg-black" />
+        </div>
       </div>
 
-      {/* Text Section */}
-      <div className="flex flex-col justify-center">
-        <span className="text-[11px] font-black uppercase tracking-tighter leading-none text-black">
-          Cash on Delivery
+      {/* The Text Section */}
+      <div className="flex flex-col">
+        <span className="text-[#FFD700] text-sm font-black uppercase tracking-tight leading-none">
+          CASH ON DELIVERY
         </span>
-        <span className="text-[9px] font-bold uppercase tracking-widest leading-none text-gray-400 mt-1">
-          Pay Upon Arrival
+        <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1 leading-none">
+          DELIVERY ALL OVER PAKISTAN
         </span>
       </div>
-      
-      {/* Decorative Corner Element */}
-      <div className="absolute top-0 right-0 w-2 h-2 bg-[#FFD700]" />
     </div>
   );
 };
