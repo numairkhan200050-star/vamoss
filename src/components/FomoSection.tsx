@@ -1,68 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { Timer, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const FomoSection = () => {
-  // These states will eventually be powered by your Admin Portal/Supabase
-  const [fomoData, setFomoData] = useState({
-    isActive: true, // Master toggle from Admin
-    text: "LIMITED TIME DEALS",
-    targetDate: new Date(Date.now() + 45 * 60000).getTime(), // 45 mins from now
+  const [fomoData] = useState({
+    isActive: true,
+    text: "Limited Time Deals",
+    targetDate: new Date(Date.now() + 45 * 60000).getTime(),
     buttonText: "SHOP NOW",
-    buttonLink: "/collections/short-deals"
+    buttonLink: "/collections/deals"
   });
 
-  const [timeLeft, setTimeLeft] = useState("");
+  const [time, setTime] = useState({ hours: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
-    if (!fomoData.isActive) return;
-
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const distance = fomoData.targetDate - now;
 
       if (distance < 0) {
         clearInterval(interval);
-        setTimeLeft("00:00:00");
         return;
       }
 
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      setTimeLeft(
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-      );
+      setTime({
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        mins: Math.floor((distance % (1000 * 60)) / (1000 * 60)),
+        secs: Math.floor((distance % (1000 * 60)) / 1000)
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [fomoData]);
+  }, [fomoData.targetDate]);
 
-  if (!fomoData.isActive) return <div className="flex-1" />; // Keeps layout space clean
+  if (!fomoData.isActive) return null;
+
+  // Segmented Unit: Pure Black background with Bold White text
+  const TimeUnit = ({ label, value }: { label: string; value: number }) => (
+    <div className="flex flex-col items-center justify-center bg-black rounded-sm px-2 py-1 min-w-[42px]">
+      <span className="text-white text-base font-black font-mono leading-none">
+        {value.toString().padStart(2, '0')}
+      </span>
+      <span className="text-[7px] uppercase font-bold text-gray-400 mt-0.5 tracking-tighter">
+        {label}
+      </span>
+    </div>
+  );
 
   return (
-    <div className="flex-1 flex items-center justify-center gap-4 animate-pulse">
-      {/* 1. The FOMO Text */}
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+    <div className="flex items-center gap-4">
+      {/* 1. Left Side: Bold Label */}
+      <div className="text-right border-r-2 border-black pr-4">
+        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] leading-tight">
+          Don't Miss Out
+        </p>
+        <p className="text-xs font-black text-black uppercase tracking-tight leading-tight">
           {fomoData.text}
-        </span>
+        </p>
       </div>
 
-      {/* 2. The Live Timer */}
-      <div className="flex items-center gap-1.5 bg-black text-[#FFD700] px-3 py-1 rounded-sm border border-[#FFD700]">
-        <Timer size={14} />
-        <span className="font-mono font-bold text-sm tracking-tighter">
-          {timeLeft}
-        </span>
+      {/* 2. Middle: The Black Box Timer */}
+      <div className="flex items-center gap-1">
+        <TimeUnit label="Hrs" value={time.hours} />
+        <span className="font-black text-black">:</span>
+        <TimeUnit label="Min" value={time.mins} />
+        <span className="font-black text-black">:</span>
+        <TimeUnit label="Sec" value={time.secs} />
       </div>
 
-      {/* 3. The Shop Now Button */}
+      {/* 3. Right Side: Minimalist Shop Button */}
       <a 
         href={fomoData.buttonLink}
-        className="group flex items-center gap-1 bg-white border-2 border-black px-4 py-1.5 hover:bg-black hover:text-white transition-all duration-300"
+        className="group ml-2 flex items-center gap-2 bg-white border-2 border-black px-4 py-1.5 hover:bg-black hover:text-white transition-all duration-300"
       >
-        <span className="text-[11px] font-black uppercase tracking-tight">
+        <span className="text-[10px] font-black uppercase tracking-widest">
           {fomoData.buttonText}
         </span>
         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
