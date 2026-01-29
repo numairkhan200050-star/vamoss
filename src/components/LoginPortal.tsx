@@ -1,67 +1,93 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Lock, Mail } from 'lucide-react';
+import { Lock, User, ArrowRight, ShieldAlert } from 'lucide-react';
 
-export const LoginPortal = ({ isOpen, onClose }: any) => {
+export const LoginPortal = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  if (!isOpen) return null;
+  const [error, setError] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (error) {
-      setError(error.message);
+    if (authError) {
+      setError('Invalid Credentials. Access Denied.');
       setLoading(false);
     } else {
-      window.location.reload(); // Refresh to show admin state
+      onLoginSuccess(); // This will "unlock" the AdminLayout for you
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
-      <div className="bg-white w-full max-w-md p-10 relative border-t-8 border-[#D4AF37] shadow-2xl">
-        <button onClick={onClose} className="absolute top-4 right-4 text-black hover:text-[#D4AF37]"><X /></button>
-        
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black uppercase italic tracking-tighter">Admin <span className="text-[#D4AF37]">Access</span></h2>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Authorized Personnel Only</p>
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* LOGO AREA */}
+        <div className="text-center mb-10">
+          <h1 className="text-6xl font-black italic tracking-tighter text-[#FFD700] mb-2">K11</h1>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Secure Admin Access Only</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="relative">
-            <Mail className="absolute left-0 top-3 text-gray-400" size={18} />
-            <input 
-              required type="email" placeholder="Email Address" 
-              className="w-full border-b-2 border-gray-100 p-3 pl-8 outline-none focus:border-[#D4AF37] font-bold text-sm"
-              value={email} onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-0 top-3 text-gray-400" size={18} />
-            <input 
-              required type="password" placeholder="Password" 
-              className="w-full border-b-2 border-gray-100 p-3 pl-8 outline-none focus:border-[#D4AF37] font-bold text-sm"
-              value={password} onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+        <div className="bg-white border-[6px] border-[#FFD700] p-8 shadow-[20px_20px_0px_0px_rgba(255,215,0,0.1)]">
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border-2 border-red-500 p-3 flex items-center gap-3 text-red-600 text-xs font-bold uppercase">
+                <ShieldAlert size={18} /> {error}
+              </div>
+            )}
 
-          {error && <p className="text-red-500 text-[10px] font-bold uppercase tracking-tight">{error}</p>}
+            <div>
+              <label className="block text-[10px] font-black uppercase mb-2">Admin Email</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-gray-50 border-2 border-black p-3 pl-10 font-bold outline-none focus:bg-white"
+                  placeholder="admin@kevin11.com"
+                />
+              </div>
+            </div>
 
-          <button 
-            disabled={loading}
-            className="w-full bg-black text-[#D4AF37] font-black py-4 uppercase tracking-widest hover:bg-[#D4AF37] hover:text-black transition-all disabled:opacity-50"
-          >
-            {loading ? 'Verifying...' : 'Login to Dashboard'}
-          </button>
-        </form>
+            <div>
+              <label className="block text-[10px] font-black uppercase mb-2">Secret Key</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input 
+                  type="password" 
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-gray-50 border-2 border-black p-3 pl-10 font-bold outline-none focus:bg-white"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button 
+              disabled={loading}
+              type="submit" 
+              className="w-full bg-black text-[#FFD700] py-4 font-black uppercase italic text-lg flex items-center justify-center gap-3 hover:bg-[#FFD700] hover:text-black transition-all group"
+            >
+              {loading ? "Verifying..." : (
+                <>Enter Dashboard <ArrowRight className="group-hover:translate-x-2 transition-transform" /></>
+              )}
+            </button>
+          </form>
+        </div>
+        
+        <p className="mt-8 text-center text-gray-600 text-[9px] font-bold uppercase">
+          Authorized Personnel Only • IP Address Logged
+        </p>
       </div>
     </div>
   );
