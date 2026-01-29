@@ -17,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
    * 2. ghost:   "bg-transparent border-black text-black hover:bg-black hover:text-white"
    * 3. emerald: "bg-[#059669] hover:bg-[#047857] text-white border-transparent"
    **/
-  const buttonStyle = "bg-[#059669] hover:bg-[#047857] text-white border-transparent"; 
+  const buttonStyle = "bg-transparent border-black text-black hover:bg-black hover:text-white"; 
 
   return (
     <div className="bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
