@@ -2,76 +2,66 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const HeroSlider = () => {
-  // Rule No. 3: These images are 'selected' from your master library in the Admin Portal
-  const [slides, setSlides] = useState([
-    { id: 1, url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1999&auto=format&fit=crop', title: 'Premium Gadgets' },
-    { id: 2, url: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1981&auto=format&fit=crop', title: 'New Collection' },
-    { id: 3, url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop', title: 'Audio Series' }
+  const [slides] = useState([
+    { id: 1, url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1999', title: 'Premium Gadgets' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1981', title: 'New Collection' },
+    { id: 3, url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070', title: 'Audio Series' }
   ]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-slide logic
   useEffect(() => {
-    const timer = setInterval(() => {
-      nextSlide();
-    }, 5000); // Changes every 5 seconds
+    const timer = setInterval(() => { nextSlide(); }, 5000);
     return () => clearInterval(timer);
   }, [currentIndex]);
 
   const prevSlide = () => {
-    const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? slides.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
+    setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
   };
 
   const nextSlide = () => {
-    const isLastSlide = currentIndex === slides.length - 1;
-    const newIndex = isLastSlide ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
-  };
-
-  const goToSlide = (slideIndex: number) => {
-    setCurrentIndex(slideIndex);
+    setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
   };
 
   return (
-    <section className="w-full px-6 py-4">
-      {/* The Container with Modern Rounded Corners */}
-      <div className="max-w-[1440px] mx-auto h-[400px] md:h-[600px] w-full m-auto relative group overflow-hidden rounded-[30px] shadow-2xl border-4 border-black">
-        
-        {/* The Image Wrapper */}
-        <div
-          style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-          className="w-full h-full bg-center bg-cover duration-700 ease-in-out transform scale-105"
-        >
-          {/* Dark Overlay for Luxury Feel */}
-          <div className="w-full h-full bg-black/20" />
-        </div>
+    <section className="w-full bg-white">
+      {/* Container: Max-width like Naheed, removed heavy black border, softened corners */}
+      <div className="max-w-[1440px] mx-auto px-4 py-4">
+        <div className="relative h-[350px] md:h-[480px] w-full overflow-hidden rounded-xl shadow-sm border border-gray-100 group">
+          
+          {/* The Image */}
+          <div
+            style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
+            className="w-full h-full bg-center bg-cover duration-700 ease-out transition-all"
+          >
+            <div className="w-full h-full bg-black/10" />
+          </div>
 
-        {/* Left Arrow - Modern Style */}
-        <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] left-5 text-2xl p-2 bg-black/50 text-white cursor-pointer rounded-full hover:bg-black transition-all">
-          <ChevronLeft onClick={prevSlide} size={30} />
-        </div>
+          {/* Minimalist Arrows */}
+          <button 
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={24} className="text-black" />
+          </button>
 
-        {/* Right Arrow - Modern Style */}
-        <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] right-5 text-2xl p-2 bg-black/50 text-white cursor-pointer rounded-full hover:bg-black transition-all">
-          <ChevronRight onClick={nextSlide} size={30} />
-        </div>
+          <button 
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={24} className="text-black" />
+          </button>
 
-        {/* Modern Navigation Dots (Gold when active) */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
-          {slides.map((_, slideIndex) => (
-            <div
-              key={slideIndex}
-              onClick={() => goToSlide(slideIndex)}
-              className={`cursor-pointer transition-all duration-300 rounded-full 
-                ${currentIndex === slideIndex 
-                  ? 'bg-[#FFD700] w-8 h-2' // Active: Gold Bar
-                  : 'bg-white/50 w-2 h-2 hover:bg-white' // Inactive: Dot
-                }`}
-            />
-          ))}
+          {/* Minimalist Bottom Dots */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            {slides.map((_, i) => (
+              <div
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`h-1.5 transition-all rounded-full ${currentIndex === i ? 'bg-red-600 w-6' : 'bg-white/60 w-1.5'}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
