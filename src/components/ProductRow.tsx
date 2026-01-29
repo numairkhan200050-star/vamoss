@@ -8,19 +8,26 @@ interface ProductRowProps {
 
 const ProductRow: React.FC<ProductRowProps> = ({ heading, products }) => {
   return (
-    /* py-2 and -mb-4 removes the massive gaps between rows */
-    <section className="w-full py-2 -mb-4">
+    /* Standard padding. No negative margins needed now! */
+    <section className="w-full py-8">
       <div className="max-w-[1440px] mx-auto px-6">
-        <div className="flex items-end justify-between mb-2">
+        
+        {/* Heading Section */}
+        <div className="flex items-end justify-between mb-6">
           <div className="space-y-1">
             <div className="h-1 w-10 bg-[#FFD700]" />
-            <h2 className="text-2xl font-black uppercase italic tracking-tighter text-black">{heading}</h2>
+            <h2 className="text-2xl font-black uppercase italic tracking-tighter text-black">
+              {heading}
+            </h2>
           </div>
-          <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black">Explore All</button>
+          
+          <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-all">
+            Explore All
+          </button>
         </div>
 
-        {/* Horizontal Scroll */}
-        <div className="flex overflow-x-auto gap-2 pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
+        {/* Horizontal Scroll Container */}
+        <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar scroll-smooth snap-x snap-mandatory">
           {products.map((item) => (
             <div key={item.id} className="snap-start">
               <ProductCard 
