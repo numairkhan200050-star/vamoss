@@ -25,40 +25,47 @@ const HeroSlider = () => {
 
   return (
     <section className="w-full bg-white">
-      {/* Container: Max-width like Naheed, removed heavy black border, softened corners */}
-      <div className="max-w-[1440px] mx-auto px-4 py-4">
-        <div className="relative h-[350px] md:h-[480px] w-full overflow-hidden rounded-xl shadow-sm border border-gray-100 group">
+      {/* Container Logic:
+        1. max-w-[1360px]: Your exact width requirement.
+        2. h-[280px]: Your exact height requirement.
+        3. Removed 'border-4 black' and used a subtle 'border-gray-100'.
+      */}
+      <div className="max-w-[1360px] mx-auto px-4 py-4">
+        <div className="relative h-[180px] sm:h-[240px] md:h-[280px] w-full overflow-hidden rounded-xl border border-gray-100 group shadow-sm">
           
-          {/* The Image */}
+          {/* Slide Wrapper */}
           <div
             style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-            className="w-full h-full bg-center bg-cover duration-700 ease-out transition-all"
+            className="w-full h-full bg-center bg-cover transition-all duration-1000 ease-in-out"
           >
-            <div className="w-full h-full bg-black/10" />
+            {/* Subtle overlay to make text/controls pop */}
+            <div className="w-full h-full bg-black/5" />
           </div>
 
-          {/* Minimalist Arrows */}
+          {/* Minimalist Navigation Arrows */}
           <button 
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
           >
-            <ChevronLeft size={24} className="text-black" />
+            <ChevronLeft size={20} className="text-black" />
           </button>
 
           <button 
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 shadow-md hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
           >
-            <ChevronRight size={24} className="text-black" />
+            <ChevronRight size={20} className="text-black" />
           </button>
 
-          {/* Minimalist Bottom Dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          {/* Progress Indicators (Thin bars like modern retail sites) */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
             {slides.map((_, i) => (
-              <div
+              <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`h-1.5 transition-all rounded-full ${currentIndex === i ? 'bg-red-600 w-6' : 'bg-white/60 w-1.5'}`}
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  currentIndex === i ? 'bg-red-600 w-8' : 'bg-gray-300 w-2'
+                }`}
               />
             ))}
           </div>
