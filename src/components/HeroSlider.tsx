@@ -1,79 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const banners = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=2070",
-    title: "New Arrivals",
-    subtitle: "Premium Gadgets Collection"
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=2070",
-    title: "Flash Sale",
-    subtitle: "Up to 40% Off on Eyewear"
-  }
-];
+const HeroSlider = () => {
+  // Rule No. 3: These images are 'selected' from your master library in the Admin Portal
+  const [slides, setSlides] = useState([
+    { id: 1, url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1999&auto=format&fit=crop', title: 'Premium Gadgets' },
+    { id: 2, url: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1981&auto=format&fit=crop', title: 'New Collection' },
+    { id: 3, url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop', title: 'Audio Series' }
+  ]);
 
-export const HeroSlider = () => {
-  const [current, setCurrent] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Automated Slide Logic
+  // Auto-slide logic
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-    }, 5000);
+      nextSlide();
+    }, 5000); // Changes every 5 seconds
     return () => clearInterval(timer);
-  }, []);
+  }, [currentIndex]);
 
-  const nextSlide = () => setCurrent(current === banners.length - 1 ? 0 : current + 1);
-  const prevSlide = () => setCurrent(current === 0 ? banners.length - 1 : current - 1);
+  const prevSlide = () => {
+    const isFirstSlide = currentIndex === 0;
+    const newIndex = isFirstSlide ? slides.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+  };
+
+  const nextSlide = () => {
+    const isLastSlide = currentIndex === slides.length - 1;
+    const newIndex = isLastSlide ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+  };
+
+  const goToSlide = (slideIndex: number) => {
+    setCurrentIndex(slideIndex);
+  };
 
   return (
-    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden border-b-4 border-black group">
-      {banners.map((slide, index) => (
+    <section className="w-full px-6 py-4">
+      {/* The Container with Modern Rounded Corners */}
+      <div className="max-w-[1440px] mx-auto h-[400px] md:h-[600px] w-full m-auto relative group overflow-hidden rounded-[30px] shadow-2xl border-4 border-black">
+        
+        {/* The Image Wrapper */}
         <div
-          key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === current ? "opacity-100" : "opacity-0"
-          }`}
+          style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
+          className="w-full h-full bg-center bg-cover duration-700 ease-in-out transform scale-105"
         >
-          <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/20 flex flex-col justify-center px-12 text-white">
-            <h2 className="text-4xl md:text-6xl font-black uppercase italic leading-tight drop-shadow-md">
-              {slide.title}
-            </h2>
-            <p className="text-lg md:text-xl font-bold uppercase tracking-widest text-[#D4AF37]">
-              {slide.subtitle}
-            </p>
-          </div>
+          {/* Dark Overlay for Luxury Feel */}
+          <div className="w-full h-full bg-black/20" />
         </div>
-      ))}
 
-      {/* Manual Controls */}
-      <button 
-        onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 border-2 border-black hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronLeft size={24} />
-      </button>
-      <button 
-        onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 border-2 border-black hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronRight size={24} />
-      </button>
+        {/* Left Arrow - Modern Style */}
+        <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] left-5 text-2xl p-2 bg-black/50 text-white cursor-pointer rounded-full hover:bg-black transition-all">
+          <ChevronLeft onClick={prevSlide} size={30} />
+        </div>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        {banners.map((_, i) => (
-          <div 
-            key={i} 
-            className={`h-2 w-8 border border-black ${i === current ? 'bg-[#D4AF37]' : 'bg-white/50'}`}
-          />
-        ))}
+        {/* Right Arrow - Modern Style */}
+        <div className="hidden group-hover:block absolute top-[50%] -translate-x-0 translate-y-[-50%] right-5 text-2xl p-2 bg-black/50 text-white cursor-pointer rounded-full hover:bg-black transition-all">
+          <ChevronRight onClick={nextSlide} size={30} />
+        </div>
+
+        {/* Modern Navigation Dots (Gold when active) */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
+          {slides.map((_, slideIndex) => (
+            <div
+              key={slideIndex}
+              onClick={() => goToSlide(slideIndex)}
+              className={`cursor-pointer transition-all duration-300 rounded-full 
+                ${currentIndex === slideIndex 
+                  ? 'bg-[#FFD700] w-8 h-2' // Active: Gold Bar
+                  : 'bg-white/50 w-2 h-2 hover:bg-white' // Inactive: Dot
+                }`}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
+
+export default HeroSlider;
