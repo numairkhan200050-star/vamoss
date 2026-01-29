@@ -11,14 +11,14 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   
-  // Keep your selected Ghost Button style
+  // Your selected Ghost Button style
   const buttonStyle = "bg-transparent border-black text-black hover:bg-black hover:text-white"; 
 
   return (
     <div className="bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
       
-      {/* 1. Image Container */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f9f9f9] mb-3">
+      {/* 1. Image Container - Set to 480x480 max scale */}
+      <div className="relative aspect-square max-w-[480px] max-h-[480px] mx-auto overflow-hidden rounded-lg bg-[#f9f9f9] mb-3 w-full">
         <img 
           src={image} 
           alt={name}
