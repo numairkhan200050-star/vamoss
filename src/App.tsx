@@ -9,14 +9,14 @@ import ServiceBar from './components/ServiceBar';
 import ReviewTicker from './components/ReviewTicker';
 
 // Public Pages
-import HeroSlider from './components/HeroSlider';
-import ContentArea from './components/ContentArea';
-import ProductListingPage from './components/ProductListingPage';
-import ProductDetailPage from './components/ProductDetailPage';
-import TrackOrder from './components/TrackOrder';
+import { HeroSlider } from './components/HeroSlider'; // Back to named
+import { ContentArea } from './components/ContentArea'; // Back to named
+import { ProductListingPage } from './components/ProductListingPage'; // Fixed based on error log
+import { ProductDetailPage } from './components/ProductDetailPage'; // Fixed
+import { TrackOrder } from './components/TrackOrder'; // Fixed
 
 // Private Admin Area
-import AdminDashboard from './components/AdminDashboard';
+import { AdminDashboard } from './components/AdminDashboard'; // Fixed
 
 // Helper component to hide Header/Footer on Admin pages
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
