@@ -44,24 +44,16 @@ function App() {
     <Router>
       <PageWrapper>
         <Routes>
-          {/* --- PUBLIC STOREFRONT ROUTES --- */}
           <Route path="/" element={
             <>
               <HeroSlider />
               <ContentArea />
             </>
           } />
-          
           <Route path="/shop" element={<ProductListingPage />} />
-          
           <Route path="/product/:id" element={<ProductDetailPage productId="" />} />
-          
           <Route path="/track" element={<TrackOrder />} />
-
-          {/* --- PRIVATE ADMIN ROUTE --- */}
           <Route path="/admin" element={<AdminDashboard />} />
-
-          {/* 404 Redirect */}
           <Route path="*" element={<div className="h-screen flex items-center justify-center font-black italic">404 | PAGE NOT FOUND</div>} />
         </Routes>
       </PageWrapper>
