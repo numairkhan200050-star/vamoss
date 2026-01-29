@@ -1,46 +1,59 @@
 import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 
-export const ProductCard = ({ product, onQuickOrder }: any) => {
+interface ProductCardProps {
+  name: string;
+  price: string;
+  originalPrice?: string;
+  image: string;
+  isSale?: boolean;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   return (
-    <div className="bg-white border border-gray-100 group shadow-sm hover:shadow-xl transition-all duration-300">
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
+    <div className="flex-shrink-0 w-[190px] md:w-[260px] group cursor-pointer">
+      {/* Image Container with Luxury Border */}
+      <div className="relative aspect-[3/4] overflow-hidden rounded-[30px] border-4 border-black luxury-shadow-sm bg-gray-50">
         <img 
-          src={product.main_image_url} 
-          alt={product.title} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          src={image} 
+          alt={name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
         />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+        
+        {/* Modern "Sale" Badge */}
+        {isSale && (
+          <div className="absolute top-4 left-4 bg-[#FFD700] text-black text-[10px] font-black px-3 py-1 rounded-full uppercase italic border-2 border-black z-10 shadow-lg">
+            On Sale
+          </div>
+        )}
+
+        {/* Quick View / Wishlist Overlay */}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+          <button className="p-3 bg-white rounded-full border-2 border-black hover:bg-[#FFD700] transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+            <Heart size={20} className="text-black" />
+          </button>
+          <button className="p-3 bg-white rounded-full border-2 border-black hover:bg-[#FFD700] transition-colors transform translate-y-4 group-hover:translate-y-0 duration-500">
+            <ShoppingBag size={20} className="text-black" />
+          </button>
+        </div>
       </div>
 
-      {/* Product Details */}
-      <div className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-black text-black uppercase italic tracking-tighter line-clamp-1">
-            {product.title}
-          </h3>
-          <p className="text-gray-400 text-[10px] uppercase tracking-[0.2em] mt-1">
-            {product.size || 'Premium Edition'}
-          </p>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 uppercase font-bold">Price</span>
-            <span className="text-[#D4AF37] font-black text-xl tracking-tighter">
-              Rs. {product.base_price}
+      {/* Product Details Section */}
+      <div className="mt-4 px-2">
+        <h3 className="text-sm font-black uppercase tracking-tighter text-black line-clamp-1 group-hover:text-gray-600 transition-colors">
+          {name}
+        </h3>
+        <div className="flex items-center gap-3 mt-1">
+          <span className="text-lg font-black text-black">Rs. {price}</span>
+          {originalPrice && (
+            <span className="text-xs text-gray-400 line-through font-bold">
+              Rs. {originalPrice}
             </span>
-          </div>
-          
-          <button 
-            onClick={() => onQuickOrder(product)}
-            className="bg-black text-white p-3 hover:bg-[#D4AF37] hover:text-black transition-all duration-300 shadow-lg active:scale-95"
-          >
-            <ShoppingCart size={20} />
-          </button>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+export default ProductCard;
