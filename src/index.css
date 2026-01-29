@@ -4,20 +4,24 @@
 
 @layer base {
   body {
-    @apply bg-white text-black antialiased overflow-x-hidden;
+    /* Subtle off-white background makes white cards pop, just like Naheed */
+    @apply bg-[#f4f4f4] text-slate-900 antialiased overflow-x-hidden font-sans;
   }
 }
 
-/* Smooth "Naheed" retail shadows */
-.retail-shadow {
-  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Modern Retail Shadow: Soft and professional, not heavy */
+.retail-card {
+  @apply bg-white rounded-xl transition-all duration-300;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
-/* Typing Animation for Search */
-@keyframes blink {
-  50% { border-color: transparent; }
+.retail-card:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
-.typing-cursor::after {
-  content: '|';
-  animation: blink 0.7s infinite;
+
+/* Fixes the "elongated" image problem */
+.aspect-standard {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  @apply bg-white;
 }
