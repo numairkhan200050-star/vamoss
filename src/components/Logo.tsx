@@ -5,15 +5,15 @@ const Logo = () => {
     <div className="flex flex-col items-start select-none cursor-pointer group">
       {/* Main Logo Text */}
       <div className="flex items-baseline leading-none">
-        {/* KEVIN: Tilted Right (Italic) */}
+        {/* KEVIN: Italic tilts it Right */}
         <span className="text-5xl font-black italic tracking-tighter text-black uppercase">
           KEVIN
         </span>
         
-        {/* The Animated 11: Tilted LEFT (Skewed opposite to KEVIN) */}
+        {/* The Animated 11: Negative Skew pulls the top to the LEFT */}
         <span className="inline-block text-5xl font-black text-[#FFD700] ml-1 
                        transition-all duration-500 ease-in-out 
-                       [transform:skewX(15deg)] group-hover:[transform:skewX(0deg)]">
+                       [transform:skewX(-20deg)] group-hover:[transform:skewX(0deg)]">
           11
         </span>
       </div>
