@@ -9,42 +9,36 @@ import FloatingSearch from './FloatingSearch';
 const Header = () => {
   return (
     <>
-      {/* 1. The Ad Banner (Stays at the very top) */}
+      {/* 1. Top Ad Banner (White/Light) */}
       <TopBanner />
 
-      {/* Main Header Wrapper */}
-      <header className="w-full bg-white border-b-4 border-black sticky top-0 z-[90]">
-        <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between gap-8">
+      {/* Main Header Wrapper - All elements in one row now */}
+      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-[90]">
+        <div className="max-w-[1440px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
           
-          {/* Left Section: Component #2 (Menu & Home) */}
-          <div className="flex-shrink-0">
-            <HomeMenu />
+          {/* Left: Component #5 & #6 (Logo integrated like Naheed) */}
+          <div className="flex items-center gap-4 flex-shrink-0">
+             <HomeMenu /> {/* This is your Home button/menu */}
+             <div className="scale-75 origin-left"> {/* Scaling logo slightly to fit row */}
+               <Logo /> 
+             </div>
           </div>
 
-          {/* Middle Section: Component #3 (FOMO) */}
-          {/* flex-1 allows this to take up the middle space as requested */}
-          <div className="flex-1 flex justify-center">
+          {/* Middle: Component #3 & #4 (Search & FOMO) */}
+          <div className="flex-1 flex flex-col items-center gap-1">
             <FomoSection />
+            <div className="w-full max-w-md">
+               <FloatingSearch /> {/* Search is now part of the header, not floating alone */}
+            </div>
           </div>
 
-          {/* Right Section: Component #7 (Trust Badge) */}
+          {/* Right: Component #7 (Trust Badge / Cash on Delivery) */}
           <div className="flex-shrink-0">
             <TrustBadge />
           </div>
+          
         </div>
       </header>
-
-      {/* Brand Identity Section: Component #6 (Logo with rotating 11) */}
-      {/* This sits just below the main navigation bar as per your drawing */}
-      <section className="w-full bg-gray-50 py-8 px-10 border-b border-gray-200">
-        <div className="max-w-[1440px] mx-auto">
-          <Logo />
-        </div>
-      </section>
-
-      {/* Component #4: Floating Search Bar */}
-      {/* This is placed outside the header flow so it can float over the content while scrolling */}
-      <FloatingSearch />
     </>
   );
 };
