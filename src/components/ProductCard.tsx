@@ -11,13 +11,13 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   
-  // Your selected Ghost Button style
   const buttonStyle = "bg-transparent border-black text-black hover:bg-black hover:text-white"; 
 
   return (
-    <div className="bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
+    /* Added 'scale-[0.7]' and 'origin-top' to shrink the card visually without losing image resolution */
+    <div className="bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative transform scale-[0.7] origin-top hover:scale-[0.72]">
       
-      {/* 1. Image Container - Set to 480x480 max scale */}
+      {/* 1. Image Container - Internal resolution remains 480x480 */}
       <div className="relative aspect-square max-w-[480px] max-h-[480px] mx-auto overflow-hidden rounded-lg bg-[#f9f9f9] mb-3 w-full">
         <img 
           src={image} 
@@ -37,29 +37,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
       </div>
 
       {/* 2. Product Info Section */}
-      <div className="flex flex-col flex-grow">
-        <h3 className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug h-9 uppercase tracking-tight">
+      <div className="flex flex-col flex-grow px-2">
+        {/* Updated Font to simulate Canva 'Oregano' style (Handwritten/Cursive feel) */}
+        <h3 
+          style={{ fontFamily: "'Oregano', cursive, sans-serif" }}
+          className="text-[18px] font-normal text-gray-800 line-clamp-2 leading-tight h-12 mb-1"
+        >
           {name}
         </h3>
         
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-2">
           <div className="flex items-center gap-2 mb-3">
-            {/* PRICE LOGIC: Red if on sale, Black if not */}
-            <span className={`text-lg font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
+            <span className={`text-xl font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
               Rs. {price}
             </span>
             
-            {/* ORIGINAL PRICE: Only shows if originalPrice exists */}
             {originalPrice && (
-              <span className="text-xs text-black/40 line-through font-medium">
+              <span className="text-sm text-black/40 line-through font-medium">
                 Rs. {originalPrice}
               </span>
             )}
           </div>
 
-          {/* 3. The "Ghost" Button Section */}
-          <button className={`w-full border-2 py-2.5 rounded-lg font-black text-[11px] flex items-center justify-center gap-2 transition-all duration-300 uppercase tracking-widest active:scale-95 ${buttonStyle}`}>
-            <ShoppingCart size={15} />
+          {/* 3. The "Ghost" Button */}
+          <button className={`w-full border-2 py-3 rounded-lg font-black text-[12px] flex items-center justify-center gap-2 transition-all duration-300 uppercase tracking-widest active:scale-95 ${buttonStyle}`}>
+            <ShoppingCart size={16} />
             Add to Cart
           </button>
         </div>
