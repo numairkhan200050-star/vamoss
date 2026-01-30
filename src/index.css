@@ -1,3 +1,5 @@
+/* Add this to your global CSS file */
+@import url('https://fonts.googleapis.com/css2?family=Oregano&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
