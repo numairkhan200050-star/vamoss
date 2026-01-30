@@ -11,7 +11,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   return (
-    // Applied font-['Oregano'] to the main container to cover all text
+    /* Main Container: Keeps 'Oregano' for prices and buttons */
     <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative font-['Oregano',_cursive]">
       
       {/* 1. Image Container */}
@@ -35,19 +35,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
 
       {/* 2. Product Info Section */}
       <div className="flex flex-col flex-grow px-1">
-        {/* Name with Oregano font */}
-        <h3 className="text-[16px] md:text-[18px] text-gray-800 line-clamp-2 leading-tight h-10 mb-1 uppercase tracking-tight">
+        {/* CHANGED: text-gray-900 -> text-black */}
+        <h3 className="text-[14px] md:text-[15px] font-['Canva_Sans',_sans-serif] font-bold text-black line-clamp-2 leading-tight h-10 mb-1 uppercase tracking-tight">
           {name}
         </h3>
         
         <div className="mt-auto">
           <div className="flex items-baseline gap-2 mb-3">
-            {/* Current Price */}
             <span className={`text-[18px] font-bold ${isSale ? 'text-red-600' : 'text-black'}`}>
               Rs. {price}
             </span>
             
-            {/* FIX: Previous Price - Darkened from gray-400 to gray-600 for better clarity */}
             {originalPrice && (
               <span className="text-[13px] text-gray-600 line-through decoration-red-500/50">
                 Rs. {originalPrice}
@@ -55,11 +53,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
             )}
           </div>
 
-          {/* BUTTON CHANGES:
-             - bg-white + border-2 border-black
-             - hover:bg-black + hover:text-white
-             - font-['Oregano']
-          */}
           <button className="w-full bg-white text-black border-2 border-black py-2 rounded-lg font-normal text-[14px] flex items-center justify-center gap-2 transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm">
             <ShoppingCart size={14} />
             Add to Cart
