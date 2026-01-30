@@ -10,9 +10,15 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
+  // Comic Sans Style for the Product Name
+  const comicSansRegular = { 
+    fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', 
+    fontWeight: 'normal' 
+  };
+
   return (
-    /* Main Container: Keeps 'Oregano' for prices and buttons */
-    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative font-['Oregano',_cursive]">
+    /* Main Container: Keeps structural classes intact */
+    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
       
       {/* 1. Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f9f9f9] mb-3 flex-shrink-0">
@@ -35,8 +41,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
 
       {/* 2. Product Info Section */}
       <div className="flex flex-col flex-grow px-1">
-        {/* CHANGED: text-gray-900 -> text-black */}
-        <h3 className="text-[14px] md:text-[15px] font-['Canva_Sans',_sans-serif] font-bold text-black line-clamp-2 leading-tight h-10 mb-1 uppercase tracking-tight">
+        {/* UPDATED: Changed Canva Sans to Comic Sans Regular */}
+        <h3 
+          style={comicSansRegular}
+          className="text-[14px] md:text-[15px] text-black line-clamp-2 leading-tight h-10 mb-1 uppercase tracking-tight"
+        >
           {name}
         </h3>
         
@@ -47,7 +56,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
             </span>
             
             {originalPrice && (
-              <span className="text-[13px] text-gray-600 line-through decoration-red-500/50">
+              /* UPDATED: Changed text-gray-600 to text-gray-800 for a darker grey */
+              <span className="text-[13px] text-gray-800 line-through decoration-red-500/50 font-medium">
                 Rs. {originalPrice}
               </span>
             )}
