@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ImageUploader } from './ImageUploader'; // Import your separate component
+import { ImageUploader } from './ImageUploader';
 import { Plus, Calculator, Save, Globe, FileText, AlertCircle, Sparkles } from 'lucide-react';
 
 const slugify = (text: string) => {
@@ -16,7 +16,7 @@ export const AdminProductForm = () => {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [mainImage, setMainImage] = useState('');
-  const [spotImage, setSpotImage] = useState(''); // NEW: For the 480x480 feature
+  // OBJECTIVE 2: Removed spotImage state
   const [status, setStatus] = useState('published');
   
   // --- SEO META STATES ---
@@ -27,7 +27,7 @@ export const AdminProductForm = () => {
   const [costPrice, setCostPrice] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
   const [oldPrice, setOldPrice] = useState(0); 
-  const [weight, setWeight] = useState(0);
+  const [weight, setWeight] = useState(0); // weight_grams
   
   // --- DATABASE DATA ---
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -49,33 +49,33 @@ export const AdminProductForm = () => {
   // Auto-generate URL Slug
   useEffect(() => { setSlug(slugify(title)); }, [title]);
 
-  // --- BUSINESS LOGIC (LEOPARD MATH) ---
+  // --- BUSINESS LOGIC (RESTORED LEOPARD MATH) ---
   const shippingCost = shippingRates.find(r => weight <= r.weight_limit_grams)?.price || 0;
   const netProfit = sellingPrice - costPrice - shippingCost;
   const margin = sellingPrice > 0 ? ((netProfit / sellingPrice) * 100).toFixed(1) : 0;
 
-  // --- SAVE ACTION ---
   const handleSave = async () => {
     if (!title || !selectedCategory || !mainImage) {
       return alert("Missing Data: Please ensure Title, Category, and Main Image are set.");
     }
 
+    // OBJECTIVE 2: spot_image_url is removed from this object
     const { data: product, error } = await supabase.from('products').insert([{
       title, 
       slug, 
       description, 
       main_image_url: mainImage,
-      spot_image_url: spotImage, // NEW: Saves the spot image to DB
       category_id: selectedCategory, 
       price_now: sellingPrice,
       price_was: oldPrice, 
       cost_price: costPrice, 
       weight_grams: weight, 
       status, 
-      meta_title: metaTitle, 
-      meta_description: metaDescription
+      meta_title: metaTitle || title, 
+      meta_description: metaDescription || description.substring(0, 160)
     }]).select().single();
 
+    // RESTORED: Variant Saving Logic
     if (product) {
       const variantsToSave = variants.filter(v => v.color_name && v.image_url).map(v => ({
         ...v, product_id: product.id
@@ -83,9 +83,8 @@ export const AdminProductForm = () => {
       if (variantsToSave.length > 0) {
         await supabase.from('product_variants').insert(variantsToSave);
       }
-      alert("Success! Product is now live with Spot Feature enabled.");
+      alert("Success! Product published and cards optimized.");
     } else {
-      console.error(error);
       alert("Error: " + error.message);
     }
   };
@@ -111,44 +110,32 @@ export const AdminProductForm = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT COLUMN: CONTENT */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* SEO & IDENTITY CARD */}
+          {/* SEO & IDENTITY */}
           <div className="bg-white border-4 border-black p-6 space-y-4">
             <h2 className="font-black uppercase text-xs border-b-2 border-black pb-2 flex items-center gap-2"><Globe size={14}/> SEO & Identity</h2>
             <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-4 border-2 border-black font-bold text-xl outline-none" placeholder="Product Name..." />
             
             <div className="grid grid-cols-2 gap-4">
-               <input type="text" value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} className="p-3 border-2 border-gray-100 text-xs font-bold outline-none" placeholder="SEO Title (Google Display)" />
+               <input type="text" value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} className="p-3 border-2 border-gray-100 text-xs font-bold outline-none" placeholder="SEO Title" />
                <div className="bg-blue-50 p-3 text-[10px] font-mono text-blue-600 border border-blue-100 truncate">URL: /product/{slug}</div>
             </div>
             
-            <textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} className="w-full p-3 border-2 border-gray-100 text-xs" placeholder="Meta Description (SEO Summary)" />
-            
-            {/* IMAGE SECTION: Main + Spot Image */}
-            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* OBJECTIVE 2: ONLY PRIMARY PHOTO REMAINS */}
+            <div className="pt-4 border-t border-gray-100">
                <ImageUploader label="Primary Product Photo" onUploadSuccess={(url) => setMainImage(url)} />
-               
-               {/* SPOT FEATURE UPLOADER */}
-               <div className="p-4 border-2 border-[#FFD700] bg-[#FFD700]/5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles size={14} className="text-[#FFD700] fill-current" />
-                    <span className="text-[10px] font-black uppercase italic text-black">High-Res Spot Image (480x480)</span>
-                  </div>
-                  <ImageUploader label="Upload for Card View" onUploadSuccess={(url) => setSpotImage(url)} />
-                  <p className="text-[8px] font-bold text-gray-500 mt-2 uppercase">Used for sharp display in grids & rows</p>
-               </div>
+               <p className="text-[9px] font-bold text-green-600 mt-2 uppercase">System will auto-optimize this for all Card Views.</p>
             </div>
           </div>
 
-          {/* DESCRIPTION CARD */}
+          {/* RESTORED: DESCRIPTION CARD */}
           <div className="bg-white border-4 border-black p-6 space-y-4">
             <h2 className="font-black uppercase text-xs border-b-2 border-black pb-2 flex items-center gap-2"><FileText size={14}/> Product Description</h2>
-            <textarea rows={6} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-4 border-2 border-gray-100 font-medium outline-none" placeholder="Bold points, features, and details..." />
+            <textarea rows={6} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-4 border-2 border-gray-100 font-medium outline-none" placeholder="Details..." />
           </div>
 
-          {/* VARIANTS CARD */}
+          {/* RESTORED: VARIANTS CARD */}
           <div className="bg-white border-4 border-black p-6 space-y-4">
             <h2 className="font-black uppercase text-xs border-b-2 border-black pb-2 italic">Color Options & Media</h2>
             {variants.map((v, i) => (
@@ -165,18 +152,15 @@ export const AdminProductForm = () => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: THE BRAIN */}
+        {/* RIGHT COLUMN: PROFIT LOGIC */}
         <div className="space-y-6">
           <div className="bg-black text-white p-6 border-4 border-[#FFD700] sticky top-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <h2 className="font-black uppercase mb-6 text-[#FFD700] flex items-center gap-2 italic underline decoration-white"><Calculator /> Profit Logic</h2>
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                 <div><label className="text-[10px] text-gray-400 font-bold uppercase">Cost (PKR)</label><input type="number" value={costPrice} onChange={(e) => setCostPrice(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-black text-white outline-none" /></div>
-                 <div><label className="text-[10px] text-gray-400 font-bold uppercase">Selling (PKR)</label><input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-black text-[#FFD700] text-xl outline-none" /></div>
+                  <div><label className="text-[10px] text-gray-400 font-bold uppercase">Cost (PKR)</label><input type="number" value={costPrice} onChange={(e) => setCostPrice(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-black text-white outline-none" /></div>
+                  <div><label className="text-[10px] text-gray-400 font-bold uppercase">Selling (PKR)</label><input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-black text-[#FFD700] text-xl outline-none" /></div>
               </div>
-              
-              <div><label className="text-[10px] text-gray-400 font-bold uppercase">Old Price (For Sale Label)</label><input type="number" value={oldPrice} onChange={(e) => setOldPrice(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-bold text-gray-500 outline-none" /></div>
-
               <div><label className="text-[10px] text-gray-400 font-bold uppercase">Weight (Grams)</label><input type="number" value={weight} onChange={(e) => setWeight(Number(e.target.value))} className="w-full bg-transparent border-b border-gray-700 p-2 font-black text-white outline-none" /></div>
 
               <div className="bg-zinc-900 p-4 border-l-4 border-[#FFD700]">
