@@ -25,6 +25,12 @@ const services = [
 ];
 
 const ServiceBar = () => {
+  // Comic Sans Font Style (Bold weight as per original code requirements)
+  const comicSansBold = { 
+    fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', 
+    fontWeight: 'bold' as const 
+  };
+
   return (
     /* We use bg-[#f2f2f2] - a slightly deeper grey for better text pop */
     <section className="w-full bg-[#f2f2f2] border-t border-gray-200 py-16 px-6">
@@ -41,16 +47,18 @@ const ServiceBar = () => {
               </div>
             </div>
 
-            {/* TEXT INFO: Optimized for legibility */}
+            {/* TEXT INFO: Updated to Comic Sans Bold */}
             <div className="flex flex-col">
-              <h3 className="text-black font-black uppercase tracking-widest text-[13px] leading-tight mb-1">
+              <h3 
+                style={comicSansBold}
+                className="text-black uppercase tracking-widest text-[13px] leading-tight mb-1"
+              >
                 {service.title}
               </h3>
-              {/* 1. text-gray-700: Darker grey than before for better contrast.
-                2. text-[11px]: Slightly larger for readability.
-                3. tracking-normal: Removed 'tighter' so letters have room to breathe.
-              */}
-              <p className="text-gray-700 font-bold uppercase tracking-wider text-[11px] mt-0.5">
+              <p 
+                style={comicSansBold}
+                className="text-gray-700 uppercase tracking-wider text-[11px] mt-0.5"
+              >
                 {service.desc}
               </p>
             </div>
