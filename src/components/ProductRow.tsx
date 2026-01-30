@@ -7,6 +7,18 @@ interface ProductRowProps {
 }
 
 const ProductRow: React.FC<ProductRowProps> = ({ heading, products }) => {
+  // Style for Heading (Bold)
+  const comicSansBold = { 
+    fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', 
+    fontWeight: 'bold' 
+  };
+
+  // Style for Button (Regular)
+  const comicSansRegular = { 
+    fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', 
+    fontWeight: 'normal' 
+  };
+
   return (
     /* py-2 keeps the rows tight vertically */
     <section className="w-full py-2">
@@ -18,14 +30,20 @@ const ProductRow: React.FC<ProductRowProps> = ({ heading, products }) => {
             {/* Signature Yellow Bar */}
             <div className="h-1 w-10 bg-[#FFD700]" />
             
-            {/* Heading: Pure Black and Oregano Font */}
-            <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-black font-['Oregano',_cursive]">
+            {/* Heading: Now Comic Sans Bold */}
+            <h2 
+              style={comicSansBold}
+              className="text-2xl md:text-3xl uppercase italic tracking-tighter text-black"
+            >
               {heading}
             </h2>
           </div>
           
-          {/* Explore All: Set to "Light Black" (gray-600) */}
-          <button className="text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-all font-['Oregano',_cursive]">
+          {/* Explore All: Now Comic Sans Regular */}
+          <button 
+            style={comicSansRegular}
+            className="text-[11px] uppercase tracking-widest text-gray-600 hover:text-black transition-all"
+          >
             Explore All
           </button>
         </div>
