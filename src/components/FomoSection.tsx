@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const FomoSection = () => {
+  // Styles imported from ProductCard logic
+  const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' };
+  const comicSansRegular = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' };
+
   const [fomoData] = useState({
     isActive: true,
     text: "LIMITED TIME DEALS",
@@ -24,7 +28,7 @@ const FomoSection = () => {
 
       setTime({
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        mins: Math.floor((distance % (1000 * 60)) / (1000 * 60)),
+        mins: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         secs: Math.floor((distance % (1000 * 60)) / 1000)
       });
     }, 1000);
@@ -34,7 +38,6 @@ const FomoSection = () => {
 
   if (!fomoData.isActive) return null;
 
-  // Segmented Unit: Made the labels slightly larger and brighter (blue-gray) for readability
   const TimeUnit = ({ label, value }: { label: string; value: number }) => (
     <div className="flex flex-col items-center justify-center bg-black rounded-sm w-[50px] h-[55px] shadow-md">
       <span className="text-white text-xl font-black font-mono leading-none">
@@ -51,17 +54,23 @@ const FomoSection = () => {
       {/* Left Text with the vertical Divider Bar */}
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+          <p 
+            style={comicSansBold} 
+            className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none"
+          >
             DON'T MISS OUT
           </p>
-          <p className="text-sm font-black text-black uppercase tracking-tight mt-1 leading-none">
+          <p 
+            style={comicSansBold} 
+            className="text-sm font-black text-black uppercase tracking-tight mt-1 leading-none"
+          >
             {fomoData.text}
           </p>
         </div>
-        <div className="h-10 w-[2px] bg-black opacity-100" /> {/* The divider from your pic */}
+        <div className="h-10 w-[2px] bg-black opacity-100" />
       </div>
 
-      {/* Middle: The High-Readability Black Box Timer */}
+      {/* Middle: Timer */}
       <div className="flex items-center gap-2">
         <TimeUnit label="HRS" value={time.hours} />
         <span className="font-black text-black text-xl">:</span>
@@ -70,15 +79,16 @@ const FomoSection = () => {
         <TimeUnit label="SEC" value={time.secs} />
       </div>
 
-      {/* Right: The Bordered Shop Now Button */}
+      {/* Right: The SHOP NOW Button with ProductCard Styles */}
       <a 
         href={fomoData.buttonLink}
-        className="group flex items-center gap-3 bg-white border-2 border-black px-6 py-2 hover:bg-black hover:text-white transition-all duration-300 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        style={comicSansRegular}
+        className="w-full bg-white text-black border-2 border-black py-2 px-6 rounded-lg text-[14px] flex items-center justify-center gap-2 transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm"
       >
-        <span className="text-[12px] font-black uppercase tracking-widest">
+        <span className="text-[12px] uppercase tracking-widest">
           {fomoData.buttonText}
         </span>
-        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        <ArrowRight size={16} />
       </a>
     </div>
   );
