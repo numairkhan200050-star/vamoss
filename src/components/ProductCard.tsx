@@ -11,7 +11,8 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   return (
-    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
+    // Applied font-['Oregano'] to the main container to cover all text
+    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative font-['Oregano',_cursive]">
       
       {/* 1. Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f9f9f9] mb-3 flex-shrink-0">
@@ -22,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
         />
         
         {isSale && (
-          <div className="absolute top-2 left-2 bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase">
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm uppercase">
             Sale
           </div>
         )}
@@ -34,24 +35,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
 
       {/* 2. Product Info Section */}
       <div className="flex flex-col flex-grow px-1">
-        <h3 className="text-[13px] md:text-[14px] font-bold text-gray-800 line-clamp-2 leading-snug h-9 mb-1 uppercase tracking-tight">
+        {/* Name with Oregano font */}
+        <h3 className="text-[16px] md:text-[18px] text-gray-800 line-clamp-2 leading-tight h-10 mb-1 uppercase tracking-tight">
           {name}
         </h3>
         
         <div className="mt-auto">
           <div className="flex items-baseline gap-2 mb-3">
-            <span className={`text-[16px] font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
+            {/* Current Price */}
+            <span className={`text-[18px] font-bold ${isSale ? 'text-red-600' : 'text-black'}`}>
               Rs. {price}
             </span>
+            
+            {/* FIX: Previous Price - Darkened from gray-400 to gray-600 for better clarity */}
             {originalPrice && (
-              <span className="text-[10px] text-gray-400 line-through font-medium">
+              <span className="text-[13px] text-gray-600 line-through decoration-red-500/50">
                 Rs. {originalPrice}
               </span>
             )}
           </div>
 
-          <button className="w-full bg-black text-[#FFD700] border-2 border-black py-2 rounded-lg font-black text-[9px] flex items-center justify-center gap-2 transition-all hover:bg-transparent hover:text-black uppercase tracking-tighter active:scale-95">
-            <ShoppingCart size={12} />
+          {/* BUTTON CHANGES:
+             - bg-white + border-2 border-black
+             - hover:bg-black + hover:text-white
+             - font-['Oregano']
+          */}
+          <button className="w-full bg-white text-black border-2 border-black py-2 rounded-lg font-normal text-[14px] flex items-center justify-center gap-2 transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm">
+            <ShoppingCart size={14} />
             Add to Cart
           </button>
         </div>
