@@ -4,18 +4,20 @@ import { Facebook, Instagram, MessageCircle, MapPin, Phone, Mail, X, PackageSear
 const Footer = () => {
   const [activePolicy, setActivePolicy] = useState<{ title: string; content: string } | null>(null);
 
-  // Note: These values will eventually be pulled from your Admin Portal (Rule No. 1)
+  // Comic Sans Font Styles
+  const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
+  const comicSansRegular = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
+
   const siteData = {
     facebook: "https://facebook.com",
     instagram: "https://instagram.com",
-    whatsappNumber: "923282519507", // Format: CountryCode + Number
+    whatsappNumber: "923282519507",
     email: "kevin11.shop@proton.me",
     address: "Azizabad, Karachi 75950, Pakistan",
     phoneDisplay: "0328 2519507"
   };
 
   const openPolicy = (title: string) => {
-    // Placeholder content: This will be editable via your rich-text Admin editor later
     setActivePolicy({
       title: title,
       content: `<p>Content for <strong>${title}</strong> will be loaded here from the Admin Portal.</p><ul><li>Bullet point example</li></ul>`
@@ -23,12 +25,12 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-black text-white py-16 px-8 border-t-4 border-[#FFD700] font-sans">
+    <footer className="bg-black text-white py-16 px-8 border-t-4 border-[#FFD700]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
         
         {/* 1. Branding */}
         <div className="space-y-6">
-          <h2 className="text-4xl font-black italic tracking-tighter text-[#FFD700]">KEVIN11</h2>
+          <h2 style={comicSansBold} className="text-4xl italic tracking-tighter text-[#FFD700]">KEVIN11</h2>
           <div className="flex gap-4">
             <a href={siteData.facebook} className="p-2 border border-gray-700 hover:border-[#FFD700] transition-colors">
               <Facebook size={20} />
@@ -44,44 +46,43 @@ const Footer = () => {
 
         {/* 2. Customer Care */}
         <div className="space-y-4">
-          <h3 className="text-[#FFD700] font-black uppercase text-sm tracking-widest">Customer Care</h3>
-          <ul className="space-y-3 text-gray-300 font-medium">
-            {/* ADDED TRACKING LINK HERE */}
+          <h3 style={comicSansBold} className="text-[#FFD700] uppercase text-sm tracking-widest">Customer Care</h3>
+          <ul className="space-y-3 text-gray-300">
             <li>
-              <a href="/track-order" className="flex items-center gap-2 text-[#FFD700] font-black hover:underline transition-all">
+              <a href="/track-order" style={comicSansBold} className="flex items-center gap-2 text-[#FFD700] hover:underline transition-all">
                 <PackageSearch size={18} /> Track Your Order
               </a>
             </li>
-            <li><button onClick={() => openPolicy('Privacy Policy')} className="hover:text-white transition-all">Privacy Policy</button></li>
-            <li><button onClick={() => openPolicy('Refund & Return Policy')} className="hover:text-white transition-all">Refund & Return Policy</button></li>
-            <li><button onClick={() => openPolicy('Terms & Conditions')} className="hover:text-white transition-all">Terms & Conditions</button></li>
+            <li><button onClick={() => openPolicy('Privacy Policy')} style={comicSansRegular} className="hover:text-white transition-all">Privacy Policy</button></li>
+            <li><button onClick={() => openPolicy('Refund & Return Policy')} style={comicSansRegular} className="hover:text-white transition-all">Refund & Return Policy</button></li>
+            <li><button onClick={() => openPolicy('Terms & Conditions')} style={comicSansRegular} className="hover:text-white transition-all">Terms & Conditions</button></li>
           </ul>
         </div>
 
         {/* 3. Mission */}
         <div className="space-y-4">
-          <h3 className="text-[#FFD700] font-black uppercase text-sm tracking-widest">Mission</h3>
-          <p className="text-gray-300 leading-relaxed font-medium">
+          <h3 style={comicSansBold} className="text-[#FFD700] uppercase text-sm tracking-widest">Mission</h3>
+          <p style={comicSansRegular} className="text-gray-300 leading-relaxed">
             Based in Pakistan, we aim to bridge the gap between quality and affordability with our handpicked collections.
           </p>
         </div>
 
         {/* 4. Contact Us */}
         <div className="space-y-4">
-          <h3 className="text-[#FFD700] font-black uppercase text-sm tracking-widest">Contact Us</h3>
-          <ul className="space-y-4 text-sm font-medium">
+          <h3 style={comicSansBold} className="text-[#FFD700] uppercase text-sm tracking-widest">Contact Us</h3>
+          <ul className="space-y-4 text-sm">
             <li className="flex items-start gap-3">
               <MapPin size={18} className="text-[#FFD700] shrink-0" />
-              <span className="text-gray-300">{siteData.address}</span>
+              <span style={comicSansRegular} className="text-gray-300">{siteData.address}</span>
             </li>
             <li>
-              <a href={`https://wa.me/${siteData.whatsappNumber}`} className="flex items-center gap-3 hover:text-[#FFD700] transition-colors">
+              <a href={`https://wa.me/${siteData.whatsappNumber}`} style={comicSansRegular} className="flex items-center gap-3 hover:text-[#FFD700] transition-colors">
                 <Phone size={18} className="text-[#FFD700]" />
                 <span className="text-gray-300">{siteData.phoneDisplay}</span>
               </a>
             </li>
             <li>
-              <a href={`mailto:${siteData.email}`} className="flex items-center gap-3 hover:text-[#FFD700] transition-colors">
+              <a href={`mailto:${siteData.email}`} style={comicSansRegular} className="flex items-center gap-3 hover:text-[#FFD700] transition-colors">
                 <Mail size={18} className="text-[#FFD700]" />
                 <span className="text-gray-300 underline underline-offset-4">{siteData.email}</span>
               </a>
@@ -100,10 +101,11 @@ const Footer = () => {
             >
               <X size={24} />
             </button>
-            <h2 className="text-2xl font-black italic uppercase mb-6 border-b-2 border-black pb-2">
+            <h2 style={comicSansBold} className="text-2xl italic uppercase mb-6 border-b-2 border-black pb-2">
               {activePolicy.title}
             </h2>
             <div 
+              style={comicSansRegular}
               className="prose prose-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: activePolicy.content }} 
             />
