@@ -5,7 +5,7 @@ interface ProductCardProps {
   name: string;
   price: string;
   originalPrice?: string;
-  image: string;
+  image: string; // This will now receive the 'spot_image' from your database
   isSale?: boolean;
 }
 
@@ -13,14 +13,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
   const buttonStyle = "bg-transparent border-black text-black hover:bg-black hover:text-white"; 
 
   return (
-    /* We define the card width as 220px naturally. No scale used. */
-    <div className="w-[220px] bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
+    /* STEP 1 FIX: 
+       - Width is fixed at 220px naturally.
+       - Removed all 'scale' from the main container to stop row overlapping.
+       - 'flex-shrink-0' ensures the parent row doesn't squeeze the card.
+    */
+    <div className="w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
       
-      {/* 1. Image Container - Maintains 480x480 quality in a smaller view */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f9f9f9] mb-3">
+      {/* 1. Image Container - Optimized for 480x480 spot images */}
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f9f9f9] mb-3 flex-shrink-0">
         <img 
           src={image} 
           alt={name}
+          /* The image fills the 220px box. 
+             Since your source is 480x480, it will look perfectly sharp. 
+          */
           className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-in-out"
         />
         
