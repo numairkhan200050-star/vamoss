@@ -11,51 +11,50 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
   return (
-    /* RESTORED: Neubrutalist Shadow and Black Border */
-    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border-2 border-black rounded-[30px] p-3 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300 flex flex-col h-full relative">
+    /* CLEAN THEME: Soft shadow, thin grey border, rounded-2xl */
+    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
       
-      {/* 1. IMAGE CONTAINER - Fixed 1:1 Aspect Ratio */}
-      <div className="relative aspect-square overflow-hidden rounded-[20px] bg-white mb-3 flex-shrink-0 border border-gray-100">
+      {/* 1. IMAGE CONTAINER - Fixed 1:1 Aspect Ratio Box */}
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f9f9f9] mb-3 flex-shrink-0">
         <img 
           src={image} 
           alt={name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+          className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-700 ease-in-out"
         />
         
         {isSale && (
-          /* RESTORED: Old Sale Badge Style */
-          <div className="absolute top-2 left-2 bg-black text-[#FFD700] text-[8px] font-black px-3 py-1 rounded-full uppercase z-10">
+          /* CLEAN THEME: Red Sale Badge */
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase z-10">
             Sale
           </div>
         )}
 
-        <button className="absolute top-2 right-2 p-1.5 bg-white border border-black rounded-full opacity-0 group-hover:opacity-100 transition-all z-10">
-          <Heart size={14} className="text-black hover:fill-red-500 hover:text-red-500" />
+        <button className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10">
+          <Heart size={14} className="text-gray-400 hover:text-red-600" />
         </button>
       </div>
 
       {/* 2. PRODUCT INFO SECTION */}
-      <div className="flex flex-col flex-grow">
-        {/* RESTORED: Uppercase, Black, Italic Font */}
-        <h3 className="text-[11px] font-black text-black line-clamp-2 leading-tight h-8 mb-2 uppercase italic tracking-tighter">
+      <div className="flex flex-col flex-grow px-1">
+        {/* CLEAN THEME: Bold Dark Grey Font */}
+        <h3 className="text-[13px] md:text-[14px] font-bold text-gray-800 line-clamp-2 leading-snug h-9 mb-1 uppercase tracking-tight">
           {name}
         </h3>
         
         <div className="mt-auto">
           <div className="flex items-baseline gap-2 mb-3">
-            {/* RESTORED: Bold Black Pricing */}
-            <span className="text-[16px] font-black text-black">
+            <span className={`text-[16px] font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
               Rs. {price}
             </span>
             {originalPrice && (
-              <span className="text-[10px] text-gray-400 line-through font-bold">
+              <span className="text-[10px] text-gray-400 line-through font-medium">
                 Rs. {originalPrice}
               </span>
             )}
           </div>
 
-          {/* RESTORED: Signature Yellow Button with Black Border */}
-          <button className="w-full bg-[#FFD700] text-black border-2 border-black py-2 rounded-xl font-black text-[10px] uppercase italic flex items-center justify-center gap-2 transition-all hover:bg-black hover:text-[#FFD700]">
+          {/* CLEAN THEME: Solid Black Button */}
+          <button className="w-full bg-black text-[#FFD700] border-2 border-black py-2 rounded-lg font-black text-[9px] uppercase flex items-center justify-center gap-2 transition-all hover:bg-gray-800">
             <ShoppingCart size={14} />
             Add to Cart
           </button>
