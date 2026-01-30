@@ -3,8 +3,6 @@ import CategoryRow from './CategoryRow';
 import ProductRow from './ProductRow';
 
 const ContentArea = () => {
-  // EXAMPLE DATA: In the future, this 'rows' array will come from your Admin Portal
-  // You will be able to add/remove rows and change the 'heading' and 'collectionId'
   const dynamicRows = [
     {
       id: "row_1",
@@ -30,13 +28,11 @@ const ContentArea = () => {
   ];
 
   return (
-    <div className="bg-white pb-20">
-      {/* 1. Category Row (Fixed at the top of content) */}
+    <div className="bg-white">
       <CategoryRow />
 
-      {/* 2. Dynamic Collection Rows */}
-      {/* We map through the 'dynamicRows' so you can have 2, 5, or 10 rows easily */}
-      <div className="space-y-4">
+      {/* FIX: Use flex-col with no gap, because ProductRow already has internal py-8 */}
+      <div className="flex flex-col">
         {dynamicRows.map((row) => (
           <ProductRow 
             key={row.id} 
@@ -46,7 +42,6 @@ const ContentArea = () => {
         ))}
       </div>
 
-      {/* 3. Extra Space for the Floating Search to not block the last product */}
       <div className="h-20" />
     </div>
   );
