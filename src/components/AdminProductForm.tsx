@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { ImageUploader } from './ImageUploader'; // Import your separate component
-import { Plus, Calculator, Save, Globe, FileText, AlertCircle } from 'lucide-react';
+import { Plus, Calculator, Save, Globe, FileText, AlertCircle, Sparkles } from 'lucide-react';
 
 const slugify = (text: string) => {
   return text.toString().toLowerCase().trim()
@@ -16,6 +16,7 @@ export const AdminProductForm = () => {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [mainImage, setMainImage] = useState('');
+  const [spotImage, setSpotImage] = useState(''); // NEW: For the 480x480 feature
   const [status, setStatus] = useState('published');
   
   // --- SEO META STATES ---
@@ -60,10 +61,18 @@ export const AdminProductForm = () => {
     }
 
     const { data: product, error } = await supabase.from('products').insert([{
-      title, slug, description, main_image_url: mainImage,
-      category_id: selectedCategory, price_now: sellingPrice,
-      price_was: oldPrice, cost_price: costPrice, 
-      weight_grams: weight, status, meta_title: metaTitle, 
+      title, 
+      slug, 
+      description, 
+      main_image_url: mainImage,
+      spot_image_url: spotImage, // NEW: Saves the spot image to DB
+      category_id: selectedCategory, 
+      price_now: sellingPrice,
+      price_was: oldPrice, 
+      cost_price: costPrice, 
+      weight_grams: weight, 
+      status, 
+      meta_title: metaTitle, 
       meta_description: metaDescription
     }]).select().single();
 
@@ -74,7 +83,7 @@ export const AdminProductForm = () => {
       if (variantsToSave.length > 0) {
         await supabase.from('product_variants').insert(variantsToSave);
       }
-      alert("Success! Product is now live on KEVIN11.");
+      alert("Success! Product is now live with Spot Feature enabled.");
     } else {
       console.error(error);
       alert("Error: " + error.message);
@@ -117,9 +126,19 @@ export const AdminProductForm = () => {
             
             <textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} className="w-full p-3 border-2 border-gray-100 text-xs" placeholder="Meta Description (SEO Summary)" />
             
-            {/* Modular Main Image Uploader */}
-            <div className="pt-4 border-t border-gray-100">
+            {/* IMAGE SECTION: Main + Spot Image */}
+            <div className="pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                <ImageUploader label="Primary Product Photo" onUploadSuccess={(url) => setMainImage(url)} />
+               
+               {/* SPOT FEATURE UPLOADER */}
+               <div className="p-4 border-2 border-[#FFD700] bg-[#FFD700]/5 rounded-xl">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles size={14} className="text-[#FFD700] fill-current" />
+                    <span className="text-[10px] font-black uppercase italic text-black">High-Res Spot Image (480x480)</span>
+                  </div>
+                  <ImageUploader label="Upload for Card View" onUploadSuccess={(url) => setSpotImage(url)} />
+                  <p className="text-[8px] font-bold text-gray-500 mt-2 uppercase">Used for sharp display in grids & rows</p>
+               </div>
             </div>
           </div>
 
@@ -137,7 +156,6 @@ export const AdminProductForm = () => {
                 <input placeholder="Color Name" className="p-3 border-2 border-black font-bold uppercase text-xs h-fit" onChange={(e) => {
                   const newV = [...variants]; newV[i].color_name = e.target.value; setVariants(newV);
                 }} />
-                {/* Modular Variant Uploader */}
                 <ImageUploader label={`Photo for ${v.color_name || 'Variant'}`} onUploadSuccess={(url) => {
                   const newV = [...variants]; newV[i].image_url = url; setVariants(newV);
                 }} />
