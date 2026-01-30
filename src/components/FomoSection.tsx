@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const FomoSection = () => {
-  // Styles imported from ProductCard logic
-  const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' };
-  const comicSansRegular = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' };
+  // Define Comic Sans styles from ProductCard
+  const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
+  const comicSansRegular = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
 
   const [fomoData] = useState({
     isActive: true,
@@ -51,18 +51,17 @@ const FomoSection = () => {
 
   return (
     <div className="flex items-center gap-6">
-      {/* Left Text with the vertical Divider Bar */}
       <div className="flex items-center gap-4">
         <div className="text-right">
           <p 
             style={comicSansBold} 
-            className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none"
+            className="text-[10px] text-gray-400 uppercase tracking-widest leading-none whitespace-nowrap"
           >
             DON'T MISS OUT
           </p>
           <p 
             style={comicSansBold} 
-            className="text-sm font-black text-black uppercase tracking-tight mt-1 leading-none"
+            className="text-sm text-black uppercase tracking-tight mt-1 leading-none whitespace-nowrap"
           >
             {fomoData.text}
           </p>
@@ -70,7 +69,6 @@ const FomoSection = () => {
         <div className="h-10 w-[2px] bg-black opacity-100" />
       </div>
 
-      {/* Middle: Timer */}
       <div className="flex items-center gap-2">
         <TimeUnit label="HRS" value={time.hours} />
         <span className="font-black text-black text-xl">:</span>
@@ -79,16 +77,14 @@ const FomoSection = () => {
         <TimeUnit label="SEC" value={time.secs} />
       </div>
 
-      {/* Right: The SHOP NOW Button with ProductCard Styles */}
+      {/* Button using ProductCard styling and Comic Sans Regular */}
       <a 
         href={fomoData.buttonLink}
         style={comicSansRegular}
-        className="w-full bg-white text-black border-2 border-black py-2 px-6 rounded-lg text-[14px] flex items-center justify-center gap-2 transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm"
+        className="group flex items-center justify-center gap-2 bg-white text-black border-2 border-black px-6 py-2 rounded-lg text-[14px] transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm"
       >
-        <span className="text-[12px] uppercase tracking-widest">
-          {fomoData.buttonText}
-        </span>
-        <ArrowRight size={16} />
+        <span>{fomoData.buttonText}</span>
+        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
       </a>
     </div>
   );
