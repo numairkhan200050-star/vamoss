@@ -8,25 +8,29 @@ interface ProductRowProps {
 
 const ProductRow: React.FC<ProductRowProps> = ({ heading, products }) => {
   return (
-    /* KEPT: Tight vertical spacing (py-2) from your existing code */
+    /* py-2 keeps the rows tight vertically */
     <section className="w-full py-2">
       <div className="max-w-[1440px] mx-auto px-6">
         
-        {/* Heading Section - Restored Old Font Style */}
+        {/* Heading Section */}
         <div className="flex items-end justify-between mb-3">
           <div className="space-y-1">
+            {/* Signature Yellow Bar */}
             <div className="h-1 w-10 bg-[#FFD700]" />
-            <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-black">
+            
+            {/* Heading: Pure Black and Oregano Font */}
+            <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-black font-['Oregano',_cursive]">
               {heading}
             </h2>
           </div>
           
-          <button className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-all">
+          {/* Explore All: Set to "Light Black" (gray-600) */}
+          <button className="text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-all font-['Oregano',_cursive]">
             Explore All
           </button>
         </div>
 
-        {/* Scroll Container - Kept existing gap and logic */}
+        {/* Scroll Container: Integrated with ProductCard logic */}
         <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar scroll-smooth snap-x snap-mandatory items-stretch">
           {products.map((item) => (
             <div key={item.id} className="snap-start pt-1 pl-1">
@@ -34,7 +38,7 @@ const ProductRow: React.FC<ProductRowProps> = ({ heading, products }) => {
                 name={item.title || item.name}
                 price={item.price_now || item.price}
                 originalPrice={item.price_was || item.originalPrice}
-                /* KEPT: logic for main_image and sale calculation */
+                /* Logic: Prioritizes main_image and calculates Sale badge visibility */
                 image={item.main_image_url || item.image}
                 isSale={Number(item.price_was) > Number(item.price_now) || item.isSale}
               />
