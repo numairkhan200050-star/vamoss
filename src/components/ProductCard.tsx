@@ -5,68 +5,53 @@ interface ProductCardProps {
   name: string;
   price: string;
   originalPrice?: string;
-  image: string; // This will now receive the 'spot_image' from your database
+  image: string;
   isSale?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, image, isSale }) => {
-  const buttonStyle = "bg-transparent border-black text-black hover:bg-black hover:text-white"; 
-
   return (
-    /* STEP 1 FIX: 
-       - Width is fixed at 220px naturally.
-       - Removed all 'scale' from the main container to stop row overlapping.
-       - 'flex-shrink-0' ensures the parent row doesn't squeeze the card.
-    */
-    <div className="w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-xl p-3 hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
+    <div className="w-[190px] md:w-[220px] flex-shrink-0 bg-white group cursor-pointer border border-gray-100 rounded-2xl p-2.5 hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
       
-      {/* 1. Image Container - Optimized for 480x480 spot images */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f9f9f9] mb-3 flex-shrink-0">
+      {/* 1. Image Container */}
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#f9f9f9] mb-3 flex-shrink-0">
         <img 
           src={image} 
           alt={name}
-          /* The image fills the 220px box. 
-             Since your source is 480x480, it will look perfectly sharp. 
-          */
-          className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-in-out"
+          className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-700 ease-in-out"
         />
         
         {isSale && (
-          <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm uppercase">
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded shadow-sm uppercase">
             Sale
           </div>
         )}
 
-        <button className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
+        <button className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-all">
           <Heart size={14} className="text-gray-400 hover:text-red-600" />
         </button>
       </div>
 
       {/* 2. Product Info Section */}
-      <div className="flex flex-col flex-grow">
-        <h3 
-          style={{ fontFamily: "'Oregano', cursive, sans-serif" }}
-          className="text-[16px] font-normal text-gray-800 line-clamp-2 leading-tight h-10 mb-2"
-        >
+      <div className="flex flex-col flex-grow px-1">
+        <h3 className="text-[13px] md:text-[14px] font-bold text-gray-800 line-clamp-2 leading-snug h-9 mb-1 uppercase tracking-tight">
           {name}
         </h3>
         
         <div className="mt-auto">
-          <div className="flex items-center gap-2 mb-3">
-            {/* Price Logic: Red if Sale, Black if not */}
-            <span className={`text-[15px] font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className={`text-[16px] font-black ${isSale ? 'text-red-600' : 'text-black'}`}>
               Rs. {price}
             </span>
-            
             {originalPrice && (
-              <span className="text-[10px] text-black/40 line-through font-medium">
+              <span className="text-[10px] text-gray-400 line-through font-medium">
                 Rs. {originalPrice}
               </span>
             )}
           </div>
 
-          <button className={`w-full border-2 py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-2 transition-all duration-300 uppercase tracking-widest active:scale-95 ${buttonStyle}`}>
-            <ShoppingCart size={13} />
+          <button className="w-full bg-black text-[#FFD700] border-2 border-black py-2 rounded-lg font-black text-[9px] flex items-center justify-center gap-2 transition-all hover:bg-transparent hover:text-black uppercase tracking-tighter active:scale-95">
+            <ShoppingCart size={12} />
             Add to Cart
           </button>
         </div>
