@@ -52,7 +52,6 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
 
   if (!fomoData.isActive || !isVisible) return null;
 
-  // KEPT: Your exact TimeUnit style
   const TimeUnit = ({ label, value }: { label: string; value: number }) => (
     <div className="flex flex-col items-center justify-center bg-black rounded-sm w-[40px] h-[45px] md:w-[50px] md:h-[55px] shadow-md">
       <span className="text-white text-base md:text-xl font-black font-mono leading-none">
@@ -91,10 +90,11 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
         <TimeUnit label="SEC" value={time.secs} />
       </div>
 
+      {/* FIXED BUTTON: Reverted to White bg, Black border style */}
       <a 
         href={fomoData.buttonLink}
         style={comicSansRegular}
-        className="group w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white py-3 md:py-2 px-8 rounded-xl text-[13px] md:text-[14px] transition-all hover:bg-zinc-800 uppercase tracking-[0.15em] active:scale-95 shadow-lg shadow-black/10"
+        className="group w-full md:w-auto flex items-center justify-center gap-2 bg-white text-black border-2 border-black py-3 md:py-2 px-8 rounded-xl text-[13px] md:text-[14px] transition-all hover:bg-black hover:text-white uppercase tracking-[0.15em] active:scale-95 shadow-sm"
       >
         <span>{fomoData.buttonText}</span>
         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -108,7 +108,6 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
                       bg-white/80 backdrop-blur-xl border border-white/40
                       shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[2.5rem] 
                       animate-in fade-in slide-in-from-bottom-12 duration-700 ease-out">
-        {/* Decorative Top Accent */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-black/10 rounded-full mt-2" />
         {Content}
       </div>
