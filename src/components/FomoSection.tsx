@@ -90,14 +90,14 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
         <TimeUnit label="SEC" value={time.secs} />
       </div>
 
-      {/* FIXED BUTTON: Reverted to White bg, Black border style */}
+      {/* FIXED BUTTON: Forced single line, reduced size (text-[11px]) and padding */}
       <a 
         href={fomoData.buttonLink}
         style={comicSansRegular}
-        className="group w-full md:w-auto flex items-center justify-center gap-2 bg-white text-black border-2 border-black py-3 md:py-2 px-8 rounded-xl text-[13px] md:text-[14px] transition-all hover:bg-black hover:text-white uppercase tracking-[0.15em] active:scale-95 shadow-sm"
+        className="group w-full md:w-auto flex items-center justify-center gap-2 bg-white text-black border-2 border-black py-2.5 md:py-2 px-4 md:px-6 rounded-xl text-[11px] transition-all hover:bg-black hover:text-white uppercase tracking-[0.1em] active:scale-95 shadow-sm whitespace-nowrap"
       >
         <span>{fomoData.buttonText}</span>
-        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform flex-shrink-0" />
       </a>
     </div>
   );
