@@ -1,4 +1,3 @@
-/* FomoSection.tsx */
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 
@@ -7,14 +6,14 @@ interface FomoProps {
 }
 
 const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
-  const [isVisible, setIsVisible] = useState(!isMobilePopup); // If not popup, show immediately
+  const [isVisible, setIsVisible] = useState(!isMobilePopup); 
   const [hasBeenClosed, setHasBeenClosed] = useState(false);
 
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
   const comicSansRegular = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
 
   const [fomoData] = useState({
-    isActive: true,
+    isActive: true, // Controlled by Admin Portal
     text: "LIMITED TIME DEALS",
     targetDate: new Date(Date.now() + 45 * 60000).getTime(),
     buttonText: "SHOP NOW",
@@ -23,24 +22,20 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
 
   const [time, setTime] = useState({ hours: 0, mins: 0, secs: 0 });
 
-  // 1. SCROLL LOGIC FOR MOBILE POPUP
   useEffect(() => {
     if (!isMobilePopup) return;
-
     const handleScroll = () => {
       const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
       if (scrollPercent > 40 && !hasBeenClosed) {
         setIsVisible(true);
       } else if (scrollPercent < 10 && isMobilePopup) {
-        setIsVisible(false); // Hide again if they scroll back to top
+        setIsVisible(false);
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMobilePopup, hasBeenClosed]);
 
-  // 2. TIMER LOGIC (Unchanged)
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -57,6 +52,7 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
 
   if (!fomoData.isActive || !isVisible) return null;
 
+  // KEPT: Your exact TimeUnit style
   const TimeUnit = ({ label, value }: { label: string; value: number }) => (
     <div className="flex flex-col items-center justify-center bg-black rounded-sm w-[40px] h-[45px] md:w-[50px] md:h-[55px] shadow-md">
       <span className="text-white text-base md:text-xl font-black font-mono leading-none">
@@ -69,22 +65,22 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
   );
 
   const Content = (
-    <div className={`flex items-center gap-3 md:gap-6 ${isMobilePopup ? 'flex-col p-4' : ''}`}>
+    <div className={`flex items-center gap-3 md:gap-6 ${isMobilePopup ? 'flex-col pt-8 pb-5 px-5' : ''}`}>
       {isMobilePopup && (
         <button 
           onClick={() => { setIsVisible(false); setHasBeenClosed(true); }}
-          className="absolute top-2 right-2 p-1 bg-gray-100 rounded-full"
+          className="absolute top-3 right-3 p-1.5 bg-black/5 hover:bg-black/10 rounded-full transition-colors"
         >
-          <X size={16} />
+          <X size={18} className="text-black" />
         </button>
       )}
       
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p style={comicSansBold} className="text-[10px] text-gray-400 uppercase tracking-widest leading-none">DON'T MISS OUT</p>
-          <p style={comicSansBold} className="text-xs md:text-sm text-black uppercase tracking-tight mt-1 leading-none">{fomoData.text}</p>
+          <p style={comicSansBold} className="text-[10px] text-gray-500 uppercase tracking-[0.2em] leading-none">DON'T MISS OUT</p>
+          <p style={comicSansBold} className="text-sm md:text-sm text-black uppercase tracking-tight mt-1 leading-none">{fomoData.text}</p>
         </div>
-        <div className="h-10 w-[2px] bg-black" />
+        <div className="h-8 w-[1.5px] bg-black/20" />
       </div>
 
       <div className="flex items-center gap-2">
@@ -98,7 +94,7 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
       <a 
         href={fomoData.buttonLink}
         style={comicSansRegular}
-        className="group flex items-center justify-center gap-2 bg-white text-black border-2 border-black px-6 py-2 rounded-lg text-[12px] md:text-[14px] transition-all hover:bg-black hover:text-white uppercase tracking-wider active:scale-95 shadow-sm"
+        className="group w-full md:w-auto flex items-center justify-center gap-2 bg-black text-white py-3 md:py-2 px-8 rounded-xl text-[13px] md:text-[14px] transition-all hover:bg-zinc-800 uppercase tracking-[0.15em] active:scale-95 shadow-lg shadow-black/10"
       >
         <span>{fomoData.buttonText}</span>
         <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -108,7 +104,12 @@ const FomoSection: React.FC<FomoProps> = ({ isMobilePopup = false }) => {
 
   if (isMobilePopup) {
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-[350px] bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-xl animate-in fade-in slide-in-from-bottom-10 duration-500">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-[360px] 
+                      bg-white/80 backdrop-blur-xl border border-white/40
+                      shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[2.5rem] 
+                      animate-in fade-in slide-in-from-bottom-12 duration-700 ease-out">
+        {/* Decorative Top Accent */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-black/10 rounded-full mt-2" />
         {Content}
       </div>
     );
