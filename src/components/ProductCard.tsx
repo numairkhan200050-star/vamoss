@@ -61,7 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, originalPrice, i
               /* Original Price: Darker Grey (text-gray-800) + Comic Sans Regular */
               <span 
                 style={comicSansRegular}
-                className="text-[13px] text-gray-800 line-through decoration-red-500/50 decoration-2"
+                className="text-[13px] text-gray-800 line-through decoration-red-500/50"
               >
                 Rs. {originalPrice}
               </span>
