@@ -30,6 +30,9 @@ const HomeMenu = () => {
   const [expandedCats, setExpandedCats] = useState<number[]>([]);
   const [expandedSubs, setExpandedSubs] = useState<number[]>([]);
 
+  // Font Style
+  const comicSans = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive' };
+
   const toggleCat = (id: number) => {
     setExpandedCats(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -43,8 +46,8 @@ const HomeMenu = () => {
   };
 
   return (
-    <div className="flex items-center gap-6">
-      {/* 1. TRIGGER: Clean White Button with Black Lines */}
+    <div className="flex items-center gap-6" style={comicSans}>
+      {/* 1. TRIGGER: Clean White Button */}
       <div className="flex items-center gap-3 group cursor-pointer">
         <button 
           onClick={() => setIsOpen(true)}
@@ -53,7 +56,7 @@ const HomeMenu = () => {
           <Menu size={22} />
         </button>
         
-        <a href="/" className="text-sm font-black uppercase tracking-widest hover:text-[#FFD700] transition-colors">
+        <a href="/" className="text-sm font-bold uppercase tracking-widest hover:text-[#FFD700] transition-colors">
           Home
         </a>
       </div>
@@ -65,22 +68,24 @@ const HomeMenu = () => {
           
           <div className="relative w-[300px] bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-500">
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="font-black text-xl tracking-tighter">KEVIN11</h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-black text-white">
+              <h2 className="font-bold text-xl tracking-tighter italic">KEVIN11 MENU</h2>
+              <button onClick={() => setIsOpen(false)} className="p-2 hover:rotate-90 transition-transform">
                 <X size={20} />
               </button>
             </div>
 
-            {/* 2. BRANCHING NAVIGATION */}
+            {/* 2. BRANCHING NAVIGATION (The Tree Logic) */}
             <div className="overflow-y-auto flex-1 p-4">
-              <nav className="space-y-2">
+              <nav className="space-y-1">
                 {placeholderMenuData.map((mainCat) => (
                   <div key={mainCat.id} className="relative">
                     {/* Level 1: Main Category */}
                     <button 
                       onClick={() => toggleCat(mainCat.id)}
-                      className={`w-full flex justify-between items-center py-3 px-3 rounded-lg transition-colors ${expandedCats.includes(mainCat.id) ? 'bg-black text-white' : 'hover:bg-gray-50 text-black'}`}
+                      className={`w-full flex justify-between items-center py-3 px-3 rounded-lg transition-colors ${
+                        expandedCats.includes(mainCat.id) ? 'bg-black text-white' : 'hover:bg-gray-50 text-black'
+                      }`}
                     >
                       <span className="font-bold text-[13px] uppercase tracking-wider">{mainCat.title}</span>
                       {mainCat.subCategories.length > 0 && (
@@ -88,36 +93,37 @@ const HomeMenu = () => {
                       )}
                     </button>
 
-                    {/* TREE BRANCHES START */}
+                    {/* MAIN TREE BRANCH (Vertical Line) */}
                     {expandedCats.includes(mainCat.id) && mainCat.subCategories.length > 0 && (
-                      <div className="ml-5 mt-2 relative border-l-2 border-gray-200 pl-4 space-y-2">
+                      <div className="ml-6 relative border-l-2 border-gray-200 pl-2 mt-1">
                         {mainCat.subCategories.map((sub) => (
-                          <div key={sub.id} className="relative">
-                            {/* Branch connector line (Horizontal) */}
-                            <div className="absolute -left-[18px] top-4 w-4 h-[2px] bg-gray-200" />
+                          <div key={sub.id} className="relative py-1">
+                            {/* Horizontal Line Connector (The "L" shape) */}
+                            <div className="absolute -left-[10px] top-5 w-[10px] h-[2px] bg-gray-200" />
                             
                             {/* Level 2: Sub Category */}
                             <button 
                               onClick={() => toggleSub(sub.id)}
-                              className="w-full flex justify-between items-center py-2 text-[11px] font-black text-gray-500 uppercase tracking-widest hover:text-black"
+                              className="w-full flex justify-between items-center py-2 text-[12px] font-bold text-gray-500 uppercase hover:text-black transition-colors"
                             >
                               <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${expandedSubs.includes(sub.id) ? 'bg-[#FFD700]' : 'bg-gray-300'}`} />
+                                <div className={`w-1.5 h-1.5 rounded-full ${expandedSubs.includes(sub.id) ? 'bg-[#FFD700]' : 'bg-gray-300'}`} />
                                 {sub.title}
                               </div>
-                              <ChevronRight size={12} className={`transition-transform ${expandedSubs.includes(sub.id) ? 'rotate-90' : ''}`} />
+                              <ChevronDown size={12} className={`transition-transform duration-300 ${expandedSubs.includes(sub.id) ? '' : '-rotate-90'}`} />
                             </button>
 
-                            {/* Level 3: Sub-Sub Items (Deepest Branch) */}
+                            {/* SUB TREE BRANCH (Deepest Level) */}
                             {expandedSubs.includes(sub.id) && (
-                              <div className="ml-4 mt-1 border-l border-gray-100 pl-4 space-y-1 py-1">
+                              <div className="ml-4 relative border-l border-gray-100 pl-4 space-y-1 my-1">
                                 {sub.items.map((item, idx) => (
                                   <a 
                                     key={idx} 
                                     href="#" 
-                                    className="relative flex items-center gap-3 py-2 text-[13px] font-medium text-gray-500 hover:text-black group transition-colors"
+                                    className="relative flex items-center gap-2 py-2 text-[13px] font-medium text-gray-400 hover:text-black transition-colors group"
                                   >
-                                    <div className="w-2 h-[1px] bg-gray-200 group-hover:bg-[#FFD700]" />
+                                    {/* Small item branch line */}
+                                    <div className="absolute -left-[17px] top-4 w-4 h-[1px] bg-gray-100 group-hover:bg-[#FFD700]" />
                                     {item}
                                   </a>
                                 ))}
@@ -132,8 +138,8 @@ const HomeMenu = () => {
               </nav>
             </div>
 
-            <div className="p-6 text-center border-t border-gray-50">
-              <span className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">Premium Collection | PK</span>
+            <div className="p-6 text-center border-t border-gray-50 bg-gray-50">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Premium Collection | Pakistan</span>
             </div>
           </div>
         </div>
