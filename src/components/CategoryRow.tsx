@@ -16,18 +16,19 @@ const CategoryRow = () => {
         {categories.map((cat) => (
           <div 
             key={cat.id}
-            className="flex-shrink-0 w-[160px] h-[160px] md:w-[220px] md:h-[220px] relative group cursor-pointer overflow-hidden rounded-[25px] border-4 border-black luxury-shadow-sm transition-transform hover:scale-95"
+            // MATCHED STYLE: used rounded-2xl, border-gray-100, and hover:shadow-xl from ProductCard
+            className="flex-shrink-0 w-[160px] h-[160px] md:w-[220px] md:h-[220px] relative group cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300"
             onClick={() => console.log(`Maps to collection: ${cat.collectionId}`)}
           >
-            {/* The Image */}
+            {/* MATCHED STYLE: used group-hover:scale-110 and removed grayscale for the ProductCard look */}
             <img 
               src={cat.image} 
               alt="category" 
-              className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
+              className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
             />
 
-            {/* Subtle Overlay to make the image look premium */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            {/* Subtle Overlay matched to the clean card look */}
+            <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300" />
           </div>
         ))}
       </div>
