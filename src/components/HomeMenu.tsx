@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
 
-// This structure represents how your Admin Portal will send data
 const placeholderMenuData = [
   {
     id: 1,
@@ -37,19 +36,19 @@ const HomeMenu = () => {
   };
 
   return (
-    <div className="flex items-center gap-6">
-      {/* Home Button & Hamburger Wrapper */}
+    <div className="flex items-center gap-6 font-sans">
+      {/* 1. UPDATED TRIGGER: White background, black lines, soft rounded */}
       <div className="flex items-center gap-3 group cursor-pointer">
         <button 
           onClick={() => setIsOpen(true)}
-          className="p-2 bg-black text-white hover:bg-[#FFD700] hover:text-black transition-all border-2 border-black"
+          className="p-2.5 bg-white text-black hover:bg-gray-50 transition-all border border-gray-200 rounded-xl shadow-sm group-hover:border-black"
         >
-          <Menu size={24} />
+          <Menu size={22} strokeWidth={2.5} />
         </button>
         
         <a 
           href="/" 
-          className="text-lg font-black uppercase tracking-tighter hover:text-[#FFD700] transition-colors"
+          className="text-sm font-black uppercase tracking-widest hover:text-[#FFD700] transition-colors"
         >
           Home
         </a>
@@ -59,62 +58,88 @@ const HomeMenu = () => {
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex">
           {/* Dark Overlay */}
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-md" onClick={() => setIsOpen(false)} />
           
           {/* Menu Panel */}
-          <div className="relative w-80 bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="p-6 border-b-2 border-black flex justify-between items-center bg-black text-white">
-              <h2 className="font-black italic text-xl tracking-tighter">KEVIN11 MENU</h2>
-              <button onClick={() => setIsOpen(false)} className="hover:rotate-90 transition-transform">
-                <X size={24} />
+          <div className="relative w-[320px] bg-white h-full shadow-[25px_0_50px_-12px_rgba(0,0,0,0.25)] flex flex-col animate-in slide-in-from-left duration-500 ease-out">
+            
+            {/* Header: Premium White/Glass look */}
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <div>
+                <h2 className="font-black text-black text-lg tracking-tight">KEVIN11</h2>
+                <p className="text-[10px] font-bold text-[#FFD700] uppercase tracking-widest leading-none">Main Menu</p>
+              </div>
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="p-2 hover:bg-black hover:text-white rounded-full transition-all"
+              >
+                <X size={20} />
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 p-4">
-              <nav className="space-y-2">
+            {/* 2. BRANCHING MENU CONTENT */}
+            <div className="overflow-y-auto flex-1 p-6">
+              <nav className="space-y-4">
                 {placeholderMenuData.map((mainCat) => (
-                  <div key={mainCat.id} className="border-b border-gray-100 pb-2">
+                  <div key={mainCat.id} className="relative">
                     {/* Level 1: Main Category */}
                     <button 
                       onClick={() => toggleCat(mainCat.id)}
-                      className="w-full flex justify-between items-center py-3 px-2 hover:bg-gray-50 text-left group"
+                      className={`w-full flex justify-between items-center py-3 px-4 rounded-xl transition-all duration-300 ${
+                        expandedCats.includes(mainCat.id) ? 'bg-black text-white' : 'hover:bg-gray-50 text-black border border-gray-100'
+                      }`}
                     >
-                      <span className="font-bold text-sm uppercase tracking-widest group-hover:text-[#FFD700]">
+                      <span className="font-black text-[12px] uppercase tracking-wider">
                         {mainCat.title}
                       </span>
                       {mainCat.subCategories.length > 0 && (
-                        expandedCats.includes(mainCat.id) ? <ChevronDown size={16}/> : <ChevronRight size={16}/>
+                        expandedCats.includes(mainCat.id) ? <ChevronDown size={14}/> : <ChevronRight size={14}/>
                       )}
                     </button>
 
-                    {/* Level 2: Sub Category */}
-                    {expandedCats.includes(mainCat.id) && mainCat.subCategories.map((sub) => (
-                      <div key={sub.id} className="ml-4 mt-1 space-y-1">
-                        <div className="py-2 px-2 text-xs font-black text-gray-400 uppercase tracking-tight flex items-center gap-2">
-                          <div className="w-1 h-1 bg-[#FFD700] rounded-full" /> {sub.title}
-                        </div>
-                        
-                        {/* Level 3: Sub-Sub Category */}
-                        <div className="ml-4 space-y-1 border-l-2 border-gray-100">
-                          {sub.items.map((item, idx) => (
-                            <a 
-                              key={idx} 
-                              href="#" 
-                              className="block py-2 px-4 text-[13px] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
-                            >
-                              {item}
-                            </a>
-                          ))}
-                        </div>
+                    {/* BRANCHING LOGIC: Vertical Line connector */}
+                    {expandedCats.includes(mainCat.id) && mainCat.subCategories.length > 0 && (
+                      <div className="ml-6 mt-2 relative border-l-2 border-gray-100 pl-4 space-y-4">
+                        {mainCat.subCategories.map((sub) => (
+                          <div key={sub.id} className="relative">
+                            {/* Horizontal Line connector from Vertical Line */}
+                            <div className="absolute -left-4 top-4 w-4 h-[2px] bg-gray-100" />
+                            
+                            {/* Level 2: Sub Category */}
+                            <div className="py-2 text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                              <div className="w-2 h-2 bg-[#FFD700] rounded-full shadow-[0_0_8px_#FFD700]" /> 
+                              {sub.title}
+                            </div>
+                            
+                            {/* Level 3: Sub-Sub Category (Window-folder Style) */}
+                            <div className="ml-4 mt-1 space-y-1 border-l border-gray-100 pl-4">
+                              {sub.items.map((item, idx) => (
+                                <a 
+                                  key={idx} 
+                                  href="#" 
+                                  className="relative block py-2 text-[13px] font-semibold text-gray-600 hover:text-black transition-colors flex items-center gap-2 group"
+                                >
+                                  {/* Connector for items */}
+                                  <div className="w-2 h-[1px] bg-gray-200 group-hover:bg-[#FFD700] transition-colors" />
+                                  {item}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 ))}
               </nav>
             </div>
 
-            <div className="p-6 bg-gray-50 text-[10px] font-bold text-center text-gray-400 uppercase tracking-widest">
-              Premium Collection | Pakistan
+            {/* Footer */}
+            <div className="p-8 border-t border-gray-50">
+              <div className="bg-gray-50 rounded-2xl p-4 flex flex-col items-center justify-center">
+                <span className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">Pakistan</span>
+                <span className="text-[11px] font-bold text-black mt-1">v2.0 Premium Hub</span>
+              </div>
             </div>
           </div>
         </div>
