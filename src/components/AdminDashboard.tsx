@@ -71,3 +71,9 @@ export const AdminDashboard = () => {
             }`}
             onClick={() => setActiveTab('pages')}
           >
+            <FileText size={18} /> Pages
+          </button>
+        </nav>
+
+        <button
+          onClick={() => supabase.auth.si
