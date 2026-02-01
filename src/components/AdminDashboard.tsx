@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase'; // Correct import
 import { LoginPortal } from './LoginPortal';
-import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import CollectionList from './admin/collections/CollectionList';
 import PagesList from './admin/pages/PagesList';
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
@@ -30,15 +29,15 @@ export const AdminDashboard = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Show loader while checking session
+  // Loader while checking session
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-black">
       <LayoutDashboard className="text-[#FFD700] animate-spin" size={50} />
     </div>
   );
 
-  // If not logged in
-  if (!session) return <LoginPortal onLoginSuccess={() => {}} />;
+  // Show login portal if not logged in
+  if (!session) return <LoginPortal onLoginSuccess={() => setSession(supabase.auth.getSession())} />;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -73,7 +72,3 @@ export const AdminDashboard = () => {
           >
             <FileText size={18} /> Pages
           </button>
-        </nav>
-
-        <button
-          onClick={() => supabase.auth.si
