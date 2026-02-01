@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase'; // Correct import
+import { supabase } from '../lib/supabase';
 import { LoginPortal } from './LoginPortal';
 import CollectionList from './admin/collections/CollectionList';
 import PagesList from './admin/pages/PagesList';
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
+import { Session } from '@supabase/supabase-js';
 
 type AdminTab = 'general' | 'collections' | 'pages';
 
 export const AdminDashboard = () => {
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>('general');
 
   // Check session on load
   useEffect(() => {
     const fetchSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch (err) {
+        console.error('Error fetching session:', err);
+        setSession(null);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchSession();
 
@@ -37,7 +44,14 @@ export const AdminDashboard = () => {
   );
 
   // Show login portal if not logged in
-  if (!session) return <LoginPortal onLoginSuccess={() => setSession(supabase.auth.getSession())} />;
+  if (!session) return (
+    <LoginPortal 
+      onLoginSuccess={async () => {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      }} 
+    />
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -72,3 +86,31 @@ export const AdminDashboard = () => {
           >
             <FileText size={18} /> Pages
           </button>
+        </nav>
+
+        {/* Logout Button */}
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            setSession(null);
+          }}
+          className="flex items-center gap-3 p-4 text-gray-500 hover:text-red-500 font-black uppercase text-[10px] transition-colors mt-6"
+        >
+          <LogOut size={18} /> Logout
+        </button>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-10 overflow-y-auto">
+        {activeTab === 'general' && (
+          <div>
+            <h1 className="text-3xl font-bold">General Settings</h1>
+            <p>Admin general settings will appear here.</p>
+          </div>
+        )}
+        {activeTab === 'collections' && <CollectionList />}
+        {activeTab === 'pages' && <PagesList />}
+      </main>
+    </div>
+  );
+};
