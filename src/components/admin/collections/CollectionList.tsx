@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabase } from '../../../lib/supabase';
 import CollectionForm from './CollectionForm';
 
 export default function CollectionList() {
