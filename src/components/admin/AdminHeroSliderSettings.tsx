@@ -16,21 +16,22 @@ export const AdminHeroSliderSettings = () => {
   // Fetch gallery images from private bucket
   useEffect(() => {
     const fetchGallery = async () => {
-      const { data, error } = await supabase.storage
-        .from('hero-slider')
-        .list('', { limit: 100 });
+      try {
+        const { data, error } = await supabase.storage.from('hero-slider').list('', { limit: 100 });
+        if (error) throw error;
 
-      if (error) return console.error('Error fetching gallery:', error);
-
-      const urls: string[] = [];
-      for (const file of data) {
-        const { data: signedData, error: signedError } = await supabase.storage
-          .from('hero-slider')
-          .createSignedUrl(file.name, 60 * 60);
-        if (signedError) console.error(signedError);
-        else urls.push(signedData.signedUrl);
+        const urls: string[] = [];
+        for (const file of data) {
+          const { data: signedData, error: signedError } = await supabase.storage
+            .from('hero-slider')
+            .createSignedUrl(file.name, 60 * 60); // 1 hour expiry
+          if (signedError) console.error(signedError);
+          else urls.push(signedData.signedUrl);
+        }
+        setGallery(urls);
+      } catch (err) {
+        console.error('Error fetching gallery:', err);
       }
-      setGallery(urls);
     };
 
     fetchGallery();
@@ -50,11 +51,13 @@ export const AdminHeroSliderSettings = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-black mb-4">Hero Slider Settings</h2>
 
+      {/* Enable/Disable */}
       <div className="flex items-center gap-2">
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         <label className="font-bold">Enable Hero Slider</label>
       </div>
 
+      {/* Slides */}
       <div className="space-y-4">
         {slides.map((slide, index) => (
           <div key={slide.id} className="border p-4 rounded-md space-y-2">
@@ -65,6 +68,7 @@ export const AdminHeroSliderSettings = () => {
               </button>
             </div>
 
+            {/* Title */}
             <div>
               <label className="font-bold">Title</label>
               <input
@@ -75,6 +79,7 @@ export const AdminHeroSliderSettings = () => {
               />
             </div>
 
+            {/* Image */}
             <div className="space-y-2">
               <label className="font-bold">Image</label>
 
@@ -83,6 +88,7 @@ export const AdminHeroSliderSettings = () => {
                 onUploadSuccess={url => updateSlide(slide.id, 'url', url)}
               />
 
+              {/* Select from Gallery */}
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {gallery.map((url, i) => (
                   <img
@@ -97,6 +103,7 @@ export const AdminHeroSliderSettings = () => {
                 ))}
               </div>
 
+              {/* Preview */}
               {slide.url && (
                 <img
                   src={slide.url}
