@@ -13,34 +13,33 @@ export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      setUploading(true);
       if (!event.target.files || event.target.files.length === 0) return;
 
+      setUploading(true);
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `hero-slider/${fileName}`; // your private bucket
+      const filePath = fileName; // store in root of bucket
 
-      // 1. Upload to Supabase private bucket
+      // Upload to Supabase private bucket
       const { error: uploadError } = await supabase.storage
-        .from('hero-slider')
-        .upload(filePath, file);
+        .from('hero-slider') // your bucket name
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // 2. Generate signed URL valid for 1 hour
+      // Get signed URL for private bucket
       const { data: signedData, error: signedError } = await supabase.storage
         .from('hero-slider')
-        .createSignedUrl(filePath, 60 * 60); // 1 hour
+        .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
 
-      if (signedError || !signedData?.signedUrl) throw signedError;
+      if (signedError || !signedData?.signedUrl) throw signedError || new Error('No signed URL');
 
       setPreview(signedData.signedUrl);
       onUploadSuccess(signedData.signedUrl);
-
-    } catch (error) {
-      alert('Error uploading image!');
-      console.error(error);
+    } catch (err) {
+      console.error('Upload Error:', err);
+      alert('Error uploading image. Check console.');
     } finally {
       setUploading(false);
     }
@@ -60,12 +59,12 @@ export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
             </span>
           </div>
         )}
-        <input 
-          type="file" 
-          accept="image/*" 
+        <input
+          type="file"
+          accept="image/*"
           onChange={handleUpload}
           disabled={uploading}
-          className="absolute inset-0 opacity-0 cursor-pointer" 
+          className="absolute inset-0 opacity-0 cursor-pointer"
         />
       </div>
     </div>
