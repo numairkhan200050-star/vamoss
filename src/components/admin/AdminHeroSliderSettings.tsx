@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from '../ImageUploader'; // Your existing image upload component
-import { supabase } from '../lib/supabase'; // Make sure path is correct
+import { supabase } from '../../lib/supabase'; // Fixed path for admin folder
 
 interface Slide {
   id: number;
