@@ -21,7 +21,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 // Helper component to hide Header/Footer on Admin pages
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const isAdminPage = location.pathname.startsWith('/admin');
+  const isAdminPage = location.pathname.startsWith('#/admin');
 
   return (
     <>
