@@ -5,10 +5,9 @@ import { Upload, Loader2 } from 'lucide-react';
 interface Props {
   onUploadSuccess: (url: string) => void;
   label: string;
-  bucketName?: string; // Optional, defaults to 'hero-slider'
 }
 
-export const ImageUploader = ({ onUploadSuccess, label, bucketName = 'hero-slider' }: Props) => {
+export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -20,26 +19,28 @@ export const ImageUploader = ({ onUploadSuccess, label, bucketName = 'hero-slide
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `images/${fileName}`;
+      const filePath = `hero-slider/${fileName}`; // your private bucket
 
-      // Upload to Supabase bucket
+      // 1. Upload to Supabase private bucket
       const { error: uploadError } = await supabase.storage
-        .from(bucketName)
+        .from('hero-slider')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Generate signed URL for private bucket (valid for 1 hour)
-      const { data: signedUrlData, error: signedUrlError } =
-        await supabase.storage.from(bucketName).createSignedUrl(filePath, 3600);
+      // 2. Generate signed URL valid for 1 hour
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('hero-slider')
+        .createSignedUrl(filePath, 60 * 60); // 1 hour
 
-      if (signedUrlError || !signedUrlData.signedUrl) throw signedUrlError;
+      if (signedError || !signedData?.signedUrl) throw signedError;
 
-      setPreview(signedUrlData.signedUrl);
-      onUploadSuccess(signedUrlData.signedUrl);
+      setPreview(signedData.signedUrl);
+      onUploadSuccess(signedData.signedUrl);
+
     } catch (error) {
-      console.error(error);
       alert('Error uploading image!');
+      console.error(error);
     } finally {
       setUploading(false);
     }
@@ -59,12 +60,12 @@ export const ImageUploader = ({ onUploadSuccess, label, bucketName = 'hero-slide
             </span>
           </div>
         )}
-        <input
-          type="file"
-          accept="image/*"
+        <input 
+          type="file" 
+          accept="image/*" 
           onChange={handleUpload}
           disabled={uploading}
-          className="absolute inset-0 opacity-0 cursor-pointer"
+          className="absolute inset-0 opacity-0 cursor-pointer" 
         />
       </div>
     </div>
