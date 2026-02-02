@@ -6,25 +6,30 @@ interface Slide {
   id: number;
   url: string;
   title?: string;
-  is_active?: boolean;
 }
 
 const HeroSlider = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Fetch slides from Supabase table
   useEffect(() => {
     const fetchSlides = async () => {
-      const { data, error } = await supabase
+      // Check if slider is enabled
+      const { data: settingData } = await supabase
         .from('hero_slider_settings')
+        .select('is_active')
+        .eq('id', 1)
+        .single();
+
+      if (!settingData?.is_active) return setSlides([]); // Disabled
+
+      // Fetch slides
+      const { data: slidesData } = await supabase
+        .from('hero_slider_slides')
         .select('*')
         .order('order', { ascending: true });
 
-      if (error) return console.error('Error fetching slides:', error);
-
-      const activeSlides = (data as Slide[]).filter(s => s.is_active);
-      setSlides(activeSlides);
+      if (slidesData) setSlides(slidesData);
     };
 
     fetchSlides();
@@ -70,9 +75,7 @@ const HeroSlider = () => {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  currentIndex === i ? 'bg-red-600 w-8' : 'bg-gray-300 w-2'
-                }`}
+                className={`h-1 rounded-full transition-all duration-500 ${currentIndex === i ? 'bg-red-600 w-8' : 'bg-gray-300 w-2'}`}
               />
             ))}
           </div>
