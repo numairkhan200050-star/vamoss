@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Upload, Loader2, CheckCircle2 } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 
 interface Props {
   onUploadSuccess: (url: string) => void;
   label: string;
+  bucketName?: string; // Optional, defaults to 'hero-slider'
 }
 
-export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
+export const ImageUploader = ({ onUploadSuccess, label, bucketName = 'hero-slider' }: Props) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -18,24 +19,27 @@ export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `product-images/${fileName}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `images/${fileName}`;
 
-      // 1. Upload to Supabase 'products' bucket
+      // Upload to Supabase bucket
       const { error: uploadError } = await supabase.storage
-        .from('products')
+        .from(bucketName)
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // 2. Get Public URL
-      const { data } = supabase.storage.from('products').getPublicUrl(filePath);
-      
-      setPreview(data.publicUrl);
-      onUploadSuccess(data.publicUrl);
+      // Generate signed URL for private bucket (valid for 1 hour)
+      const { data: signedUrlData, error: signedUrlError } =
+        await supabase.storage.from(bucketName).createSignedUrl(filePath, 3600);
+
+      if (signedUrlError || !signedUrlData.signedUrl) throw signedUrlError;
+
+      setPreview(signedUrlData.signedUrl);
+      onUploadSuccess(signedUrlData.signedUrl);
     } catch (error) {
-      alert('Error uploading image!');
       console.error(error);
+      alert('Error uploading image!');
     } finally {
       setUploading(false);
     }
@@ -55,12 +59,12 @@ export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
             </span>
           </div>
         )}
-        <input 
-          type="file" 
-          accept="image/*" 
+        <input
+          type="file"
+          accept="image/*"
           onChange={handleUpload}
           disabled={uploading}
-          className="absolute inset-0 opacity-0 cursor-pointer" 
+          className="absolute inset-0 opacity-0 cursor-pointer"
         />
       </div>
     </div>
