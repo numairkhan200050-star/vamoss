@@ -3,9 +3,10 @@ import { ImageUploader } from '../ImageUploader';
 import { supabase } from '../../lib/supabase';
 
 interface Slide {
-  id: number;
+  id?: number;
   url: string;
   title: string;
+  order?: number;
 }
 
 export const AdminHeroSliderSettings = () => {
@@ -13,38 +14,76 @@ export const AdminHeroSliderSettings = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [gallery, setGallery] = useState<string[]>([]);
 
-  // Fetch gallery images from private bucket
+  // Fetch existing slides from Supabase table
+  useEffect(() => {
+    const fetchSlides = async () => {
+      const { data, error } = await supabase
+        .from('hero_slider_settings')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (error) return console.error('Error fetching slides:', error);
+
+      if (data && data.length > 0) {
+        setIsActive(data[0].is_active);
+        setSlides(data.map(s => ({ id: s.id, url: s.url, title: s.title, order: s.order })));
+      }
+    };
+
+    fetchSlides();
+  }, []);
+
+  // Fetch gallery from private bucket
   useEffect(() => {
     const fetchGallery = async () => {
-      try {
-        const { data, error } = await supabase.storage.from('hero-slider').list('', { limit: 100 });
-        if (error) throw error;
+      const { data, error } = await supabase.storage
+        .from('hero-slider')
+        .list('', { limit: 100 });
 
-        const urls: string[] = [];
-        for (const file of data) {
-          const { data: signedData, error: signedError } = await supabase.storage
-            .from('hero-slider')
-            .createSignedUrl(file.name, 60 * 60); // 1 hour expiry
-          if (signedError) console.error(signedError);
-          else urls.push(signedData.signedUrl);
-        }
-        setGallery(urls);
-      } catch (err) {
-        console.error('Error fetching gallery:', err);
+      if (error) return console.error('Error fetching gallery:', error);
+
+      const urls: string[] = [];
+      for (const file of data) {
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from('hero-slider')
+          .createSignedUrl(file.name, 60 * 60); // 1 hour
+        if (!signedError && signedData?.signedUrl) urls.push(signedData.signedUrl);
       }
+      setGallery(urls);
     };
 
     fetchGallery();
   }, []);
 
-  const addSlide = () => setSlides(prev => [...prev, { id: Date.now(), url: '', title: '' }]);
-  const removeSlide = (id: number) => setSlides(prev => prev.filter(s => s.id !== id));
-  const updateSlide = (id: number, key: 'url' | 'title', value: string) =>
-    setSlides(prev => prev.map(s => (s.id === id ? { ...s, [key]: value } : s)));
+  const addSlide = () => setSlides(prev => [...prev, { url: '', title: '', order: prev.length }]);
+  const removeSlide = (index: number) => setSlides(prev => prev.filter((_, i) => i !== index));
+  const updateSlide = (index: number, key: 'url' | 'title', value: string) => {
+    setSlides(prev => prev.map((s, i) => (i === index ? { ...s, [key]: value } : s)));
+  };
 
-  const saveHeroSlider = () => {
-    console.log({ isActive, slides });
-    alert('Hero Slider saved!');
+  const saveHeroSlider = async () => {
+    try {
+      // Delete old slides
+      await supabase.from('hero_slider_settings').delete().neq('id', 0);
+
+      // Insert new slides
+      const { error } = await supabase
+        .from('hero_slider_settings')
+        .insert(
+          slides.map((s, idx) => ({
+            url: s.url,
+            title: s.title,
+            order: idx,
+            is_active: isActive
+          }))
+        );
+
+      if (error) throw error;
+      alert('Hero Slider saved successfully!');
+    } catch (err) {
+      console.error('Save error:', err);
+      alert('Error saving Hero Slider. Check console.');
+    }
   };
 
   return (
@@ -60,10 +99,10 @@ export const AdminHeroSliderSettings = () => {
       {/* Slides */}
       <div className="space-y-4">
         {slides.map((slide, index) => (
-          <div key={slide.id} className="border p-4 rounded-md space-y-2">
+          <div key={index} className="border p-4 rounded-md space-y-2">
             <div className="flex justify-between items-center">
               <h3 className="font-bold">Slide {index + 1}</h3>
-              <button onClick={() => removeSlide(slide.id)} className="text-red-500 font-bold">
+              <button onClick={() => removeSlide(index)} className="text-red-500 font-bold">
                 Remove
               </button>
             </div>
@@ -74,7 +113,7 @@ export const AdminHeroSliderSettings = () => {
               <input
                 className="w-full border p-2"
                 value={slide.title}
-                onChange={e => updateSlide(slide.id, 'title', e.target.value)}
+                onChange={e => updateSlide(index, 'title', e.target.value)}
                 placeholder="Enter slide title"
               />
             </div>
@@ -85,10 +124,9 @@ export const AdminHeroSliderSettings = () => {
 
               <ImageUploader
                 label="Upload New Image"
-                onUploadSuccess={url => updateSlide(slide.id, 'url', url)}
+                onUploadSuccess={url => updateSlide(index, 'url', url)}
               />
 
-              {/* Select from Gallery */}
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {gallery.map((url, i) => (
                   <img
@@ -98,12 +136,11 @@ export const AdminHeroSliderSettings = () => {
                     className={`w-24 h-24 object-cover rounded cursor-pointer border-2 ${
                       slide.url === url ? 'border-black' : 'border-gray-300'
                     }`}
-                    onClick={() => updateSlide(slide.id, 'url', url)}
+                    onClick={() => updateSlide(index, 'url', url)}
                   />
                 ))}
               </div>
 
-              {/* Preview */}
               {slide.url && (
                 <img
                   src={slide.url}
