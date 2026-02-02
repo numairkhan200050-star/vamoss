@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ImageUploader } from '../ImageUploader'; // Your existing image upload component
-import { supabase } from '../../lib/supabase'; // Correct path
+import { ImageUploader } from '../ImageUploader';
+import { supabase } from '../../lib/supabase';
 
 interface Slide {
   id: number;
@@ -13,61 +13,35 @@ export const AdminHeroSliderSettings = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [gallery, setGallery] = useState<string[]>([]);
 
-  // Fetch existing images from Supabase "hero-slider" private bucket
+  // Fetch gallery images from private bucket
   useEffect(() => {
     const fetchGallery = async () => {
-      try {
-        const { data, error } = await supabase.storage
+      const { data, error } = await supabase.storage
+        .from('hero-slider')
+        .list('', { limit: 100 });
+
+      if (error) return console.error('Error fetching gallery:', error);
+
+      const urls: string[] = [];
+      for (const file of data) {
+        const { data: signedData, error: signedError } = await supabase.storage
           .from('hero-slider')
-          .list('', { limit: 100, offset: 0 });
-
-        if (error) {
-          console.error('Error fetching gallery:', error);
-          return;
-        }
-
-        if (data) {
-          const urls: string[] = [];
-          for (const file of data) {
-            const { data: signedData, error: signedError } = await supabase.storage
-              .from('hero-slider')
-              .createSignedUrl(file.name, 60 * 60); // 1 hour signed URL
-
-            if (signedError) {
-              console.error('Error creating signed URL:', signedError);
-            } else if (signedData?.signedUrl) {
-              urls.push(signedData.signedUrl);
-            }
-          }
-          setGallery(urls);
-        }
-      } catch (err) {
-        console.error(err);
+          .createSignedUrl(file.name, 60 * 60);
+        if (signedError) console.error(signedError);
+        else urls.push(signedData.signedUrl);
       }
+      setGallery(urls);
     };
 
     fetchGallery();
   }, []);
 
-  const addSlide = () => {
-    setSlides(prev => [
-      ...prev,
-      { id: Date.now(), url: '', title: '' }
-    ]);
-  };
+  const addSlide = () => setSlides(prev => [...prev, { id: Date.now(), url: '', title: '' }]);
+  const removeSlide = (id: number) => setSlides(prev => prev.filter(s => s.id !== id));
+  const updateSlide = (id: number, key: 'url' | 'title', value: string) =>
+    setSlides(prev => prev.map(s => (s.id === id ? { ...s, [key]: value } : s)));
 
-  const removeSlide = (id: number) => {
-    setSlides(prev => prev.filter(s => s.id !== id));
-  };
-
-  const updateSlide = (id: number, key: 'url' | 'title', value: string) => {
-    setSlides(prev =>
-      prev.map(s => (s.id === id ? { ...s, [key]: value } : s))
-    );
-  };
-
-  const saveHeroSlider = async () => {
-    // TODO: Save slides info to Supabase or your DB
+  const saveHeroSlider = () => {
     console.log({ isActive, slides });
     alert('Hero Slider saved!');
   };
@@ -76,31 +50,21 @@ export const AdminHeroSliderSettings = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-black mb-4">Hero Slider Settings</h2>
 
-      {/* Enable/Disable */}
       <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={isActive}
-          onChange={e => setIsActive(e.target.checked)}
-        />
+        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         <label className="font-bold">Enable Hero Slider</label>
       </div>
 
-      {/* Slides */}
       <div className="space-y-4">
         {slides.map((slide, index) => (
           <div key={slide.id} className="border p-4 rounded-md space-y-2">
             <div className="flex justify-between items-center">
               <h3 className="font-bold">Slide {index + 1}</h3>
-              <button
-                onClick={() => removeSlide(slide.id)}
-                className="text-red-500 font-bold"
-              >
+              <button onClick={() => removeSlide(slide.id)} className="text-red-500 font-bold">
                 Remove
               </button>
             </div>
 
-            {/* Title */}
             <div>
               <label className="font-bold">Title</label>
               <input
@@ -111,17 +75,14 @@ export const AdminHeroSliderSettings = () => {
               />
             </div>
 
-            {/* Image selection */}
             <div className="space-y-2">
               <label className="font-bold">Image</label>
 
-              {/* Upload New Image */}
               <ImageUploader
                 label="Upload New Image"
                 onUploadSuccess={url => updateSlide(slide.id, 'url', url)}
               />
 
-              {/* Select from Gallery */}
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {gallery.map((url, i) => (
                   <img
@@ -136,7 +97,6 @@ export const AdminHeroSliderSettings = () => {
                 ))}
               </div>
 
-              {/* Preview */}
               {slide.url && (
                 <img
                   src={slide.url}
@@ -149,19 +109,11 @@ export const AdminHeroSliderSettings = () => {
         ))}
       </div>
 
-      {/* Add New Slide */}
-      <button
-        onClick={addSlide}
-        className="bg-gray-100 text-black px-6 py-2 font-black uppercase"
-      >
+      <button onClick={addSlide} className="bg-gray-100 text-black px-6 py-2 font-black uppercase">
         + Add New Slide
       </button>
 
-      {/* Save Button */}
-      <button
-        onClick={saveHeroSlider}
-        className="bg-black text-white px-6 py-2 font-black uppercase"
-      >
+      <button onClick={saveHeroSlider} className="bg-black text-white px-6 py-2 font-black uppercase">
         Save Hero Slider
       </button>
     </div>
