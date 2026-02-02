@@ -87,11 +87,13 @@ export const AdminHeroSliderSettings = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-black mb-4">Hero Slider Settings</h2>
 
+      {/* Enable/Disable */}
       <div className="flex items-center gap-2">
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         <label className="font-bold">Enable Hero Slider</label>
       </div>
 
+      {/* Slides */}
       <div className="space-y-4">
         {slides.map((slide, index) => (
           <div key={index} className="border p-4 rounded-md space-y-2">
@@ -112,7 +114,6 @@ export const AdminHeroSliderSettings = () => {
 
             <div className="space-y-2">
               <label className="font-bold">Image</label>
-
               <ImageUploader label="Upload New Image" onUploadSuccess={url => updateSlide(index, 'url', url)} />
 
               <div className="flex gap-2 mt-2 overflow-x-auto">
