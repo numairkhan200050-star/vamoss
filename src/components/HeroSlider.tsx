@@ -14,20 +14,22 @@ const HeroSlider = () => {
 
   useEffect(() => {
     const fetchSlides = async () => {
-      // Check if slider is enabled
-      const { data: settingData } = await supabase
+      // Fetch slider status
+      const { data: settingData, error: settingError } = await supabase
         .from('hero_slider_settings')
         .select('is_active')
         .eq('id', 1)
         .single();
 
-      if (!settingData?.is_active) return setSlides([]); // Disabled
+      if (settingError || !settingData?.is_active) return setSlides([]); // Disabled
 
-      // Fetch slides
-      const { data: slidesData } = await supabase
+      // Fetch only active slides
+      const { data: slidesData, error: slidesError } = await supabase
         .from('hero_slider_slides')
         .select('*')
         .order('order', { ascending: true });
+
+      if (slidesError) return console.error('Error fetching slides:', slidesError);
 
       if (slidesData) setSlides(slidesData);
     };
