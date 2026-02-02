@@ -6,39 +6,25 @@ interface Slide {
   id: number;
   url: string;
   title?: string;
+  is_active?: boolean;
 }
 
 const HeroSlider = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Fetch images from private bucket with signed URLs
+  // Fetch slides from Supabase table
   useEffect(() => {
     const fetchSlides = async () => {
-      const { data, error } = await supabase.storage
-        .from('hero-slider')
-        .list('', { limit: 100 });
+      const { data, error } = await supabase
+        .from('hero_slider_settings')
+        .select('*')
+        .order('order', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching hero slider:', error);
-        return;
-      }
+      if (error) return console.error('Error fetching slides:', error);
 
-      const slideUrls: Slide[] = [];
-
-      for (const file of data) {
-        const { data: signedData, error: signedError } = await supabase.storage
-          .from('hero-slider')
-          .createSignedUrl(file.name, 60 * 60); // 1 hour expiry
-
-        if (signedError) {
-          console.error('Signed URL error:', signedError);
-        } else if (signedData?.signedUrl) {
-          slideUrls.push({ id: Date.now() + Math.random(), url: signedData.signedUrl });
-        }
-      }
-
-      setSlides(slideUrls);
+      const activeSlides = (data as Slide[]).filter(s => s.is_active);
+      setSlides(activeSlides);
     };
 
     fetchSlides();
@@ -53,7 +39,7 @@ const HeroSlider = () => {
   const prevSlide = () => setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
   const nextSlide = () => setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
 
-  if (slides.length === 0) return null; // or loader
+  if (slides.length === 0) return null;
 
   return (
     <section className="w-full bg-white">
@@ -97,4 +83,3 @@ const HeroSlider = () => {
 };
 
 export default HeroSlider;
-
