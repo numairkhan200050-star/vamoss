@@ -14,7 +14,6 @@ const HeroSlider = () => {
 
   useEffect(() => {
     const fetchSlides = async () => {
-      // Fetch slider status
       const { data: settingData, error: settingError } = await supabase
         .from('hero_slider_settings')
         .select('is_active')
@@ -23,7 +22,6 @@ const HeroSlider = () => {
 
       if (settingError || !settingData?.is_active) return setSlides([]); // Disabled
 
-      // Fetch only active slides
       const { data: slidesData, error: slidesError } = await supabase
         .from('hero_slider_slides')
         .select('*')
@@ -31,7 +29,7 @@ const HeroSlider = () => {
 
       if (slidesError) return console.error('Error fetching slides:', slidesError);
 
-      if (slidesData) setSlides(slidesData);
+      if (slidesData) setSlides(slidesData.filter(s => s.url)); // Only slides with images
     };
 
     fetchSlides();
@@ -67,24 +65,4 @@ const HeroSlider = () => {
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
-          >
-            <ChevronRight size={20} className="text-black" />
-          </button>
-
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className={`h-1 rounded-full transition-all duration-500 ${currentIndex === i ? 'bg-red-600 w-8' : 'bg-gray-300 w-2'}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default HeroSlider;
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-whit
