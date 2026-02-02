@@ -16,9 +16,9 @@ const slugify = (text: string) => {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(/[^\w-]+/g, '') // Remove all non-word chars
-    .replace(/--+/g, '-'); // Replace multiple - with single -
+    .replace(/\s+/g, '-')     // Replace spaces with -
+    .replace(/[^\w-]+/g, '')  // Remove all non-word chars
+    .replace(/--+/g, '-');    // Replace multiple - with single -
 };
 
 export const BasicInfo: React.FC<BasicInfoProps> = ({
@@ -29,6 +29,7 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
   description,
   setDescription,
 }) => {
+  
   // Auto-generate slug when title changes
   useEffect(() => {
     setSlug(slugify(title));
