@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { ImageUploader } from '../ImageUploader'; // Your upload component
+import React, { useState, useEffect } from 'react';
+import { ImageUploader } from '../ImageUploader';
+import { supabase } from '../lib/supabase';
 
 interface Slide {
   id: number;
@@ -8,30 +9,49 @@ interface Slide {
 }
 
 export const AdminHeroSliderSettings = () => {
-  const [isActive, setIsActive] = useState(true); // Enable / disable slider
-  const [slides, setSlides] = useState<Slide[]>([
-    { id: 1, url: '', title: 'Premium Gadgets' },
-    { id: 2, url: '', title: 'New Collection' },
-    { id: 3, url: '', title: 'Audio Series' }
-  ]);
+  const [isActive, setIsActive] = useState(true);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [gallery, setGallery] = useState<string[]>([]);
 
-  // Mock gallery (replace with Supabase gallery fetch later if needed)
-  const gallery = [
-    'https://via.placeholder.com/400x200?text=Gallery+1',
-    'https://via.placeholder.com/400x200?text=Gallery+2',
-    'https://via.placeholder.com/400x200?text=Gallery+3'
-  ];
+  // Fetch gallery from Supabase bucket
+  useEffect(() => {
+    const fetchGallery = async () => {
+      const { data, error } = await supabase.storage
+        .from('hero-slides') // your bucket
+        .list('', { limit: 100 });
 
-  const updateSlide = (index: number, key: 'url' | 'title', value: string) => {
-    const newSlides = [...slides];
-    newSlides[index][key] = value;
+      if (error) return console.error(error);
+
+      const urls = data
+        .filter(f => f.type === 'file')
+        .map(f => supabase.storage.from('hero-slides').getPublicUrl(f.name).data.publicUrl);
+
+      setGallery(urls);
+    };
+
+    fetchGallery();
+  }, []);
+
+  // Add a new empty slide
+  const addSlide = () => {
+    setSlides([...slides, { id: Date.now(), url: '', title: '' }]);
+  };
+
+  // Remove slide
+  const removeSlide = (id: number) => {
+    setSlides(slides.filter(s => s.id !== id));
+  };
+
+  // Update slide
+  const updateSlide = (id: number, key: 'url' | 'title', value: string) => {
+    const newSlides = slides.map(s => (s.id === id ? { ...s, [key]: value } : s));
     setSlides(newSlides);
   };
 
   const saveHeroSlider = () => {
-    alert('Hero Slider settings saved!');
     console.log({ isActive, slides });
-    // Later: connect to Supabase to save settings
+    alert('Hero Slider saved!');
+    // Later: save slides array to Supabase table
   };
 
   return (
@@ -40,10 +60,10 @@ export const AdminHeroSliderSettings = () => {
 
       {/* Enable / Disable */}
       <div className="flex items-center gap-2">
-        <input 
-          type="checkbox" 
-          checked={isActive} 
-          onChange={e => setIsActive(e.target.checked)} 
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={e => setIsActive(e.target.checked)}
         />
         <label className="font-bold">Enable Hero Slider</label>
       </div>
@@ -51,40 +71,51 @@ export const AdminHeroSliderSettings = () => {
       {/* Slides */}
       {slides.map((slide, index) => (
         <div key={slide.id} className="border p-4 rounded-md space-y-2">
-          <h3 className="font-bold">Slide {index + 1}</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold">Slide {index + 1}</h3>
+            <button
+              onClick={() => removeSlide(slide.id)}
+              className="text-red-600 font-bold"
+            >
+              Remove
+            </button>
+          </div>
 
           {/* Title */}
           <div>
             <label className="font-bold">Title</label>
-            <input 
+            <input
               className="w-full border p-2"
               value={slide.title}
-              onChange={e => updateSlide(index, 'title', e.target.value)}
+              onChange={e => updateSlide(slide.id, 'title', e.target.value)}
               placeholder="Enter slide title"
             />
           </div>
 
-          {/* Image Selection */}
+          {/* Image */}
           <div className="space-y-2">
             <label className="font-bold">Image</label>
 
-            {/* 1. Upload New Image */}
+            {/* Upload new */}
             <ImageUploader
               label="Upload New Image"
-              onUploadSuccess={(url) => updateSlide(index, 'url', url)}
+              onUploadSuccess={url => {
+                updateSlide(slide.id, 'url', url);
+                setGallery(prev => [url, ...prev]); // add to gallery
+              }}
             />
 
-            {/* 2. Pick from Gallery */}
+            {/* Gallery */}
             <div className="flex gap-2 mt-2 overflow-x-auto">
-              {gallery.map((imgUrl, i) => (
+              {gallery.map((url, i) => (
                 <img
                   key={i}
-                  src={imgUrl}
+                  src={url}
                   alt={`Gallery ${i}`}
                   className={`w-24 h-24 object-cover rounded cursor-pointer border-2 ${
-                    slide.url === imgUrl ? 'border-black' : 'border-gray-300'
+                    slide.url === url ? 'border-black' : 'border-gray-300'
                   }`}
-                  onClick={() => updateSlide(index, 'url', imgUrl)}
+                  onClick={() => updateSlide(slide.id, 'url', url)}
                 />
               ))}
             </div>
@@ -101,7 +132,13 @@ export const AdminHeroSliderSettings = () => {
         </div>
       ))}
 
-      {/* Save Button */}
+      <button
+        onClick={addSlide}
+        className="bg-gray-100 px-6 py-2 font-black uppercase"
+      >
+        Add New Slide
+      </button>
+
       <button
         onClick={saveHeroSlider}
         className="bg-black text-white px-6 py-2 font-black uppercase"
