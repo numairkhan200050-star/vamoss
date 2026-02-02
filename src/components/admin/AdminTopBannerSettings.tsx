@@ -1,15 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ImageUploader } from '../ImageUploader';
+import { supabase } from '../../lib/supabase';
 
 export const AdminTopBannerSettings = () => {
-  const [isActive, setIsActive] = useState(true); // Enable / disable banner
-  const [imageUrl, setImageUrl] = useState("https://via.placeholder.com/1920x60?text=ADVERTISING+BANNER+IMAGE+HERE");
-  const [link, setLink] = useState("/collections/new-arrivals");
-  const [altText, setAltText] = useState("Special Promotion");
+  const [isActive, setIsActive] = useState(true);
+  const [imageUrl, setImageUrl] = useState('');
+  const [link, setLink] = useState('/');
+  const [altText, setAltText] = useState('');
 
-  const saveTopBanner = () => {
-    alert('Top Banner settings saved!');
-    console.log({ isActive, imageUrl, link, altText });
-    // Later: connect to Supabase to save these settings
+  // Fetch current settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data, error } = await supabase
+        .from('top_banner_settings')
+        .select('*')
+        .limit(1)
+        .single();
+
+      if (error) return console.error('Fetch top banner error:', error);
+
+      if (data) {
+        setIsActive(data.is_active);
+        setImageUrl(data.image_url);
+        setLink(data.link);
+        setAltText(data.alt_text);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const saveTopBanner = async () => {
+    try {
+      const { error } = await supabase
+        .from('top_banner_settings')
+        .upsert([
+          { id: 1, image_url: imageUrl, link, alt_text: altText, is_active: isActive }
+        ]);
+
+      if (error) throw error;
+      alert('Top Banner saved!');
+    } catch (err) {
+      console.error('Save error:', err);
+      alert('Error saving Top Banner. Check console.');
+    }
   };
 
   return (
@@ -17,41 +50,34 @@ export const AdminTopBannerSettings = () => {
       <h2 className="text-2xl font-black mb-4">Top Banner Settings</h2>
 
       <div className="flex items-center gap-2">
-        <input 
-          type="checkbox" 
-          checked={isActive} 
-          onChange={e => setIsActive(e.target.checked)} 
-        />
+        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
         <label className="font-bold">Enable Top Banner</label>
       </div>
 
       <div>
-        <label className="font-bold">Banner Image URL</label>
-        <input 
-          className="w-full border p-2" 
-          value={imageUrl} 
-          onChange={e => setImageUrl(e.target.value)} 
-          placeholder="Enter banner image URL"
+        <label className="font-bold">Banner Image</label>
+        <ImageUploader
+          label="Upload Banner Image"
+          onUploadSuccess={url => setImageUrl(url)}
         />
+        {imageUrl && <img src={imageUrl} alt="Preview" className="w-full h-20 object-cover mt-2 rounded" />}
       </div>
 
       <div>
         <label className="font-bold">Banner Link</label>
-        <input 
-          className="w-full border p-2" 
-          value={link} 
-          onChange={e => setLink(e.target.value)} 
-          placeholder="Enter banner link"
+        <input
+          className="w-full border p-2"
+          value={link}
+          onChange={e => setLink(e.target.value)}
         />
       </div>
 
       <div>
         <label className="font-bold">Alt Text</label>
-        <input 
-          className="w-full border p-2" 
-          value={altText} 
-          onChange={e => setAltText(e.target.value)} 
-          placeholder="Enter alt text for banner"
+        <input
+          className="w-full border p-2"
+          value={altText}
+          onChange={e => setAltText(e.target.value)}
         />
       </div>
 
