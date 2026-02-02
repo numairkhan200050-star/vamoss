@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { LoginPortal } from './LoginPortal';
 import CollectionList from './admin/collections/CollectionList';
-import PagesList from './admin/Pages/PagesList';
+import PagesList from './admin/pages/PagesList';
+import { AdminGeneralSettings } from './admin/AdminGeneralSettings'; // ✅ Import your general settings
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 
@@ -103,12 +103,7 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-10 overflow-y-auto">
-        {activeTab === 'general' && (
-          <div>
-            <h1 className="text-3xl font-bold">General Settings</h1>
-            <p>Admin general settings will appear here.</p>
-          </div>
-        )}
+        {activeTab === 'general' && <AdminGeneralSettings />}
         {activeTab === 'collections' && <CollectionList />}
         {activeTab === 'pages' && <PagesList />}
       </main>
