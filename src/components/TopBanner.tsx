@@ -11,23 +11,28 @@ const TopBanner = () => {
   });
   const [isVisible, setIsVisible] = useState(true);
 
+  // Fetch top banner from Supabase
   useEffect(() => {
     const fetchBanner = async () => {
-      const { data, error } = await supabase
-        .from('top_banner_settings')
-        .select('*')
-        .limit(1)
-        .single();
-
-      if (error) return console.error('Fetch top banner error:', error);
-      if (data) setBannerData({ 
-        imageUrl: data.image_url, 
-        link: data.link, 
-        altText: data.alt_text, 
-        isActive: data.is_active 
-      });
+      try {
+        const { data, error } = await supabase
+          .from('top_banner_settings')
+          .select('*')
+          .limit(1)
+          .single();
+        if (error) return console.error('Fetch top banner error:', error);
+        if (data) {
+          setBannerData({
+            imageUrl: data.image_url,
+            link: data.link,
+            altText: data.alt_text,
+            isActive: data.is_active
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
     };
-
     fetchBanner();
   }, []);
 
@@ -36,9 +41,9 @@ const TopBanner = () => {
   return (
     <div className="relative w-full bg-black border-b border-gray-800 group">
       <a href={bannerData.link} className="block w-full h-full overflow-hidden">
-        <img 
-          src={bannerData.imageUrl} 
-          alt={bannerData.altText} 
+        <img
+          src={bannerData.imageUrl}
+          alt={bannerData.altText}
           className="w-full h-auto object-cover hover:opacity-90 transition-opacity"
         />
       </a>
