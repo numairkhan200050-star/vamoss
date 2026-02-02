@@ -12,10 +12,13 @@ interface BasicInfoProps {
 }
 
 const slugify = (text: string) => {
-  return text.toString().toLowerCase().trim()
-    .replace(/\s+/g, '-')     // Replace spaces with -
-    .replace(/[^\w-]+/g, '')  // Remove all non-word chars
-    .replace(/--+/g, '-');    // Replace multiple - with single -
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w-]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '-'); // Replace multiple - with single -
 };
 
 export const BasicInfo: React.FC<BasicInfoProps> = ({
@@ -26,7 +29,6 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
   description,
   setDescription,
 }) => {
-  
   // Auto-generate slug when title changes
   useEffect(() => {
     setSlug(slugify(title));
@@ -51,7 +53,7 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
         {/* SEO / Slug Display */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-blue-50 p-3 text-[10px] font-mono text-blue-600 border border-blue-100 truncate">
-            URL: /product/{slug}
+            {`URL: /product/${slug}`}
           </div>
         </div>
 
@@ -72,4 +74,3 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
     </div>
   );
 };
-
