@@ -38,7 +38,7 @@ export const AdminHeroSliderSettings = () => {
     fetchData();
   }, []);
 
-  // Fetch gallery from private bucket
+  // Fetch gallery from Supabase storage
   useEffect(() => {
     const fetchGallery = async () => {
       try {
@@ -75,7 +75,7 @@ export const AdminHeroSliderSettings = () => {
 
       // Insert new slides
       await supabase.from('hero_slider_slides').insert(
-        slides.map((s, idx) => ({ url: s.url, title: s.title, order: idx }))
+        slides.filter(s => s.url).map((s, idx) => ({ url: s.url, title: s.title, order: idx }))
       );
 
       alert('Hero Slider saved successfully!');
