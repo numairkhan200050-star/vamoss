@@ -1,31 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase'; // add this
+import { supabase } from '../lib/supabase';
 
 interface Slide {
   id: number;
   url: string;
-  title: string;
+  title?: string;
 }
 
 const HeroSlider = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Fetch slides from Supabase (replace 'hero_slider_settings' with your table/bucket)
+  // Fetch images from private bucket with signed URLs
   useEffect(() => {
     const fetchSlides = async () => {
-      const { data, error } = await supabase
-        .from('hero_slider_settings')
-        .select('*')
-        .order('id', { ascending: true });
+      const { data, error } = await supabase.storage
+        .from('hero-slider')
+        .list('', { limit: 100 });
 
       if (error) {
         console.error('Error fetching hero slider:', error);
         return;
       }
 
-      if (data) setSlides(data as Slide[]);
+      const slideUrls: Slide[] = [];
+
+      for (const file of data) {
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from('hero-slider')
+          .createSignedUrl(file.name, 60 * 60); // 1 hour expiry
+
+        if (signedError) {
+          console.error('Signed URL error:', signedError);
+        } else if (signedData?.signedUrl) {
+          slideUrls.push({ id: Date.now() + Math.random(), url: signedData.signedUrl });
+        }
+      }
+
+      setSlides(slideUrls);
     };
 
     fetchSlides();
@@ -37,15 +50,10 @@ const HeroSlider = () => {
     return () => clearInterval(timer);
   }, [slides, currentIndex]);
 
-  const prevSlide = () => {
-    setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
-  };
+  const prevSlide = () => setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
+  const nextSlide = () => setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
 
-  const nextSlide = () => {
-    setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
-  };
-
-  if (slides.length === 0) return null; // or a loader
+  if (slides.length === 0) return null; // or loader
 
   return (
     <section className="w-full bg-white">
