@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/vamoss/', // <--- IMPORTANT for GitHub Pages
+  base: '/', // <--- IMPORTANT for GitHub Pages
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
