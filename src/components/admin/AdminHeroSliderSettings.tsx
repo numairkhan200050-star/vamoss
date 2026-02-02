@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ImageUploader } from '../ImageUploader'; // Your upload component
 
 interface Slide {
   id: number;
@@ -14,7 +15,13 @@ export const AdminHeroSliderSettings = () => {
     { id: 3, url: '', title: 'Audio Series' }
   ]);
 
-  // Update a slide
+  // Mock gallery (replace with Supabase gallery fetch later if needed)
+  const gallery = [
+    'https://via.placeholder.com/400x200?text=Gallery+1',
+    'https://via.placeholder.com/400x200?text=Gallery+2',
+    'https://via.placeholder.com/400x200?text=Gallery+3'
+  ];
+
   const updateSlide = (index: number, key: 'url' | 'title', value: string) => {
     const newSlides = [...slides];
     newSlides[index][key] = value;
@@ -45,15 +52,8 @@ export const AdminHeroSliderSettings = () => {
       {slides.map((slide, index) => (
         <div key={slide.id} className="border p-4 rounded-md space-y-2">
           <h3 className="font-bold">Slide {index + 1}</h3>
-          <div>
-            <label className="font-bold">Image URL</label>
-            <input 
-              className="w-full border p-2"
-              value={slide.url}
-              onChange={e => updateSlide(index, 'url', e.target.value)}
-              placeholder="Enter image URL"
-            />
-          </div>
+
+          {/* Title */}
           <div>
             <label className="font-bold">Title</label>
             <input 
@@ -62,6 +62,41 @@ export const AdminHeroSliderSettings = () => {
               onChange={e => updateSlide(index, 'title', e.target.value)}
               placeholder="Enter slide title"
             />
+          </div>
+
+          {/* Image Selection */}
+          <div className="space-y-2">
+            <label className="font-bold">Image</label>
+
+            {/* 1. Upload New Image */}
+            <ImageUploader
+              label="Upload New Image"
+              onUploadSuccess={(url) => updateSlide(index, 'url', url)}
+            />
+
+            {/* 2. Pick from Gallery */}
+            <div className="flex gap-2 mt-2 overflow-x-auto">
+              {gallery.map((imgUrl, i) => (
+                <img
+                  key={i}
+                  src={imgUrl}
+                  alt={`Gallery ${i}`}
+                  className={`w-24 h-24 object-cover rounded cursor-pointer border-2 ${
+                    slide.url === imgUrl ? 'border-black' : 'border-gray-300'
+                  }`}
+                  onClick={() => updateSlide(index, 'url', imgUrl)}
+                />
+              ))}
+            </div>
+
+            {/* Preview */}
+            {slide.url && (
+              <img
+                src={slide.url}
+                alt={`Slide ${index + 1}`}
+                className="w-full h-40 object-cover mt-2 border rounded"
+              />
+            )}
           </div>
         </div>
       ))}
