@@ -75,3 +75,5 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
     </div>
   );
 };
+
+
