@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from '../ImageUploader'; // Your existing image upload component
-import { supabase } from '../../lib/supabase'; // Fixed path for admin folder
+import { supabase } from '../../lib/supabase'; // Correct path
 
 interface Slide {
   id: number;
@@ -13,23 +13,36 @@ export const AdminHeroSliderSettings = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [gallery, setGallery] = useState<string[]>([]);
 
-  // Fetch existing images from Supabase "hero-slider" bucket
+  // Fetch existing images from Supabase "hero-slider" private bucket
   useEffect(() => {
     const fetchGallery = async () => {
-      const { data, error } = await supabase.storage
-        .from('hero-slider')
-        .list('', { limit: 100, offset: 0 });
+      try {
+        const { data, error } = await supabase.storage
+          .from('hero-slider')
+          .list('', { limit: 100, offset: 0 });
 
-      if (error) {
-        console.error('Error fetching gallery:', error);
-        return;
-      }
+        if (error) {
+          console.error('Error fetching gallery:', error);
+          return;
+        }
 
-      if (data) {
-        const urls = data.map(file =>
-          supabase.storage.from('hero-slider').getPublicUrl(file.name).data.publicUrl
-        );
-        setGallery(urls);
+        if (data) {
+          const urls: string[] = [];
+          for (const file of data) {
+            const { data: signedData, error: signedError } = await supabase.storage
+              .from('hero-slider')
+              .createSignedUrl(file.name, 60 * 60); // 1 hour signed URL
+
+            if (signedError) {
+              console.error('Error creating signed URL:', signedError);
+            } else if (signedData?.signedUrl) {
+              urls.push(signedData.signedUrl);
+            }
+          }
+          setGallery(urls);
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
 
