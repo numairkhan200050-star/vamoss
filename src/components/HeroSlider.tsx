@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase'; // add this
 
 interface Slide {
   id: number;
@@ -12,16 +12,20 @@ const HeroSlider = () => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Fetch slides from Supabase table "hero_slides"
+  // Fetch slides from Supabase (replace 'hero_slider_settings' with your table/bucket)
   useEffect(() => {
     const fetchSlides = async () => {
       const { data, error } = await supabase
-        .from('hero_slides')
+        .from('hero_slider_settings')
         .select('*')
         .order('id', { ascending: true });
 
-      if (error) return console.error(error);
-      setSlides(data || []);
+      if (error) {
+        console.error('Error fetching hero slider:', error);
+        return;
+      }
+
+      if (data) setSlides(data as Slide[]);
     };
 
     fetchSlides();
@@ -34,16 +38,14 @@ const HeroSlider = () => {
   }, [slides, currentIndex]);
 
   const prevSlide = () => {
-    if (slides.length === 0) return;
     setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
   };
 
   const nextSlide = () => {
-    if (slides.length === 0) return;
     setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
   };
 
-  if (slides.length === 0) return null; // no slides yet
+  if (slides.length === 0) return null; // or a loader
 
   return (
     <section className="w-full bg-white">
@@ -56,14 +58,13 @@ const HeroSlider = () => {
             <div className="w-full h-full bg-black/5" />
           </div>
 
-          <button 
+          <button
             onClick={prevSlide}
             className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
           >
             <ChevronLeft size={20} className="text-black" />
           </button>
-
-          <button 
+          <button
             onClick={nextSlide}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
           >
