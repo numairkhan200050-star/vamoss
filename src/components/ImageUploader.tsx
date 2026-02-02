@@ -14,24 +14,24 @@ export const ImageUploader = ({ onUploadSuccess, label }: Props) => {
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       if (!event.target.files || event.target.files.length === 0) return;
-
       setUploading(true);
+
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = fileName; // store in root of bucket
 
-      // Upload to Supabase private bucket
+      // 1️⃣ Upload to private bucket
       const { error: uploadError } = await supabase.storage
-        .from('hero-slider') // your bucket name
+        .from('hero-slider')
         .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get signed URL for private bucket
+      // 2️⃣ Create signed URL (valid for 1 hour)
       const { data: signedData, error: signedError } = await supabase.storage
         .from('hero-slider')
-        .createSignedUrl(filePath, 60 * 60); // 1 hour expiry
+        .createSignedUrl(filePath, 60 * 60);
 
       if (signedError || !signedData?.signedUrl) throw signedError || new Error('No signed URL');
 
