@@ -14,22 +14,23 @@ const HeroSlider = () => {
 
   useEffect(() => {
     const fetchSlides = async () => {
-      const { data: settingData, error: settingError } = await supabase
+      const { data: settingData } = await supabase
         .from('hero_slider_settings')
         .select('is_active')
         .eq('id', 1)
         .single();
 
-      if (settingError || !settingData?.is_active) return setSlides([]); // Disabled
+      if (!settingData?.is_active) {
+        setSlides([]);
+        return;
+      }
 
-      const { data: slidesData, error: slidesError } = await supabase
+      const { data } = await supabase
         .from('hero_slider_slides')
         .select('*')
         .order('order', { ascending: true });
 
-      if (slidesError) return console.error('Error fetching slides:', slidesError);
-
-      if (slidesData) setSlides(slidesData.filter(s => s.url)); // Only slides with images
+      if (data) setSlides(data.filter(s => s.url));
     };
 
     fetchSlides();
@@ -37,12 +38,11 @@ const HeroSlider = () => {
 
   useEffect(() => {
     if (slides.length === 0) return;
-    const timer = setInterval(() => nextSlide(), 5000);
+    const timer = setInterval(() => {
+      setCurrentIndex(i => (i === slides.length - 1 ? 0 : i + 1));
+    }, 5000);
     return () => clearInterval(timer);
-  }, [slides, currentIndex]);
-
-  const prevSlide = () => setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1);
-  const nextSlide = () => setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1);
+  }, [slides]);
 
   if (slides.length === 0) return null;
 
@@ -51,18 +51,48 @@ const HeroSlider = () => {
       <div className="max-w-[1360px] mx-auto px-4 py-4">
         <div className="relative h-[180px] sm:h-[240px] md:h-[280px] w-full overflow-hidden rounded-xl border border-gray-100 group shadow-sm">
           <div
+            className="w-full h-full bg-center bg-cover transition-all duration-1000"
             style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-            className="w-full h-full bg-center bg-cover transition-all duration-1000 ease-in-out"
           >
             <div className="w-full h-full bg-black/5" />
           </div>
 
+          {/* LEFT */}
           <button
-            onClick={prevSlide}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
+            onClick={() =>
+              setCurrentIndex(currentIndex === 0 ? slides.length - 1 : currentIndex - 1)
+            }
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white opacity-0 group-hover:opacity-100 z-10"
           >
             <ChevronLeft size={20} className="text-black" />
           </button>
+
+          {/* RIGHT */}
           <button
-            onClick={nextSlide}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-whit
+            onClick={() =>
+              setCurrentIndex(currentIndex === slides.length - 1 ? 0 : currentIndex + 1)
+            }
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/90 shadow-md hover:bg-white opacity-0 group-hover:opacity-100 z-10"
+          >
+            <ChevronRight size={20} className="text-black" />
+          </button>
+
+          {/* DOTS */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  currentIndex === i ? 'bg-red-600 w-8' : 'bg-gray-300 w-2'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSlider;
