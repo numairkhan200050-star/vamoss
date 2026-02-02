@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { LoginPortal } from './LoginPortal';
 import CollectionList from './admin/collections/CollectionList';
-import PagesList from './admin/pages/PagesList';
+import PagesList from './admin/Pages/PagesList';
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings'; // ✅ Import your general settings
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
