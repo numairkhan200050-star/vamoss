@@ -63,6 +63,8 @@ export const AdminHeroSliderSettings = () => {
   const updateSlide = (index: number, key: 'url' | 'title', value: string) =>
     setSlides(prev => prev.map((s, i) => (i === index ? { ...s, [key]: value } : s)));
 
+  const removeImage = (index: number) => updateSlide(index, 'url', ''); // Remove image locally
+
   const saveHeroSlider = async () => {
     try {
       // Update slider status
@@ -99,9 +101,10 @@ export const AdminHeroSliderSettings = () => {
           <div key={index} className="border p-4 rounded-md space-y-2">
             <div className="flex justify-between items-center">
               <h3 className="font-bold">Slide {index + 1}</h3>
-              <button onClick={() => removeSlide(index)} className="text-red-500 font-bold">Remove</button>
+              <button onClick={() => removeSlide(index)} className="text-red-500 font-bold">Remove Slide</button>
             </div>
 
+            {/* Title */}
             <div>
               <label className="font-bold">Title</label>
               <input
@@ -112,10 +115,12 @@ export const AdminHeroSliderSettings = () => {
               />
             </div>
 
+            {/* Image */}
             <div className="space-y-2">
               <label className="font-bold">Image</label>
               <ImageUploader label="Upload New Image" onUploadSuccess={url => updateSlide(index, 'url', url)} />
 
+              {/* Gallery */}
               <div className="flex gap-2 mt-2 overflow-x-auto">
                 {gallery.map((url, i) => (
                   <img
@@ -128,7 +133,19 @@ export const AdminHeroSliderSettings = () => {
                 ))}
               </div>
 
-              {slide.url && <img src={slide.url} alt={`Slide ${index + 1}`} className="w-full h-40 object-cover mt-2 border rounded" />}
+              {/* Preview + Remove Button */}
+              {slide.url && (
+                <div className="relative w-full h-40 mt-2">
+                  <img src={slide.url} alt={`Slide ${index + 1}`} className="w-full h-full object-cover border rounded" />
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                    title="Remove Image"
+                  >
+                    X
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
