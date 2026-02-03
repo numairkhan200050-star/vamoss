@@ -1,4 +1,4 @@
-// src/components/admin/pages/PageForm.tsx
+// src/components/admin/pages/PageManagement.tsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 
@@ -9,233 +9,121 @@ interface Page {
   content?: string;
   linkedCollections: string[];
   linkedCategories: string[];
-  menuLevel?: string; // JSON string or simple identifier
+  menuLevel?: string;
   seoTitle: string;
   seoDescription: string;
   status: "draft" | "published" | "archived";
   searchable: boolean;
 }
 
-interface Collection {
-  id: string;
-  name: string;
-}
+interface Collection { id: string; name: string; }
+interface Category { id: string; name: string; parentId?: string; }
 
-interface Category {
-  id: string;
-  name: string;
-  parentId?: string; // for sub/sub-sub categories
-}
-
-export const PageForm: React.FC = () => {
-  /* ---------------- BASIC INFO ---------------- */
+// ================= LABOUR VIEW =================
+export const LabourPageForm: React.FC = () => {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [linkedCollections, setLinkedCollections] = useState<string[]>([]);
 
-  /* ---------------- LINKING ---------------- */
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const { data } = await supabase.from("collections").select("*");
+      if (data) setCollections(data);
+    };
+    fetchCollections();
+  }, []);
+
+  useEffect(() => { setSlug(title.toLowerCase().replace(/\s+/g, "-")); }, [title]);
+
+  const handleSave = async () => {
+    const payload: Page = {
+      title, slug, content,
+      linkedCollections, linkedCategories: [], menuLevel: undefined,
+      seoTitle: "", seoDescription: "", status: "draft", searchable: true
+    };
+    await supabase.from("pages").insert([payload]);
+    alert("Labour page saved!");
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="font-bold text-lg">Labour Page Creation</h2>
+      <input placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} className="border p-2 w-full"/>
+      <textarea placeholder="Content" value={content} onChange={(e)=>setContent(e.target.value)} className="border p-2 w-full"/>
+      <select multiple value={linkedCollections} onChange={e=>setLinkedCollections(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
+        {collections.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <button onClick={handleSave} className="bg-green-600 text-white px-4 py-2">Save Page</button>
+    </div>
+  );
+};
+
+// ================= SUPERVISOR VIEW =================
+export const SupervisorPageForm: React.FC = () => {
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [content, setContent] = useState("");
   const [collections, setCollections] = useState<Collection[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [linkedCollections, setLinkedCollections] = useState<string[]>([]);
   const [linkedCategories, setLinkedCategories] = useState<string[]>([]);
-  const [menuLevel, setMenuLevel] = useState<string>(""); // main / sub / sub-sub
-
-  /* ---------------- SEO ---------------- */
+  const [menuLevel, setMenuLevel] = useState<string>("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
-
-  /* ---------------- STATUS ---------------- */
   const [status, setStatus] = useState<Page["status"]>("draft");
   const [searchable, setSearchable] = useState(true);
 
-  /* ---------------- FETCH COLLECTIONS & CATEGORIES ---------------- */
   useEffect(() => {
     const fetchData = async () => {
       const { data: colData } = await supabase.from("collections").select("*");
       if (colData) setCollections(colData);
-
       const { data: catData } = await supabase.from("categories").select("*");
       if (catData) setCategories(catData);
     };
     fetchData();
   }, []);
 
-  /* ---------------- SLUG AUTO-GENERATE ---------------- */
-  useEffect(() => {
-    setSlug(title.toLowerCase().replace(/\s+/g, "-"));
-  }, [title]);
+  useEffect(() => { setSlug(title.toLowerCase().replace(/\s+/g, "-")); }, [title]);
 
-  /* ---------------- ACTIONS ---------------- */
   const handleSave = async () => {
     const payload: Page = {
-      title,
-      slug,
-      content,
-      linkedCollections,
-      linkedCategories,
-      menuLevel,
-      seoTitle,
-      seoDescription,
-      status,
-      searchable,
+      title, slug, content, linkedCollections, linkedCategories,
+      menuLevel, seoTitle, seoDescription, status, searchable
     };
-
-    console.log("Saving page:", payload);
-
-    const { error } = await supabase.from("pages").insert([payload]);
-    if (error) console.error("Error saving page:", error);
-    else alert("Page saved!");
+    await supabase.from("pages").insert([payload]);
+    alert("Supervisor page saved!");
   };
 
-  const handleDiscard = () => window.location.reload();
-  const handleDelete = () => console.log("Delete page logic here");
-
-  /* ---------------- LAYOUT ---------------- */
   return (
-    <div className="grid grid-cols-12 gap-6">
-      {/* LEFT COLUMN */}
-      <div className="col-span-8 space-y-6">
-        {/* Basic Info */}
-        <div className="space-y-2">
-          <label className="font-bold">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full border p-2"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="font-bold">Content (Optional)</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full border p-2"
-          />
-        </div>
-
-        {/* Collections */}
-        <div className="space-y-2">
-          <label className="font-bold">Linked Collections</label>
-          <select
-            multiple
-            value={linkedCollections}
-            onChange={(e) =>
-              setLinkedCollections(Array.from(e.target.selectedOptions, (o) => o.value))
-            }
-            className="w-full border p-2"
-          >
-            {collections.map((col) => (
-              <option key={col.id} value={col.id}>
-                {col.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Categories */}
-        <div className="space-y-2">
-          <label className="font-bold">Linked Categories</label>
-          <select
-            multiple
-            value={linkedCategories}
-            onChange={(e) =>
-              setLinkedCategories(Array.from(e.target.selectedOptions, (o) => o.value))
-            }
-            className="w-full border p-2"
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Menu Level */}
-        <div className="space-y-2">
-          <label className="font-bold">Menu Level (Optional)</label>
-          <select
-            value={menuLevel}
-            onChange={(e) => setMenuLevel(e.target.value)}
-            className="w-full border p-2"
-          >
-            <option value="">None</option>
-            <option value="main">Main</option>
-            <option value="sub">Sub</option>
-            <option value="sub-sub">Sub-Sub</option>
-          </select>
-        </div>
-      </div>
-
-      {/* RIGHT COLUMN */}
-      <div className="col-span-4 space-y-6">
-        {/* SEO */}
-        <div className="space-y-2">
-          <label className="font-bold">SEO Title</label>
-          <input
-            type="text"
-            value={seoTitle}
-            onChange={(e) => setSeoTitle(e.target.value)}
-            className="w-full border p-2"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="font-bold">SEO Description</label>
-          <textarea
-            value={seoDescription}
-            onChange={(e) => setSeoDescription(e.target.value)}
-            className="w-full border p-2"
-          />
-        </div>
-
-        {/* Status & Searchable */}
-        <div className="space-y-2">
-          <label className="font-bold">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Page["status"])}
-            className="w-full border p-2"
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-
-        <div className="space-y-2 flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={searchable}
-            onChange={(e) => setSearchable(e.target.checked)}
-          />
-          <label className="font-bold">Searchable</label>
-        </div>
-
-        {/* Actions */}
-        <div className="space-x-2">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-green-600 text-white font-bold"
-          >
-            Save
-          </button>
-          <button
-            onClick={handleDiscard}
-            className="px-4 py-2 bg-gray-500 text-white font-bold"
-          >
-            Discard
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 bg-red-600 text-white font-bold"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
+    <div className="space-y-4">
+      <h2 className="font-bold text-lg">Supervisor Page Management</h2>
+      <input placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} className="border p-2 w-full"/>
+      <textarea placeholder="Content" value={content} onChange={(e)=>setContent(e.target.value)} className="border p-2 w-full"/>
+      <select multiple value={linkedCollections} onChange={e=>setLinkedCollections(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
+        {collections.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <select multiple value={linkedCategories} onChange={e=>setLinkedCategories(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
+        {categories.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+      <select value={menuLevel} onChange={e=>setMenuLevel(e.target.value)} className="border p-2 w-full">
+        <option value="">None</option>
+        <option value="main">Main</option>
+        <option value="sub">Sub</option>
+        <option value="sub-sub">Sub-Sub</option>
+      </select>
+      <input placeholder="SEO Title" value={seoTitle} onChange={(e)=>setSeoTitle(e.target.value)} className="border p-2 w-full"/>
+      <textarea placeholder="SEO Description" value={seoDescription} onChange={(e)=>setSeoDescription(e.target.value)} className="border p-2 w-full"/>
+      <select value={status} onChange={(e)=>setStatus(e.target.value as Page["status"])} className="border p-2 w-full">
+        <option value="draft">Draft</option>
+        <option value="published">Published</option>
+        <option value="archived">Archived</option>
+      </select>
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={searchable} onChange={e=>setSearchable(e.target.checked)}/> Searchable
+      </label>
+      <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2">Save</button>
     </div>
   );
 };
