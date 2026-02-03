@@ -1,7 +1,7 @@
 // src/components/admin/CollectionSupervisor.tsx
 
 import React, { useState } from 'react';
-import { CollectionList } from './collections/CollectionViewer'; // Use the Viewer code for this
+import { CollectionViewer } from './collections/CollectionViewer'; // Use the Viewer code for this
 import { CollectionCreator } from './collections/CollectionCreator';
 import { CollectionAssigner } from './collections/CollectionAssigner';
 
