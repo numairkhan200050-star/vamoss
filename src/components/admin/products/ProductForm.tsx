@@ -1,4 +1,4 @@
-// src/components/admin/products/ProductSupervisor.tsx
+// src/components/admin/products/ProductForm.tsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 
@@ -20,7 +20,7 @@ export interface Variant {
   weight: number; // in grams
 }
 
-export const ProductSupervisor: React.FC = () => {
+export const ProductForm: React.FC = () => {
   /* ---------------- BASIC INFO ---------------- */
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -146,6 +146,9 @@ export const ProductSupervisor: React.FC = () => {
           costPrice={totalCostPrice}
           sellingPrice={totalSellingPrice}
           weight={totalWeight}
+          shippingCost={shippingCost}
+          netProfit={netProfit}
+          margin={margin}
         />
 
         <SEOSettings
@@ -169,4 +172,3 @@ export const ProductSupervisor: React.FC = () => {
     </div>
   );
 };
-
