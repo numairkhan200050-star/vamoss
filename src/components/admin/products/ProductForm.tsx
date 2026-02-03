@@ -1,11 +1,11 @@
-// src/components/admin/products/ProductForm.tsx
+// src/components/admin/products/ProductSupervisor.tsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 
 import { BasicInfo } from "./BasicInfo";
 import { CategoryCollectionSelection } from "./CategoryCollectionSelection";
-import { InventoryStock } from "./InventoryStock";
 import { PricingProfit } from "./PricingProfit";
+import { ProductGalleryManager } from "./ProductGalleryManager";
 import { ProductMedia } from "./ProductMedia";
 import { VariantsMedia } from "./VariantsMedia";
 import { SEOSettings } from "./SEOSettings";
@@ -17,16 +17,10 @@ export interface Variant {
   costPrice: number;
   sellingPrice: number;
   oldPrice?: number;
-  weight: number; // Weight per variant
+  weight: number; // in grams
 }
 
-export interface ShippingTier {
-  id?: number;
-  maxWeight: number; // grams
-  rate: number; // price for this tier
-}
-
-export const ProductForm = () => {
+export const ProductSupervisor: React.FC = () => {
   /* ---------------- BASIC INFO ---------------- */
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -34,25 +28,13 @@ export const ProductForm = () => {
 
   /* ---------------- CATEGORY & COLLECTION ---------------- */
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedCollections, setSelectedCollections] = useState<number[]>([]);
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
-  /* ---------------- INVENTORY ---------------- */
-  const [sku, setSku] = useState("");
-  const [quantity, setQuantity] = useState(0);
-  const [trackInventory, setTrackInventory] = useState(true);
-  const [allowBackorder, setAllowBackorder] = useState(false);
-
-  /* ---------------- PRODUCT WEIGHT ---------------- */
-  const [weight, setWeight] = useState(0); // Default weight if no variant
-
-  /* ---------------- PRICING ---------------- */
-  const [costPrice, setCostPrice] = useState(0);
-  const [sellingPrice, setSellingPrice] = useState(0);
-  const [oldPrice, setOldPrice] = useState<number | undefined>(undefined);
-
-  /* ---------------- MEDIA & VARIANTS ---------------- */
+  /* ---------------- MEDIA ---------------- */
   const [mainImage, setMainImage] = useState("");
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{ id: string; url: string }[]>([]);
+
+  /* ---------------- VARIANTS ---------------- */
   const [variants, setVariants] = useState<Variant[]>([]);
 
   /* ---------------- SEO ---------------- */
@@ -62,117 +44,62 @@ export const ProductForm = () => {
   /* ---------------- STATUS ---------------- */
   const [status, setStatus] = useState("draft");
 
-  /* ---------------- SHIPPING SETTINGS ---------------- */
-  const [shippingTiers, setShippingTiers] = useState<ShippingTier[]>([]);
-  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
-  const [loadingShipping, setLoadingShipping] = useState(true);
+  /* ---------------- SHIPPING & PROFIT ---------------- */
+  const [shippingRates, setShippingRates] = useState<{ id: string; weight_limit_grams: number; price: number }[]>([]);
 
-  /* ---------------- FETCH SHIPPING SETTINGS ---------------- */
   useEffect(() => {
-    const fetchShippingSettings = async () => {
-      setLoadingShipping(true);
-      try {
-        const { data: tierData } = await supabase.from("shipping_tiers").select("*");
-        if (tierData) setShippingTiers(tierData as ShippingTier[]);
-
-        const { data: generalSettings } = await supabase
-          .from("general_settings")
-          .select("free_shipping_threshold")
-          .single();
-
-        if (generalSettings?.free_shipping_threshold) {
-          setFreeShippingThreshold(generalSettings.free_shipping_threshold);
-        }
-      } catch (err) {
-        console.error("Error fetching shipping settings:", err);
-      } finally {
-        setLoadingShipping(false);
-      }
+    const fetchShipping = async () => {
+      const { data } = await supabase.from("shipping_settings").select("*").order("weight_limit_grams");
+      if (data) setShippingRates(data);
     };
-
-    fetchShippingSettings();
+    fetchShipping();
   }, []);
 
-  /* ---------------- SHIPPING CALCULATIONS ---------------- */
-  const getTotalWeight = () => {
-    if (variants.length > 0) {
-      return variants.reduce((sum, v) => sum + (v.weight || 0) * quantity, 0);
-    }
-    return weight * quantity;
-  };
+  const totalWeight = variants.length > 0
+    ? variants.reduce((sum, v) => sum + (v.weight || 0), 0)
+    : 0;
 
-  const calculateShipping = (totalWeight: number) => {
-    if (shippingTiers.length === 0) return 0;
+  const totalCostPrice = variants.length > 0
+    ? variants.reduce((sum, v) => sum + (v.costPrice || 0), 0)
+    : 0;
 
-    // Find the first tier where totalWeight <= maxWeight
-    const tier = shippingTiers
-      .sort((a, b) => a.maxWeight - b.maxWeight)
-      .find((t) => totalWeight <= t.maxWeight);
+  const totalSellingPrice = variants.length > 0
+    ? variants.reduce((sum, v) => sum + (v.sellingPrice || 0), 0)
+    : 0;
 
-    return tier ? tier.rate : shippingTiers[shippingTiers.length - 1].rate;
-  };
+  const shippingCost =
+    shippingRates.find(r => totalWeight <= r.weight_limit_grams)?.price || 0;
 
-  const getTotalSellingPrice = () => {
-    if (variants.length > 0) {
-      return variants.reduce((sum, v) => sum + (v.sellingPrice || 0) * quantity, 0);
-    }
-    return (quantity || 1) * sellingPrice;
-  };
+  const netProfit = totalSellingPrice - totalCostPrice - shippingCost;
 
-  const getShippingPrice = () => {
-    const totalWeight = getTotalWeight();
-    const totalPrice = getTotalSellingPrice();
-    if (totalPrice >= freeShippingThreshold) return 0;
-    return calculateShipping(totalWeight);
-  };
+  const margin = totalSellingPrice > 0 ? Number(((netProfit / totalSellingPrice) * 100).toFixed(1)) : 0;
 
-  const getProfit = () => {
-    let cost = 0;
-    if (variants.length > 0) {
-      cost = variants.reduce((sum, v) => sum + (v.costPrice || 0) * quantity, 0);
-    } else {
-      cost = (costPrice || 0) * quantity;
-    }
-    return getTotalSellingPrice() - cost - getShippingPrice();
-  };
-
-  /* ---------------- ACTION HANDLERS ---------------- */
+  /* ---------------- ACTIONS ---------------- */
   const handleSave = () => {
-    const productPayload = {
+    const payload = {
       title,
       slug,
       description,
       category_id: selectedCategory,
       collections: selectedCollections,
-      sku,
-      quantity,
-      trackInventory,
-      allowBackorder,
-      weight,
       mainImage,
-      galleryImages,
+      galleryImages: galleryImages.map(img => img.url),
       variants,
       metaTitle,
       metaDescription,
       status,
-      shippingRate: getShippingPrice(),
-      profit: getProfit(),
-      costPrice,
-      sellingPrice,
-      oldPrice,
+      shippingCost,
+      netProfit,
     };
 
-    console.log("Saving Product:", productPayload);
-    alert("Product saved! (Check console for payload)");
-    // 👉 Supabase insert logic goes here
+    console.log("Saving product:", payload);
+    alert("Product saved! (Check console)");
+    // 👉 Add Supabase insert/update logic here
   };
 
   const handleDiscard = () => window.location.reload();
-  const handleDelete = () => console.log("Delete product logic later");
+  const handleDelete = () => console.log("Delete product logic");
 
-  if (loadingShipping) return <p>Loading shipping settings...</p>;
-
-  /* ---------------- LAYOUT ---------------- */
   return (
     <div className="grid grid-cols-12 gap-6">
 
@@ -190,10 +117,14 @@ export const ProductForm = () => {
         <ProductMedia
           mainImage={mainImage}
           setMainImage={setMainImage}
-          galleryImages={galleryImages}
-          setGalleryImages={setGalleryImages}
-          variants={variants}
-          setVariants={setVariants}
+          galleryImages={galleryImages.map(img => img.url)}
+          setGalleryImages={(urls) => setGalleryImages(urls.map(url => ({ id: crypto.randomUUID(), url })))}
+        />
+
+        <ProductGalleryManager
+          images={galleryImages}
+          setImages={setGalleryImages}
+          setMainImage={setMainImage}
         />
 
         <VariantsMedia
@@ -212,27 +143,9 @@ export const ProductForm = () => {
       {/* RIGHT COLUMN */}
       <div className="col-span-4 space-y-6">
         <PricingProfit
-          costPrice={costPrice}
-          setCostPrice={setCostPrice}
-          sellingPrice={sellingPrice}
-          setSellingPrice={setSellingPrice}
-          oldPrice={oldPrice}
-          setOldPrice={setOldPrice}
-          weight={weight}
-          setWeight={setWeight}
-          shippingPrice={getShippingPrice()}
-          profit={getProfit()}
-        />
-
-        <InventoryStock
-          sku={sku}
-          setSku={setSku}
-          quantity={quantity}
-          setQuantity={setQuantity}
-          trackInventory={trackInventory}
-          setTrackInventory={setTrackInventory}
-          allowBackorder={allowBackorder}
-          setAllowBackorder={setAllowBackorder}
+          costPrice={totalCostPrice}
+          sellingPrice={totalSellingPrice}
+          weight={totalWeight}
         />
 
         <SEOSettings
@@ -256,4 +169,3 @@ export const ProductForm = () => {
     </div>
   );
 };
-
