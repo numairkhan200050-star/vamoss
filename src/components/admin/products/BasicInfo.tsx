@@ -1,6 +1,6 @@
 // src/components/admin/products/BasicInfo.tsx
-import React, { useEffect } from 'react';
-import { Globe, FileText } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Globe } from 'lucide-react';
 
 interface BasicInfoProps {
   title: string;
@@ -16,9 +16,9 @@ const slugify = (text: string) => {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')     // Replace spaces with -
-    .replace(/[^\w-]+/g, '')  // Remove all non-word chars
-    .replace(/--+/g, '-');    // Replace multiple - with single -
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-');
 };
 
 export const BasicInfo: React.FC<BasicInfoProps> = ({
@@ -29,11 +29,15 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
   description,
   setDescription,
 }) => {
-  
-  // Auto-generate slug when title changes
+
+  // Prevent slug override during edit mode
+  const slugEdited = useRef(false);
+
   useEffect(() => {
-    setSlug(slugify(title));
-  }, [title]);
+    if (!slugEdited.current) {
+      setSlug(slugify(title));
+    }
+  }, [title, setSlug]);
 
   return (
     <div className="bg-white border-4 border-black p-6 space-y-4">
@@ -41,39 +45,34 @@ export const BasicInfo: React.FC<BasicInfoProps> = ({
         <Globe size={14} /> SEO & Identity
       </h2>
 
-      <div className="space-y-4">
-        {/* Product Title */}
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-4 border-2 border-black font-bold text-xl outline-none"
-          placeholder="Product Name..."
+      {/* PRODUCT TITLE */}
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full p-4 border-2 border-black font-bold text-xl outline-none"
+        placeholder="Product Name..."
+      />
+
+      {/* SLUG DISPLAY */}
+      <div className="bg-blue-50 p-3 text-[10px] font-mono text-blue-600 border border-blue-100 truncate">
+        {`URL: /product/${slug}`}
+      </div>
+
+      {/* DESCRIPTION */}
+      <div>
+        <label className="text-[10px] font-black uppercase block mb-2">
+          Product Description
+        </label>
+
+        <textarea
+          rows={6}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full p-4 border-2 border-gray-100 font-medium outline-none"
+          placeholder="Details..."
         />
-
-        {/* SEO / Slug Display */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-50 p-3 text-[10px] font-mono text-blue-600 border border-blue-100 truncate">
-            {`URL: /product/${slug}`}
-          </div>
-        </div>
-
-        {/* Product Description */}
-        <div>
-          <label className="text-[10px] font-black uppercase block mb-2">
-            Product Description
-          </label>
-          <textarea
-            rows={6}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-4 border-2 border-gray-100 font-medium outline-none"
-            placeholder="Details..."
-          />
-        </div>
       </div>
     </div>
   );
 };
-
-
