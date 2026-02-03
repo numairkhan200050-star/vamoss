@@ -139,4 +139,3 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
     </div>
   );
 };
-
