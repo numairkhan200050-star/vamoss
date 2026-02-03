@@ -169,3 +169,4 @@ export const ProductSupervisor: React.FC = () => {
     </div>
   );
 };
+
