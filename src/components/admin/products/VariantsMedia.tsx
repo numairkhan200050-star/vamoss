@@ -1,6 +1,6 @@
 // src/components/admin/products/VariantsMedia.tsx
 import React, { useState } from 'react';
-import { ImageUploader } from '../ImageUploader';
+import { ImageUploader } from '../../ImageUploader';
 import { Plus } from 'lucide-react';
 
 interface Variant {
