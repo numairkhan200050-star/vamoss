@@ -21,7 +21,7 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
-  // --- NOTE 9: MOCK DATA (Will be replaced by Supabase Product fetch) ---
+  // --- NOTE 9: MOCK DATA ---
   const productVault: Product[] = [
     { id: '1', name: 'Cotton Summer T-Shirt', price: '1200', image_url: 'https://via.placeholder.com/50' },
     { id: '2', name: 'Premium Denim Jeans', price: '3500', image_url: 'https://via.placeholder.com/50' },
@@ -29,8 +29,6 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
     { id: '4', name: 'Summer Cotton Shorts', price: '1500', image_url: 'https://via.placeholder.com/50' },
   ];
 
-  // --- FUZZY SEARCH LOGIC ---
-  // This is not strict. It checks if the search word exists anywhere in the product name.
   const filteredSearch = productVault.filter(product => {
     if (!searchQuery) return false;
     const name = product.name.toLowerCase();
@@ -42,7 +40,7 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
     if (!selectedProducts.find(p => p.id === product.id)) {
       setSelectedProducts([...selectedProducts, product]);
     }
-    setSearchQuery(""); // Clear search after adding
+    setSearchQuery("");
   };
 
   const handleRemoveProduct = (id: string) => {
@@ -70,7 +68,6 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        
         {/* LEFT SIDE: SEARCH & NAME */}
         <div className="space-y-6">
           <div className="space-y-2">
@@ -97,7 +94,6 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
               />
             </div>
 
-            {/* FUZZY SEARCH DROPDOWN */}
             {searchQuery && (
               <div className="absolute w-full z-50 bg-white border-4 border-black mt-1 max-h-60 overflow-y-auto shadow-2xl">
                 {filteredSearch.map(product => (
@@ -131,14 +127,11 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
           </label>
           <div className="border-4 border-black bg-gray-50 p-4 min-h-[300px] max-h-[400px] overflow-y-auto space-y-3">
             {selectedProducts.map((p, index) => (
-              <div key={p.id} className="bg-white border-2 border-black p-2 flex items-center gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div key={p.id} className="bg-white border-2 border-black p-2 flex items-center gap-4">
                 <span className="text-[10px] font-black text-gray-300">#{index + 1}</span>
                 <img src={p.image_url} className="w-10 h-10 border border-black object-cover" alt="" />
                 <p className="flex-1 font-bold uppercase text-[10px] truncate">{p.name}</p>
-                <button 
-                  onClick={() => handleRemoveProduct(p.id)}
-                  className="p-1 hover:text-red-500 transition-colors"
-                >
+                <button onClick={() => handleRemoveProduct(p.id)} className="p-1 hover:text-red-500 transition-colors">
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -154,3 +147,15 @@ export const CollectionCreator = ({ onSave, onCancel }: CollectionCreatorProps) 
       </div>
 
       {/* FOOTER ACTION */}
+      <div className="mt-8 border-t-4 border-black pt-6">
+        <button 
+          onClick={handleFinalSave}
+          style={comicSansBold}
+          className="w-full bg-black text-[#FFD700] py-5 border-4 border-black uppercase tracking-widest hover:bg-[#FFD700] hover:text-black transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-1"
+        >
+          Deploy Collection to Vault
+        </button>
+      </div>
+    </div>
+  );
+};
