@@ -3,10 +3,14 @@ import React from 'react';
 import { ImageUploader } from '../../ImageUploader';
 import { Trash2, Plus } from 'lucide-react';
 
-// --- Variant type
+// --- Variant type with pricing & weight
 export interface Variant {
   colorName: string;
   imageUrl: string;
+  costPrice: number;
+  sellingPrice: number;
+  oldPrice?: number;
+  weight: number;
 }
 
 // --- Props for ProductMedia
@@ -107,42 +111,97 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
         </div>
       </div>
 
-      {/* COLOR VARIANTS */}
+      {/* COLOR VARIANTS WITH PRICING & WEIGHT */}
       <div>
         <p className="text-[10px] font-bold uppercase mb-1">Color Variants</p>
         {variants.map((v, i) => (
-          <div key={i} className="flex items-center gap-2 mb-2">
-            <input
-              type="text"
-              placeholder="Color Name"
-              value={v.colorName}
-              onChange={(e) => {
-                const newV = [...variants];
-                newV[i].colorName = e.target.value;
-                setVariants(newV);
-              }}
-              className="p-2 border-2 border-black text-xs font-bold"
-            />
-            <ImageUploader
-              label="Upload Variant Image"
-              onUploadSuccess={(url) => {
-                const newV = [...variants];
-                newV[i].imageUrl = url;
-                setVariants(newV);
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => removeVariant(i)}
-              className="bg-red-500 text-white p-1 rounded"
-            >
-              <Trash2 size={14} />
-            </button>
+          <div key={i} className="flex flex-col gap-2 mb-3 p-2 border-2 border-gray-300 rounded">
+
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Color Name"
+                value={v.colorName}
+                onChange={(e) => {
+                  const newV = [...variants];
+                  newV[i].colorName = e.target.value;
+                  setVariants(newV);
+                }}
+                className="p-2 border-2 border-black text-xs font-bold flex-1"
+              />
+              <ImageUploader
+                label="Upload Variant Image"
+                onUploadSuccess={(url) => {
+                  const newV = [...variants];
+                  newV[i].imageUrl = url;
+                  setVariants(newV);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => removeVariant(i)}
+                className="bg-red-500 text-white p-1 rounded"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+
+            {/* PRICING AND WEIGHT INPUTS */}
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Cost Price"
+                value={v.costPrice || 0}
+                onChange={(e) => {
+                  const newV = [...variants];
+                  newV[i].costPrice = Number(e.target.value);
+                  setVariants(newV);
+                }}
+                className="p-2 border-2 border-black text-xs w-1/4"
+              />
+              <input
+                type="number"
+                placeholder="Selling Price"
+                value={v.sellingPrice || 0}
+                onChange={(e) => {
+                  const newV = [...variants];
+                  newV[i].sellingPrice = Number(e.target.value);
+                  setVariants(newV);
+                }}
+                className="p-2 border-2 border-black text-xs w-1/4"
+              />
+              <input
+                type="number"
+                placeholder="Old Price"
+                value={v.oldPrice || 0}
+                onChange={(e) => {
+                  const newV = [...variants];
+                  newV[i].oldPrice = Number(e.target.value);
+                  setVariants(newV);
+                }}
+                className="p-2 border-2 border-black text-xs w-1/4"
+              />
+              <input
+                type="number"
+                placeholder="Weight (g)"
+                value={v.weight || 0}
+                onChange={(e) => {
+                  const newV = [...variants];
+                  newV[i].weight = Number(e.target.value);
+                  setVariants(newV);
+                }}
+                className="p-2 border-2 border-black text-xs w-1/4"
+              />
+            </div>
+
           </div>
         ))}
+
         <button
           type="button"
-          onClick={() => setVariants([...variants, { colorName: '', imageUrl: '' }])}
+          onClick={() =>
+            setVariants([...variants, { colorName: '', imageUrl: '', costPrice: 0, sellingPrice: 0, oldPrice: 0, weight: 0 }])
+          }
           className="text-[10px] font-black uppercase underline decoration-2 decoration-[#FFD700]"
         >
           <Plus size={14} className="inline mr-1" /> Add Variant
