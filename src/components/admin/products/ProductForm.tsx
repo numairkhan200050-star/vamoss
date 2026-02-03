@@ -1,99 +1,171 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-type ProductImage = {
-  id: string;
-  file: File;
-  preview: string;
-};
+import { BasicInfo } from "./BasicInfo";
+import { CategoryCollectionSelection } from "./CategoryCollectionSelection";
+import { InventoryStock } from "./InventoryStock";
+import { PricingProfit } from "./PricingProfit";
+import { ProductMedia } from "./ProductMedia";
+import { VariantsMedia } from "./VariantsMedia";
+import { SEOSettings } from "./SEOSettings";
+import { ProductStatusActions } from "./ProductStatusActions";
 
 export const ProductForm = () => {
-  const [images, setImages] = useState<ProductImage[]>([]);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
 
-  /* ---------------- IMAGE UPLOAD ---------------- */
+  /* ---------------- BASIC INFO ---------------- */
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+  /* ---------------- CATEGORY & COLLECTION ---------------- */
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCollections, setSelectedCollections] = useState<number[]>([]);
 
-    const newImages: ProductImage[] = Array.from(e.target.files).map(
-      (file) => ({
-        id: crypto.randomUUID(),
-        file,
-        preview: URL.createObjectURL(file),
-      })
-    );
+  /* ---------------- INVENTORY ---------------- */
+  const [sku, setSku] = useState("");
+  const [quantity, setQuantity] = useState(0);
+  const [trackInventory, setTrackInventory] = useState(true);
+  const [allowBackorder, setAllowBackorder] = useState(false);
 
-    setImages((prev) => [...prev, ...newImages]);
+  /* ---------------- PRICING ---------------- */
+  const [costPrice, setCostPrice] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [oldPrice, setOldPrice] = useState(0);
+  const [weight, setWeight] = useState(0);
+
+  /* ---------------- MEDIA ---------------- */
+  const [mainImage, setMainImage] = useState("");
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [variants, setVariants] = useState<any[]>([]);
+
+  /* ---------------- SEO ---------------- */
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
+
+  /* ---------------- STATUS ---------------- */
+  const [status, setStatus] = useState("draft");
+
+  /* ---------------- ACTION HANDLERS ---------------- */
+
+  const handleSave = () => {
+    const productPayload = {
+      title,
+      slug,
+      description,
+      category_id: selectedCategory,
+      collections: selectedCollections,
+      sku,
+      quantity,
+      trackInventory,
+      allowBackorder,
+      costPrice,
+      sellingPrice,
+      oldPrice,
+      weight,
+      mainImage,
+      galleryImages,
+      variants,
+      metaTitle,
+      metaDescription,
+      status,
+    };
+
+    console.log("Saving Product:", productPayload);
+
+    // 👉 Supabase insert will come later (Objective 3)
   };
 
-  /* ---------------- DRAG & DROP ---------------- */
-
-  const handleDragStart = (index: number) => {
-    setDragIndex(index);
+  const handleDiscard = () => {
+    window.location.reload();
   };
 
-  const handleDrop = (index: number) => {
-    if (dragIndex === null) return;
-
-    const reordered = [...images];
-    const draggedItem = reordered.splice(dragIndex, 1)[0];
-    reordered.splice(index, 0, draggedItem);
-
-    setImages(reordered);
-    setDragIndex(null);
+  const handleDelete = () => {
+    console.log("Delete product logic later");
   };
 
-  /* ---------------- DELETE IMAGE ---------------- */
-
-  const removeImage = (id: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== id));
-  };
+  /* ---------------- LAYOUT ---------------- */
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Product Media</h2>
+    <div className="grid grid-cols-12 gap-6">
 
-      {/* Upload */}
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleImageUpload}
-      />
+      {/* LEFT COLUMN */}
+      <div className="col-span-8 space-y-6">
 
-      {/* Image List */}
-      <div className="mt-6 grid grid-cols-4 gap-4">
-        {images.map((img, index) => (
-          <div
-            key={img.id}
-            draggable
-            onDragStart={() => handleDragStart(index)}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => handleDrop(index)}
-            className="relative border p-2 cursor-move"
-          >
-            {/* Main Image Badge */}
-            {index === 0 && (
-              <span className="absolute top-1 left-1 text-xs bg-black text-white px-2">
-                Main
-              </span>
-            )}
+        <BasicInfo
+          title={title}
+          setTitle={setTitle}
+          slug={slug}
+          setSlug={setSlug}
+          description={description}
+          setDescription={setDescription}
+        />
 
-            <img
-              src={img.preview}
-              alt="product"
-              className="w-full h-32 object-cover"
-            />
+        <ProductMedia
+          mainImage={mainImage}
+          setMainImage={setMainImage}
+          galleryImages={galleryImages}
+          setGalleryImages={setGalleryImages}
+          variants={variants}
+          setVariants={setVariants}
+        />
 
-            <button
-              onClick={() => removeImage(img.id)}
-              className="absolute top-1 right-1 text-xs bg-red-600 text-white px-2"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
+        <VariantsMedia
+          variants={variants}
+          setVariants={setVariants}
+        />
+
+        <CategoryCollectionSelection
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedCollections={selectedCollections}
+          setSelectedCollections={setSelectedCollections}
+        />
+
       </div>
+
+      {/* RIGHT COLUMN */}
+      <div className="col-span-4 space-y-6">
+
+        <PricingProfit
+          costPrice={costPrice}
+          setCostPrice={setCostPrice}
+          sellingPrice={sellingPrice}
+          setSellingPrice={setSellingPrice}
+          oldPrice={oldPrice}
+          setOldPrice={setOldPrice}
+          weight={weight}
+          setWeight={setWeight}
+        />
+
+        <InventoryStock
+          sku={sku}
+          setSku={setSku}
+          quantity={quantity}
+          setQuantity={setQuantity}
+          trackInventory={trackInventory}
+          setTrackInventory={setTrackInventory}
+          allowBackorder={allowBackorder}
+          setAllowBackorder={setAllowBackorder}
+        />
+
+        <SEOSettings
+          metaTitle={metaTitle}
+          setMetaTitle={setMetaTitle}
+          metaDescription={metaDescription}
+          setMetaDescription={setMetaDescription}
+          slug={slug}
+        />
+
+        <ProductStatusActions
+          status={status}
+          setStatus={setStatus}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+          onDelete={handleDelete}
+          isEditMode={false}
+        />
+
+      </div>
+
     </div>
   );
 };
