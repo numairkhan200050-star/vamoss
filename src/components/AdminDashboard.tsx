@@ -5,4 +5,4 @@ export default AdminDashboard;
 
 // Add this so React doesn't crash from an empty export
 const NullAdmin = () => null;
-export default NullAdmin;
+export default AdminDashboard;
