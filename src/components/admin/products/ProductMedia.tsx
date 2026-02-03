@@ -4,6 +4,7 @@ import { ImageUploader } from '../../ImageUploader';
 import { Trash2, Plus } from 'lucide-react';
 import { arrayMoveImmutable } from 'array-move'; // Drag-and-drop support
 
+
 // --- Variant type
 export interface Variant {
   colorName: string;
