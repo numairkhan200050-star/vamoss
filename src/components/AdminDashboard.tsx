@@ -1,122 +1,174 @@
-// src/components/AdminDashboard.tsx 
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { LoginPortal } from './LoginPortal';
-import CollectionList from './admin/collections/CollectionList';
-import PagesList from './admin/Pages/PagesList';
-import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
-import { ProductForm } from './admin/products/ProductForm'; // ✅ Import your new ProductForm
-import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
-import { Session } from '@supabase/supabase-js';
+import React, { useState } from 'react';
+import { 
+  LayoutDashboard, 
+  Menu, 
+  Zap, 
+  Save, 
+  Plus, 
+  Trash2, 
+  ChevronRight, 
+  Settings,
+  Database
+} from 'lucide-react';
 
-type AdminTab = 'general' | 'collections' | 'pages' | 'products'; // ✅ Added products
+const NullAdminDashboard = () => {
+  const comicSans = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive' };
 
-export const AdminDashboard = () => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<AdminTab>('general');
+  // --- 1. FOMO & FLASH SALE STATE ---
+  // This controls the Red Category in your Menu and the Fomo Section
+  const [fomoData, setFomoData] = useState({
+    isActive: true,
+    text: "LIMITED TIME DEALS",
+    buttonLink: "/collections/flash-sale",
+    expiryDate: ""
+  });
 
-  // Check session on load
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
-      } catch (err) {
-        console.error('Error fetching session:', err);
-        setSession(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSession();
+  // --- 2. MENU CATEGORY STATE ---
+  // This controls the 3-column data structure
+  const [menuCategories, setMenuCategories] = useState([
+    {
+      id: 1,
+      title: "New Category",
+      subCategories: [
+        { id: 101, title: "New Sub-Category", items: ["Sample Item"] }
+      ]
+    }
+  ]);
 
-    // Listen to login/logout
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+  // --- HANDLERS ---
+  const handleSave = () => {
+    // Logic to push to your backend goes here
+    console.log("Saving Configuration...", { fomoData, menuCategories });
+    alert("Database Updated Successfully!");
+  };
 
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-black">
-      <LayoutDashboard className="text-[#FFD700] animate-spin" size={50} />
-    </div>
-  );
-
-  if (!session) return (
-    <LoginPortal 
-      onLoginSuccess={async () => {
-        const { data } = await supabase.auth.getSession();
-        setSession(data.session);
-      }} 
-    />
-  );
+  const toggleFomo = () => setFomoData(prev => ({ ...prev, isActive: !prev.isActive }));
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-black text-white p-6 border-r-4 border-[#FFD700] flex flex-col">
-        <h2 className="text-3xl font-black italic text-[#FFD700] mb-10 tracking-tighter">K11 HQ</h2>
-
-        <nav className="flex-grow space-y-2">
-          <button
-            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === 'general' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('general')}
-          >
-            <FileText size={18} /> General Settings
+    <div className="min-h-screen bg-slate-50 flex text-slate-800" style={comicSans}>
+      
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-black text-white flex flex-col">
+        <div className="p-8">
+          <h1 className="text-2xl font-black italic tracking-tighter text-[#FFD700]">KEVIN11</h1>
+          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Admin Portal v1.0</p>
+        </div>
+        
+        <nav className="flex-1 px-4 space-y-2">
+          <button className="w-full flex items-center gap-3 p-4 bg-zinc-900 rounded-xl text-[#FFD700] font-bold">
+            <LayoutDashboard size={20} /> Dashboard
           </button>
-
-          <button
-            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === 'collections' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('collections')}
-          >
-            <Box size={18} /> Collections
+          <button className="w-full flex items-center gap-3 p-4 hover:bg-zinc-900 rounded-xl transition-all">
+            <Menu size={20} /> Navigation Menu
           </button>
-
-          <button
-            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === 'pages' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('pages')}
-          >
-            <FileText size={18} /> Pages
-          </button>
-
-          <button
-            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === 'products' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('products')}
-          >
-            <Box size={18} /> Products
+          <button className="w-full flex items-center gap-3 p-4 hover:bg-zinc-900 rounded-xl transition-all">
+            <Zap size={20} /> FOMO Engine
           </button>
         </nav>
 
-        {/* Logout Button */}
-        <button
-          onClick={async () => {
-            await supabase.auth.signOut();
-            setSession(null);
-          }}
-          className="flex items-center gap-3 p-4 text-gray-500 hover:text-red-500 font-black uppercase text-[10px] transition-colors mt-6"
-        >
-          <LogOut size={18} /> Logout
-        </button>
+        <div className="p-6 border-t border-zinc-800">
+          <div className="flex items-center gap-3 text-xs text-gray-400">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            System Online
+          </div>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-10 overflow-y-auto">
-        {activeTab === 'general' && <AdminGeneralSettings />}
-        {activeTab === 'collections' && <CollectionList />}
-        {activeTab === 'pages' && <PagesList />}
-        {activeTab === 'products' && <ProductForm />} {/* ✅ Render new ProductForm */}
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 flex flex-col">
+        
+        {/* TOP BAR */}
+        <header className="h-20 bg-white border-b border-gray-200 px-8 flex justify-between items-center">
+          <h2 className="text-xl font-black uppercase tracking-tight">Store Management</h2>
+          <button 
+            onClick={handleSave}
+            className="flex items-center gap-2 bg-black text-[#FFD700] px-8 py-3 rounded-2xl font-black hover:scale-105 transition-transform active:scale-95 shadow-lg"
+          >
+            <Save size={18} /> SAVE ALL CHANGES
+          </button>
+        </header>
+
+        <div className="p-8 space-y-8">
+          
+          {/* 1. FOMO CONTROL PANEL */}
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h3 className="text-lg font-black uppercase flex items-center gap-2">
+                  <Zap className="text-red-600 fill-red-600" size={20} /> 
+                  FOMO & Global Flash Sale
+                </h3>
+                <p className="text-sm text-gray-400 font-bold">This section controls the Red Menu Category and the floating popup.</p>
+              </div>
+              <button 
+                onClick={toggleFomo}
+                className={`px-6 py-2 rounded-full font-black text-xs transition-all ${fomoData.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+              >
+                {fomoData.isActive ? '● ACTIVE' : '○ DISABLED'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Banner Text</label>
+                <input 
+                  type="text" 
+                  value={fomoData.text}
+                  onChange={(e) => setFomoData({...fomoData, text: e.target.value})}
+                  className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-black rounded-2xl outline-none font-bold transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Target Collection (Link)</label>
+                <input 
+                  type="text" 
+                  value={fomoData.buttonLink}
+                  onChange={(e) => setFomoData({...fomoData, buttonLink: e.target.value})}
+                  className="w-full p-4 bg-gray-50 border-2 border-transparent focus:border-black rounded-2xl outline-none font-bold text-red-600 transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 2. MENU CATEGORY MANAGER */}
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-lg font-black uppercase flex items-center gap-2">
+                <Menu size={20} /> Menu Structure
+              </h3>
+              <button className="flex items-center gap-2 bg-gray-100 hover:bg-black hover:text-white p-3 rounded-xl transition-all text-xs font-black">
+                <Plus size={16} /> ADD MAIN CATEGORY
+              </button>
+            </div>
+
+            {/* Render Categories */}
+            <div className="space-y-4">
+              {menuCategories.map((cat) => (
+                <div key={cat.id} className="border-2 border-gray-50 rounded-2xl p-6 hover:border-gray-100 transition-all">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-black text-[#FFD700] rounded-xl flex items-center justify-center font-black">
+                        {cat.id}
+                      </div>
+                      <input 
+                        className="font-black uppercase text-lg outline-none bg-transparent focus:border-b-2 border-black" 
+                        defaultValue={cat.title} 
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="p-2 text-gray-400 hover:text-red-600"><Trash2 size={20}/></button>
+                      <button className="p-2 text-gray-400 hover:text-black"><ChevronRight size={20}/></button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
       </main>
     </div>
   );
 };
+
+export default NullAdminDashboard;
