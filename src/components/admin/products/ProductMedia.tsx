@@ -1,14 +1,16 @@
 // src/components/admin/products/ProductMedia.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { ImageUploader } from '../ImageUploader';
 import { Trash2, Plus } from 'lucide-react';
-import { arrayMoveImmutable } from 'array-move'; // For drag-and-drop
+import { arrayMoveImmutable } from 'array-move'; // Drag-and-drop support
 
-interface Variant {
+// --- Variant type
+export interface Variant {
   colorName: string;
   imageUrl: string;
 }
 
+// --- Props for ProductMedia
 interface ProductMediaProps {
   mainImage: string;
   setMainImage: (url: string) => void;
@@ -27,16 +29,23 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
   setVariants,
 }) => {
 
-  // Handle image removal from gallery
+  // --- Remove image from gallery
   const removeGalleryImage = (index: number) => {
     const newGallery = [...galleryImages];
     newGallery.splice(index, 1);
     setGalleryImages(newGallery);
   };
 
-  // Drag & drop reordering
+  // --- Reorder gallery images
   const moveImage = (from: number, to: number) => {
     setGalleryImages(arrayMoveImmutable(galleryImages, from, to));
+  };
+
+  // --- Remove variant
+  const removeVariant = (index: number) => {
+    const newVariants = [...variants];
+    newVariants.splice(index, 1);
+    setVariants(newVariants);
   };
 
   return (
@@ -50,7 +59,11 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
         <p className="text-[10px] font-bold uppercase mb-1">Primary Image</p>
         <ImageUploader label="Upload Main Image" onUploadSuccess={setMainImage} />
         {mainImage && (
-          <img src={mainImage} alt="Primary" className="mt-2 w-40 h-40 object-cover border-2 border-black" />
+          <img
+            src={mainImage}
+            alt="Primary"
+            className="mt-2 w-40 h-40 object-cover border-2 border-black"
+          />
         )}
       </div>
 
@@ -63,7 +76,17 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
         />
         <div className="flex flex-wrap gap-2 mt-2">
           {galleryImages.map((img, i) => (
-            <div key={i} className="relative w-32 h-32 border-2 border-black">
+            <div
+              key={i}
+              className="relative w-32 h-32 border-2 border-black cursor-move"
+              draggable
+              onDragStart={(e) => e.dataTransfer.setData('text/plain', i.toString())}
+              onDrop={(e) => {
+                const fromIndex = Number(e.dataTransfer.getData('text/plain'));
+                moveImage(fromIndex, i);
+              }}
+              onDragOver={(e) => e.preventDefault()}
+            >
               <img src={img} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
               <button
                 type="button"
@@ -94,7 +117,7 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
               className="p-2 border-2 border-black text-xs font-bold"
             />
             <ImageUploader
-              label={`Upload Variant Image`}
+              label="Upload Variant Image"
               onUploadSuccess={(url) => {
                 const newV = [...variants];
                 newV[i].imageUrl = url;
@@ -103,11 +126,7 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
             />
             <button
               type="button"
-              onClick={() => {
-                const newV = [...variants];
-                newV.splice(i, 1);
-                setVariants(newV);
-              }}
+              onClick={() => removeVariant(i)}
               className="bg-red-500 text-white p-1 rounded"
             >
               <Trash2 size={14} />
@@ -125,4 +144,3 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
     </div>
   );
 };
-
