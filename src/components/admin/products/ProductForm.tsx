@@ -20,7 +20,6 @@ export interface Variant {
 }
 
 export const ProductForm = () => {
-
   /* ---------------- BASIC INFO ---------------- */
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -39,6 +38,11 @@ export const ProductForm = () => {
   /* ---------------- PRODUCT WEIGHT ---------------- */
   const [weight, setWeight] = useState(0); // Default weight if no variant
   const [shippingRate, setShippingRate] = useState(0); // Calculated dynamically
+
+  /* ---------------- PRICING ---------------- */
+  const [costPrice, setCostPrice] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [oldPrice, setOldPrice] = useState<number | undefined>(undefined);
 
   /* ---------------- MEDIA & VARIANTS ---------------- */
   const [mainImage, setMainImage] = useState("");
@@ -69,17 +73,17 @@ export const ProductForm = () => {
     return weight * quantity;
   };
 
-  const getShippingPrice = () => {
-    const totalWeight = getTotalWeight();
-    const totalPrice = getTotalSellingPrice();
-    return totalPrice >= freeShippingThreshold ? 0 : calculateShipping(totalWeight);
-  };
-
   const getTotalSellingPrice = () => {
     if (variants.length > 0) {
       return variants.reduce((sum, v) => sum + (v.sellingPrice || 0) * quantity, 0);
     }
     return (quantity || 1) * sellingPrice;
+  };
+
+  const getShippingPrice = () => {
+    const totalWeight = getTotalWeight();
+    const totalPrice = getTotalSellingPrice();
+    return totalPrice >= freeShippingThreshold ? 0 : calculateShipping(totalWeight);
   };
 
   const getProfit = () => {
@@ -113,10 +117,12 @@ export const ProductForm = () => {
       status,
       shippingRate: getShippingPrice(),
       profit: getProfit(),
+      costPrice,
+      sellingPrice,
+      oldPrice,
     };
 
     console.log("Saving Product:", productPayload);
-
     // 👉 Supabase insert will come later
   };
 
@@ -162,7 +168,6 @@ export const ProductForm = () => {
 
       {/* RIGHT COLUMN */}
       <div className="col-span-4 space-y-6">
-
         <PricingProfit
           costPrice={costPrice}
           setCostPrice={setCostPrice}
@@ -203,7 +208,6 @@ export const ProductForm = () => {
           onDelete={handleDelete}
           isEditMode={false}
         />
-
       </div>
 
     </div>
