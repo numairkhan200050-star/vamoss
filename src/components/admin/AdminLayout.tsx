@@ -1,3 +1,4 @@
+// src/components/admin/AdminLayout.tsx
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
