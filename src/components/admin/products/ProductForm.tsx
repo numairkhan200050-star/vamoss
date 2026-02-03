@@ -1,5 +1,6 @@
 // src/components/admin/products/ProductForm.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
 import { BasicInfo } from "./BasicInfo";
 import { CategoryCollectionSelection } from "./CategoryCollectionSelection";
@@ -17,6 +18,12 @@ export interface Variant {
   sellingPrice: number;
   oldPrice?: number;
   weight: number; // Weight per variant
+}
+
+export interface ShippingTier {
+  id?: number;
+  maxWeight: number; // grams
+  rate: number; // price for this tier
 }
 
 export const ProductForm = () => {
@@ -37,7 +44,6 @@ export const ProductForm = () => {
 
   /* ---------------- PRODUCT WEIGHT ---------------- */
   const [weight, setWeight] = useState(0); // Default weight if no variant
-  const [shippingRate, setShippingRate] = useState(0); // Calculated dynamically
 
   /* ---------------- PRICING ---------------- */
   const [costPrice, setCostPrice] = useState(0);
@@ -57,20 +63,53 @@ export const ProductForm = () => {
   const [status, setStatus] = useState("draft");
 
   /* ---------------- SHIPPING SETTINGS ---------------- */
-  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+  const [shippingTiers, setShippingTiers] = useState<ShippingTier[]>([]);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number>(0);
+  const [loadingShipping, setLoadingShipping] = useState(true);
 
-  // Mock function to get shipping cost from backend based on weight
-  const calculateShipping = (totalWeight: number) => {
-    if (totalWeight <= 500) return 250;
-    if (totalWeight <= 1000) return 500;
-    return 750; // Example tiers
-  };
+  /* ---------------- FETCH SHIPPING SETTINGS ---------------- */
+  useEffect(() => {
+    const fetchShippingSettings = async () => {
+      setLoadingShipping(true);
+      try {
+        const { data: tierData } = await supabase.from("shipping_tiers").select("*");
+        if (tierData) setShippingTiers(tierData as ShippingTier[]);
 
+        const { data: generalSettings } = await supabase
+          .from("general_settings")
+          .select("free_shipping_threshold")
+          .single();
+
+        if (generalSettings?.free_shipping_threshold) {
+          setFreeShippingThreshold(generalSettings.free_shipping_threshold);
+        }
+      } catch (err) {
+        console.error("Error fetching shipping settings:", err);
+      } finally {
+        setLoadingShipping(false);
+      }
+    };
+
+    fetchShippingSettings();
+  }, []);
+
+  /* ---------------- SHIPPING CALCULATIONS ---------------- */
   const getTotalWeight = () => {
     if (variants.length > 0) {
       return variants.reduce((sum, v) => sum + (v.weight || 0) * quantity, 0);
     }
     return weight * quantity;
+  };
+
+  const calculateShipping = (totalWeight: number) => {
+    if (shippingTiers.length === 0) return 0;
+
+    // Find the first tier where totalWeight <= maxWeight
+    const tier = shippingTiers
+      .sort((a, b) => a.maxWeight - b.maxWeight)
+      .find((t) => totalWeight <= t.maxWeight);
+
+    return tier ? tier.rate : shippingTiers[shippingTiers.length - 1].rate;
   };
 
   const getTotalSellingPrice = () => {
@@ -83,7 +122,8 @@ export const ProductForm = () => {
   const getShippingPrice = () => {
     const totalWeight = getTotalWeight();
     const totalPrice = getTotalSellingPrice();
-    return totalPrice >= freeShippingThreshold ? 0 : calculateShipping(totalWeight);
+    if (totalPrice >= freeShippingThreshold) return 0;
+    return calculateShipping(totalWeight);
   };
 
   const getProfit = () => {
@@ -123,11 +163,14 @@ export const ProductForm = () => {
     };
 
     console.log("Saving Product:", productPayload);
-    // 👉 Supabase insert will come later
+    alert("Product saved! (Check console for payload)");
+    // 👉 Supabase insert logic goes here
   };
 
   const handleDiscard = () => window.location.reload();
   const handleDelete = () => console.log("Delete product logic later");
+
+  if (loadingShipping) return <p>Loading shipping settings...</p>;
 
   /* ---------------- LAYOUT ---------------- */
   return (
