@@ -2,8 +2,6 @@
 import React from 'react';
 import { ImageUploader } from '../../ImageUploader';
 import { Trash2, Plus } from 'lucide-react';
-import { arrayMoveImmutable } from 'array-move'; // Drag-and-drop support
-
 
 // --- Variant type
 export interface Variant {
@@ -20,6 +18,14 @@ interface ProductMediaProps {
   variants: Variant[];
   setVariants: (variants: Variant[]) => void;
 }
+
+// --- Inline function to move array items
+const arrayMove = <T,>(arr: T[], from: number, to: number): T[] => {
+  const newArr = [...arr];
+  const item = newArr.splice(from, 1)[0];
+  newArr.splice(to, 0, item);
+  return newArr;
+};
 
 export const ProductMedia: React.FC<ProductMediaProps> = ({
   mainImage,
@@ -39,7 +45,7 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
 
   // --- Reorder gallery images
   const moveImage = (from: number, to: number) => {
-    setGalleryImages(arrayMoveImmutable(galleryImages, from, to));
+    setGalleryImages(arrayMove(galleryImages, from, to));
   };
 
   // --- Remove variant
