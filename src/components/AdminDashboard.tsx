@@ -5,7 +5,8 @@ import { Session } from '@supabase/supabase-js';
 
 // DEPARTMENT MANAGERS
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
-import { AdminGallery } from './admin/AdminGallery'; // New Gallery Supervisor
+import { AdminGallery } from './admin/AdminGallery';
+import { CollectionSupervisor } from './admin/CollectionSupervisor'; // Integrated the Brain
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
@@ -17,10 +18,9 @@ import {
   FolderTree, 
   FileCode,
   ShieldCheck,
-  Image as ImageIcon // Added for Gallery
+  Image as ImageIcon 
 } from 'lucide-react';
 
-// Added 'gallery' to the type
 type AdminTab = 'general' | 'collections' | 'pages' | 'products' | 'gallery';
 
 export const AdminDashboard = () => {
@@ -98,7 +98,6 @@ export const AdminDashboard = () => {
             <Settings size={20} /> General Settings
           </button>
 
-          {/* NEW GALLERY TAB */}
           <button
             style={comicSansBold}
             className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
@@ -163,20 +162,15 @@ export const AdminDashboard = () => {
         </div>
       </aside>
 
-      {/* MAIN VIEWPORT: WHERE WORK HAPPENS */}
-      <main className="flex-1 overflow-y-auto">
+      {/* MAIN VIEWPORT */}
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="min-h-full">
           {activeTab === 'general' && <AdminGeneralSettings />}
           
-          {/* RENDER GALLERY */}
           {activeTab === 'gallery' && <AdminGallery />}
 
-          {activeTab === 'collections' && (
-            <div className="p-10 flex flex-col items-center justify-center h-full text-center">
-               <FolderTree size={80} className="text-gray-200 mb-4" />
-               <p style={comicSansBold} className="text-gray-400 uppercase">Collection Supervisor Coming Soon...</p>
-            </div>
-          )}
+          {/* ACTIVE COLLECTION BRAIN */}
+          {activeTab === 'collections' && <CollectionSupervisor />}
 
           {activeTab === 'products' && (
             <div className="p-10 flex flex-col items-center justify-center h-full text-center">
