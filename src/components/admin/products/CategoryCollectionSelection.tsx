@@ -6,18 +6,18 @@ import { supabase } from '../../../lib/supabase';
 interface CategoryCollectionSelectionProps {
   selectedCategory: string;
   setSelectedCategory: (val: string) => void;
-  selectedCollections: number[];
-  setSelectedCollections: (val: number[]) => void;
+  selectedCollections: string[];
+  setSelectedCollections: (val: string[]) => void;
 }
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
-  parent_id: number | null;
+  parent_id: string | null;
 }
 
 interface Collection {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -27,24 +27,32 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
   selectedCollections,
   setSelectedCollections,
 }) => {
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [newCollectionName, setNewCollectionName] = useState('');
 
-  // Fetch categories and collections from Supabase
+  /* FETCH DATA */
   useEffect(() => {
     const fetchData = async () => {
-      const { data: cats } = await supabase.from('categories').select('*');
-      if (cats) setCategories(cats);
+      const { data: cats, error: catErr } = await supabase
+        .from('categories')
+        .select('*');
 
-      const { data: cols } = await supabase.from('collections').select('*');
-      if (cols) setCollections(cols);
+      if (!catErr && cats) setCategories(cats);
+
+      const { data: cols, error: colErr } = await supabase
+        .from('collections')
+        .select('*');
+
+      if (!colErr && cols) setCollections(cols);
     };
+
     fetchData();
   }, []);
 
-  // Handle collection selection toggle
-  const toggleCollection = (id: number) => {
+  /* TOGGLE COLLECTION */
+  const toggleCollection = (id: string) => {
     if (selectedCollections.includes(id)) {
       setSelectedCollections(selectedCollections.filter(c => c !== id));
     } else {
@@ -52,35 +60,49 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
     }
   };
 
-  // Add new collection
+  /* ADD COLLECTION */
   const addCollection = async () => {
     if (!newCollectionName.trim()) return;
-    const { data, error } = await supabase.from('collections').insert([{ name: newCollectionName }]).select().single();
-    if (data) {
+
+    const { data, error } = await supabase
+      .from('collections')
+      .insert([{ name: newCollectionName }])
+      .select()
+      .single();
+
+    if (!error && data) {
       setCollections([...collections, data]);
       setSelectedCollections([...selectedCollections, data.id]);
       setNewCollectionName('');
     }
   };
 
-  // Build category hierarchy for dropdown
+  /* BUILD CATEGORY TREE */
   const buildCategoryOptions = () => {
-    const mainCats = categories.filter(c => !c.parent_id);
-    return mainCats.map(main => {
-      const subCats = categories.filter(c => c.parent_id === main.id);
+    const parents = categories.filter(c => !c.parent_id);
+
+    return parents.map(parent => {
+      const children = categories.filter(c => c.parent_id === parent.id);
+
       return (
-        <optgroup key={main.id} label={main.name}>
-          {subCats.length > 0 ? subCats.map(sub => {
-            const subSubs = categories.filter(c => c.parent_id === sub.id);
-            return (
-              <React.Fragment key={sub.id}>
-                <option value={sub.id}>— {sub.name}</option>
-                {subSubs.map(ss => (
-                  <option key={ss.id} value={ss.id}>—— {ss.name}</option>
-                ))}
-              </React.Fragment>
-            );
-          }) : <option value={main.id}>{main.name}</option>}
+        <optgroup key={parent.id} label={parent.name}>
+          {children.length > 0
+            ? children.map(child => {
+                const grand = categories.filter(c => c.parent_id === child.id);
+
+                return (
+                  <React.Fragment key={child.id}>
+                    <option value={child.id}>— {child.name}</option>
+
+                    {grand.map(g => (
+                      <option key={g.id} value={g.id}>
+                        —— {g.name}
+                      </option>
+                    ))}
+                  </React.Fragment>
+                );
+              })
+            : <option value={parent.id}>{parent.name}</option>}
         </optgroup>
       );
     });
@@ -88,11 +110,13 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
 
   return (
     <div className="bg-white border-4 border-black p-6 space-y-6">
-      {/* CATEGORY SELECTION */}
+
+      {/* CATEGORY */}
       <div>
         <h2 className="font-black uppercase text-xs border-b-2 border-black pb-2 flex items-center gap-2">
           <List size={14} /> Category Selection
         </h2>
+
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -103,7 +127,7 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
         </select>
       </div>
 
-      {/* COLLECTION SELECTION */}
+      {/* COLLECTIONS */}
       <div>
         <h2 className="font-black uppercase text-xs border-b-2 border-black pb-2 flex items-center gap-2">
           <FolderPlus size={14} /> Collections
@@ -115,14 +139,18 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
               key={col.id}
               type="button"
               onClick={() => toggleCollection(col.id)}
-              className={`px-3 py-1 border-2 font-bold uppercase text-xs ${selectedCollections.includes(col.id) ? 'bg-black text-white border-black' : 'bg-white text-black border-black'}`}
+              className={`px-3 py-1 border-2 font-bold uppercase text-xs ${
+                selectedCollections.includes(col.id)
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-black'
+              }`}
             >
               {col.name}
             </button>
           ))}
         </div>
 
-        {/* Add New Collection */}
+        {/* ADD NEW COLLECTION */}
         <div className="mt-4 flex gap-2">
           <input
             type="text"
@@ -131,7 +159,11 @@ export const CategoryCollectionSelection: React.FC<CategoryCollectionSelectionPr
             placeholder="New Collection Name"
             className="flex-1 p-2 border-2 border-black font-bold text-xs outline-none"
           />
-          <button onClick={addCollection} className="px-4 py-2 bg-[#FFD700] border-2 border-black font-black uppercase text-xs hover:bg-black hover:text-[#FFD700] transition-all">
+
+          <button
+            onClick={addCollection}
+            className="px-4 py-2 bg-[#FFD700] border-2 border-black font-black uppercase text-xs hover:bg-black hover:text-[#FFD700] transition-all"
+          >
             <Plus size={14} /> Add
           </button>
         </div>
