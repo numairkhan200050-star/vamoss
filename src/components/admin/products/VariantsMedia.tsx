@@ -1,4 +1,4 @@
-// src/components/admin/products/VariantsMedia.tsx
+// src/components/admin/products/VariantsMedia.tsx 
 import React from 'react';
 import { ImageUploader } from '../../ImageUploader';
 import { Plus, Trash2 } from 'lucide-react';
