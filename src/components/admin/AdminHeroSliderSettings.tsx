@@ -1,3 +1,4 @@
+// src/components/admin/AdminHeroSliderSettings.tsx
 import React, { useState } from 'react';
 import { 
   Images, 
