@@ -94,3 +94,4 @@ export const VariantsMedia: React.FC<VariantsMediaProps> = ({ variants, setVaria
     </div>
   );
 };
+
