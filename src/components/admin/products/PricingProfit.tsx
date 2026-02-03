@@ -1,7 +1,7 @@
 // src/components/admin/products/PricingProfit.tsx
 import React, { useEffect, useState } from 'react';
 import { Calculator } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 interface PricingProfitProps {
   costPrice: number;
