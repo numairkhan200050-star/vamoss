@@ -1,4 +1,4 @@
-// src/components/admin/pages/PageManagement.tsx
+// src/components/admin/Pages/PageManagement.tsx
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
 
