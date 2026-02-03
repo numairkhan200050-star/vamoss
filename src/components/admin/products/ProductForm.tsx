@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { LoginPortal } from './LoginPortal';
+import { LoginPortal } from '../../LoginPortal';
 import CollectionList from '../collections/CollectionList';
 import PagesList from './admin/pages/PagesList';
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
