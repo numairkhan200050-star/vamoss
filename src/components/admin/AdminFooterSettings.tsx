@@ -1,3 +1,4 @@
+// src/components/admin/AdminFooterSettings.tsx
 import React, { useState } from 'react';
 import { 
   Facebook, 
