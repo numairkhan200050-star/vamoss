@@ -1,3 +1,5 @@
+// src/admin/components/admin/collections/CollectionList.tsx
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import CollectionForm from './CollectionForm';
