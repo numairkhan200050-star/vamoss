@@ -11,12 +11,11 @@ import ReviewTicker from './components/ReviewTicker';
 // Public Pages
 import HeroSlider from './components/HeroSlider'; // Removed braces (Default Export)
 import ContentArea from './components/ContentArea'; // Removed braces (Default Export)
-import { ProductListingPage } from './components/ProductListingPage'; // Keep braces (Named Export)
-import { ProductDetailPage } from './components/ProductDetailPage'; 
+
 import { TrackOrder } from './components/TrackOrder'; 
 
 // Private Admin Area
-import { AdminDashboard } from './components/AdminDashboard'; 
+
 
 // Helper component to hide Header/Footer on Admin pages
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
