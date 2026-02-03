@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { LoginPortal } from './LoginPortal';
 import CollectionList from './admin/collections/CollectionList';
-import { LabourPageForm, SupervisorPageForm } from './admin/pages/PageManagement';
+import { LabourPageForm, SupervisorPageForm } from './admin/Pages/PageManagement';
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { ProductForm } from './admin/products/ProductForm';
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
