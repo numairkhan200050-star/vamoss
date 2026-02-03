@@ -1,3 +1,4 @@
+// src/components/admin/products/ProductStatusActions.tsx
 import React from "react";
 import { Trash2, Save, RotateCcw } from "lucide-react";
 
