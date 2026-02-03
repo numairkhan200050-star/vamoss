@@ -1,4 +1,5 @@
 // src/components/admin/products/BasicInfo.tsx
+
 import React, { useEffect, useRef } from 'react';
 import { Globe } from 'lucide-react';
 
