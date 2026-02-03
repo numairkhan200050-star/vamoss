@@ -3,11 +3,12 @@ import { supabase } from '../lib/supabase';
 import { LoginPortal } from './LoginPortal';
 import CollectionList from './admin/collections/CollectionList';
 import PagesList from './admin/Pages/PagesList';
-import { AdminGeneralSettings } from './admin/AdminGeneralSettings'; // ✅ Import your general settings
+import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
+import { ProductForm } from './admin/products/ProductForm'; // ✅ Import your new ProductForm
 import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
 import { Session } from '@supabase/supabase-js';
 
-type AdminTab = 'general' | 'collections' | 'pages';
+type AdminTab = 'general' | 'collections' | 'pages' | 'products'; // ✅ Added products
 
 export const AdminDashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -37,14 +38,12 @@ export const AdminDashboard = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Loader while checking session
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-black">
       <LayoutDashboard className="text-[#FFD700] animate-spin" size={50} />
     </div>
   );
 
-  // Show login portal if not logged in
   if (!session) return (
     <LoginPortal 
       onLoginSuccess={async () => {
@@ -87,6 +86,15 @@ export const AdminDashboard = () => {
           >
             <FileText size={18} /> Pages
           </button>
+
+          <button
+            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
+              activeTab === 'products' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('products')}
+          >
+            <Box size={18} /> Products
+          </button>
         </nav>
 
         {/* Logout Button */}
@@ -106,8 +114,8 @@ export const AdminDashboard = () => {
         {activeTab === 'general' && <AdminGeneralSettings />}
         {activeTab === 'collections' && <CollectionList />}
         {activeTab === 'pages' && <PagesList />}
+        {activeTab === 'products' && <ProductForm />} {/* ✅ Render new ProductForm */}
       </main>
     </div>
   );
 };
-
