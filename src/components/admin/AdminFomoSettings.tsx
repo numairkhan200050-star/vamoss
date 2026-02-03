@@ -1,3 +1,4 @@
+// src/components/admin/AdminFomoSettings.tsx
 import React, { useState } from 'react';
 import { 
   Zap, 
