@@ -1,9 +1,11 @@
+// src/components/AdminDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
 // DEPARTMENT MANAGERS
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
+import { AdminGallery } from './admin/AdminGallery'; // New Gallery Supervisor
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
@@ -14,10 +16,12 @@ import {
   Package, 
   FolderTree, 
   FileCode,
-  ShieldCheck 
+  ShieldCheck,
+  Image as ImageIcon // Added for Gallery
 } from 'lucide-react';
 
-type AdminTab = 'general' | 'collections' | 'pages' | 'products';
+// Added 'gallery' to the type
+type AdminTab = 'general' | 'collections' | 'pages' | 'products' | 'gallery';
 
 export const AdminDashboard = () => {
   // STYLES
@@ -94,6 +98,19 @@ export const AdminDashboard = () => {
             <Settings size={20} /> General Settings
           </button>
 
+          {/* NEW GALLERY TAB */}
+          <button
+            style={comicSansBold}
+            className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
+              activeTab === 'gallery' 
+              ? 'bg-[#FFD700] text-black border-black translate-x-2' 
+              : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('gallery')}
+          >
+            <ImageIcon size={20} /> Media Vault
+          </button>
+
           <button
             style={comicSansBold}
             className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
@@ -151,6 +168,9 @@ export const AdminDashboard = () => {
         <div className="min-h-full">
           {activeTab === 'general' && <AdminGeneralSettings />}
           
+          {/* RENDER GALLERY */}
+          {activeTab === 'gallery' && <AdminGallery />}
+
           {activeTab === 'collections' && (
             <div className="p-10 flex flex-col items-center justify-center h-full text-center">
                <FolderTree size={80} className="text-gray-200 mb-4" />
