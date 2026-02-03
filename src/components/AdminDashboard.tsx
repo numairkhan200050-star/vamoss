@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
-import { CollectionSupervisor } from './admin/CollectionSupervisor'; // Integrated the Brain
+
 // DEPARTMENT MANAGERS
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
