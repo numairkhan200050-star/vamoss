@@ -125,3 +125,4 @@ export const ProductMedia: React.FC<ProductMediaProps> = ({
     </div>
   );
 };
+
