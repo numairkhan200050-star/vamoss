@@ -6,7 +6,7 @@ import { Session } from '@supabase/supabase-js';
 // DEPARTMENT MANAGERS
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
-import { CollectionSupervisor } from './admin/CollectionSupervisor'; // Integrated the Brain
+//import { CollectionSupervisor } from './admin/CollectionSupervisor'; // Integrated the Brain
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
