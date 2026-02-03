@@ -1,4 +1,4 @@
-// src/components/admin/products/CategoryCollectionSelection.tsx
+// src/components/admin/products/CategoryCollectionSelection.tsx 
 import React, { useEffect, useState } from 'react';
 import { Plus, List, FolderPlus } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
