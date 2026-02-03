@@ -1,6 +1,6 @@
-// src/components/admin/pages/PageManagement.tsx
+// src/components/admin/Pages/PageManagement.tsx
 import React, { useState } from "react";
-import { LabourPageForm, SupervisorPageForm } from "./PageForms"; // Separate forms
+import { LabourPageForm, SupervisorPageForm } from "./PageForm"; // Separate forms
 import { ShippingTierForm } from "../shipping/ShippingTierForm";
 
 export const PageManagement: React.FC = () => {
