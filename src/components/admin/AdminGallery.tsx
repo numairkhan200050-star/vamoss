@@ -1,3 +1,4 @@
+// src/components/admin/AdminGallery.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   Image as ImageIcon, 
