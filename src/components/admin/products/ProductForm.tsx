@@ -1,174 +1,116 @@
-// src/components/admin/products/ProductForm.tsx
-import React, { useState, useEffect } from "react";
-import { supabase } from "../../../lib/supabase";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { LoginPortal } from './LoginPortal';
+import CollectionList from './admin/collections/CollectionList';
+import PagesList from './admin/pages/PagesList';
+import { LogOut, LayoutDashboard, FileText, Box } from 'lucide-react';
+import { Session } from '@supabase/supabase-js';
 
-import { BasicInfo } from "./BasicInfo";
-import { CategoryCollectionSelection } from "./CategoryCollectionSelection";
-import { PricingProfit } from "./PricingProfit";
-import { ProductGalleryManager } from "./ProductGalleryManager";
-import { ProductMedia } from "./ProductMedia";
-import { VariantsMedia } from "./VariantsMedia";
-import { SEOSettings } from "./SEOSettings";
-import { ProductStatusActions } from "./ProductStatusActions";
+type AdminTab = 'general' | 'collections' | 'pages';
 
-export interface Variant {
-  colorName: string;
-  imageUrl: string;
-  costPrice: number;
-  sellingPrice: number;
-  oldPrice?: number;
-  weight: number; // in grams
-}
+export const AdminDashboard = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<AdminTab>('general');
 
-export const ProductForm: React.FC = () => {
-  /* ---------------- BASIC INFO ---------------- */
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-
-  /* ---------------- CATEGORY & COLLECTION ---------------- */
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
-
-  /* ---------------- MEDIA ---------------- */
-  const [mainImage, setMainImage] = useState("");
-  const [galleryImages, setGalleryImages] = useState<{ id: string; url: string }[]>([]);
-
-  /* ---------------- VARIANTS ---------------- */
-  const [variants, setVariants] = useState<Variant[]>([]);
-
-  /* ---------------- SEO ---------------- */
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
-
-  /* ---------------- STATUS ---------------- */
-  const [status, setStatus] = useState("draft");
-
-  /* ---------------- SHIPPING & PROFIT ---------------- */
-  const [shippingRates, setShippingRates] = useState<{ id: string; weight_limit_grams: number; price: number }[]>([]);
-
+  // Check session on load
   useEffect(() => {
-    const fetchShipping = async () => {
-      const { data } = await supabase.from("shipping_settings").select("*").order("weight_limit_grams");
-      if (data) setShippingRates(data);
+    const fetchSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      } catch (err) {
+        console.error('Error fetching session:', err);
+        setSession(null);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchShipping();
+    fetchSession();
+
+    // Listen to login/logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const totalWeight = variants.length > 0
-    ? variants.reduce((sum, v) => sum + (v.weight || 0), 0)
-    : 0;
+  // Loader while checking session
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-black">
+      <LayoutDashboard className="text-[#FFD700] animate-spin" size={50} />
+    </div>
+  );
 
-  const totalCostPrice = variants.length > 0
-    ? variants.reduce((sum, v) => sum + (v.costPrice || 0), 0)
-    : 0;
-
-  const totalSellingPrice = variants.length > 0
-    ? variants.reduce((sum, v) => sum + (v.sellingPrice || 0), 0)
-    : 0;
-
-  const shippingCost =
-    shippingRates.find(r => totalWeight <= r.weight_limit_grams)?.price || 0;
-
-  const netProfit = totalSellingPrice - totalCostPrice - shippingCost;
-
-  const margin = totalSellingPrice > 0 ? Number(((netProfit / totalSellingPrice) * 100).toFixed(1)) : 0;
-
-  /* ---------------- ACTIONS ---------------- */
-  const handleSave = () => {
-    const payload = {
-      title,
-      slug,
-      description,
-      category_id: selectedCategory,
-      collections: selectedCollections,
-      mainImage,
-      galleryImages: galleryImages.map(img => img.url),
-      variants,
-      metaTitle,
-      metaDescription,
-      status,
-      shippingCost,
-      netProfit,
-    };
-
-    console.log("Saving product:", payload);
-    alert("Product saved! (Check console)");
-    // 👉 Add Supabase insert/update logic here
-  };
-
-  const handleDiscard = () => window.location.reload();
-  const handleDelete = () => console.log("Delete product logic");
+  // Show login portal if not logged in
+  if (!session) return (
+    <LoginPortal 
+      onLoginSuccess={async () => {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+      }} 
+    />
+  );
 
   return (
-    <div className="grid grid-cols-12 gap-6">
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside className="w-64 bg-black text-white p-6 border-r-4 border-[#FFD700] flex flex-col">
+        <h2 className="text-3xl font-black italic text-[#FFD700] mb-10 tracking-tighter">K11 HQ</h2>
 
-      {/* LEFT COLUMN */}
-      <div className="col-span-8 space-y-6">
-        <BasicInfo
-          title={title}
-          setTitle={setTitle}
-          slug={slug}
-          setSlug={setSlug}
-          description={description}
-          setDescription={setDescription}
-        />
+        <nav className="flex-grow space-y-2">
+          <button
+            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
+              activeTab === 'general' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('general')}
+          >
+            <FileText size={18} /> General Settings
+          </button>
 
-        <ProductMedia
-          mainImage={mainImage}
-          setMainImage={setMainImage}
-          galleryImages={galleryImages.map(img => img.url)}
-          setGalleryImages={(urls) => setGalleryImages(urls.map(url => ({ id: crypto.randomUUID(), url })))}
-        />
+          <button
+            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
+              activeTab === 'collections' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('collections')}
+          >
+            <Box size={18} /> Collections
+          </button>
 
-        <ProductGalleryManager
-          images={galleryImages}
-          setImages={setGalleryImages}
-          setMainImage={setMainImage}
-        />
+          <button
+            className={`w-full flex items-center gap-3 p-4 font-black uppercase text-[10px] tracking-widest transition-all ${
+              activeTab === 'pages' ? 'bg-[#FFD700] text-black' : 'hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('pages')}
+          >
+            <FileText size={18} /> Pages
+          </button>
+        </nav>
 
-        <VariantsMedia
-          variants={variants}
-          setVariants={setVariants}
-        />
+        {/* Logout Button */}
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            setSession(null);
+          }}
+          className="flex items-center gap-3 p-4 text-gray-500 hover:text-red-500 font-black uppercase text-[10px] transition-colors mt-6"
+        >
+          <LogOut size={18} /> Logout
+        </button>
+      </aside>
 
-        <CategoryCollectionSelection
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedCollections={selectedCollections}
-          setSelectedCollections={setSelectedCollections}
-        />
-      </div>
-
-      {/* RIGHT COLUMN */}
-      <div className="col-span-4 space-y-6">
-        <PricingProfit
-          costPrice={totalCostPrice}
-          sellingPrice={totalSellingPrice}
-          weight={totalWeight}
-          shippingCost={shippingCost}
-          netProfit={netProfit}
-          margin={margin}
-        />
-
-        <SEOSettings
-          metaTitle={metaTitle}
-          setMetaTitle={setMetaTitle}
-          metaDescription={metaDescription}
-          setMetaDescription={setMetaDescription}
-          slug={slug}
-        />
-
-        <ProductStatusActions
-          status={status}
-          setStatus={setStatus}
-          onSave={handleSave}
-          onDiscard={handleDiscard}
-          onDelete={handleDelete}
-          isEditMode={false}
-        />
-      </div>
-
+      {/* Main Content */}
+      <main className="flex-1 p-10 overflow-y-auto">
+        {activeTab === 'general' && (
+          <div>
+            <h1 className="text-3xl font-bold">General Settings</h1>
+            <p>Admin general settings will appear here.</p>
+          </div>
+        )}
+        {activeTab === 'collections' && <CollectionList />}
+        {activeTab === 'pages' && <PagesList />}
+      </main>
     </div>
   );
 };
