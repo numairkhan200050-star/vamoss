@@ -1,3 +1,4 @@
+// src/compoenets/admin/products/SEOSettings.tsx
 import React from "react";
 import { Globe } from "lucide-react";
 
