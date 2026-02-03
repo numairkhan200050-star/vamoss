@@ -1,7 +1,6 @@
 // src/components/admin/collections/CollectionCreator.tsx
 import React, { useState } from 'react';
 import { Search, Plus, Trash2, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
-
 interface Product {
   id: string;
   name: string;
