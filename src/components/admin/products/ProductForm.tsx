@@ -1,3 +1,4 @@
+// src/components/admin/products/ProductForm.tsx
 import React, { useState } from "react";
 
 import { BasicInfo } from "./BasicInfo";
@@ -8,6 +9,15 @@ import { ProductMedia } from "./ProductMedia";
 import { VariantsMedia } from "./VariantsMedia";
 import { SEOSettings } from "./SEOSettings";
 import { ProductStatusActions } from "./ProductStatusActions";
+
+export interface Variant {
+  colorName: string;
+  imageUrl: string;
+  costPrice: number;
+  sellingPrice: number;
+  oldPrice?: number;
+  weight: number; // Weight per variant
+}
 
 export const ProductForm = () => {
 
@@ -26,16 +36,14 @@ export const ProductForm = () => {
   const [trackInventory, setTrackInventory] = useState(true);
   const [allowBackorder, setAllowBackorder] = useState(false);
 
-  /* ---------------- PRICING ---------------- */
-  const [costPrice, setCostPrice] = useState(0);
-  const [sellingPrice, setSellingPrice] = useState(0);
-  const [oldPrice, setOldPrice] = useState(0);
-  const [weight, setWeight] = useState(0);
+  /* ---------------- PRODUCT WEIGHT ---------------- */
+  const [weight, setWeight] = useState(0); // Default weight if no variant
+  const [shippingRate, setShippingRate] = useState(0); // Calculated dynamically
 
-  /* ---------------- MEDIA ---------------- */
+  /* ---------------- MEDIA & VARIANTS ---------------- */
   const [mainImage, setMainImage] = useState("");
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [variants, setVariants] = useState<any[]>([]);
+  const [variants, setVariants] = useState<Variant[]>([]);
 
   /* ---------------- SEO ---------------- */
   const [metaTitle, setMetaTitle] = useState("");
@@ -44,8 +52,47 @@ export const ProductForm = () => {
   /* ---------------- STATUS ---------------- */
   const [status, setStatus] = useState("draft");
 
-  /* ---------------- ACTION HANDLERS ---------------- */
+  /* ---------------- SHIPPING SETTINGS ---------------- */
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
 
+  // Mock function to get shipping cost from backend based on weight
+  const calculateShipping = (totalWeight: number) => {
+    if (totalWeight <= 500) return 250;
+    if (totalWeight <= 1000) return 500;
+    return 750; // Example tiers
+  };
+
+  const getTotalWeight = () => {
+    if (variants.length > 0) {
+      return variants.reduce((sum, v) => sum + (v.weight || 0) * quantity, 0);
+    }
+    return weight * quantity;
+  };
+
+  const getShippingPrice = () => {
+    const totalWeight = getTotalWeight();
+    const totalPrice = getTotalSellingPrice();
+    return totalPrice >= freeShippingThreshold ? 0 : calculateShipping(totalWeight);
+  };
+
+  const getTotalSellingPrice = () => {
+    if (variants.length > 0) {
+      return variants.reduce((sum, v) => sum + (v.sellingPrice || 0) * quantity, 0);
+    }
+    return (quantity || 1) * sellingPrice;
+  };
+
+  const getProfit = () => {
+    let cost = 0;
+    if (variants.length > 0) {
+      cost = variants.reduce((sum, v) => sum + (v.costPrice || 0) * quantity, 0);
+    } else {
+      cost = (costPrice || 0) * quantity;
+    }
+    return getTotalSellingPrice() - cost - getShippingPrice();
+  };
+
+  /* ---------------- ACTION HANDLERS ---------------- */
   const handleSave = () => {
     const productPayload = {
       title,
@@ -57,9 +104,6 @@ export const ProductForm = () => {
       quantity,
       trackInventory,
       allowBackorder,
-      costPrice,
-      sellingPrice,
-      oldPrice,
       weight,
       mainImage,
       galleryImages,
@@ -67,29 +111,24 @@ export const ProductForm = () => {
       metaTitle,
       metaDescription,
       status,
+      shippingRate: getShippingPrice(),
+      profit: getProfit(),
     };
 
     console.log("Saving Product:", productPayload);
 
-    // 👉 Supabase insert will come later (Objective 3)
+    // 👉 Supabase insert will come later
   };
 
-  const handleDiscard = () => {
-    window.location.reload();
-  };
-
-  const handleDelete = () => {
-    console.log("Delete product logic later");
-  };
+  const handleDiscard = () => window.location.reload();
+  const handleDelete = () => console.log("Delete product logic later");
 
   /* ---------------- LAYOUT ---------------- */
-
   return (
     <div className="grid grid-cols-12 gap-6">
 
       {/* LEFT COLUMN */}
       <div className="col-span-8 space-y-6">
-
         <BasicInfo
           title={title}
           setTitle={setTitle}
@@ -119,7 +158,6 @@ export const ProductForm = () => {
           selectedCollections={selectedCollections}
           setSelectedCollections={setSelectedCollections}
         />
-
       </div>
 
       {/* RIGHT COLUMN */}
@@ -134,6 +172,8 @@ export const ProductForm = () => {
           setOldPrice={setOldPrice}
           weight={weight}
           setWeight={setWeight}
+          shippingPrice={getShippingPrice()}
+          profit={getProfit()}
         />
 
         <InventoryStock
