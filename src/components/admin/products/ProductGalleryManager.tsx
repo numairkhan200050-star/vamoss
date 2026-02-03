@@ -1,3 +1,4 @@
+// src/components/admin/products/ProductGalleryManager.tsx
 import React, { useState } from "react";
 import { ImageUploader } from "../../ImageUploader";
 import { Trash2, GripVertical } from "lucide-react";
