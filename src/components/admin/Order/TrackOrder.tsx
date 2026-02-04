@@ -1,6 +1,6 @@
 // src/pages/TrackOrder.tsx
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { Search, Package, MapPin, Truck, CheckCircle2 } from 'lucide-react';
 
 export const TrackOrder = () => {
