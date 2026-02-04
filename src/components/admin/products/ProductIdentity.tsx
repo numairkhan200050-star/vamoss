@@ -1,6 +1,6 @@
 // src/components/admin/products/ProductIdentity.tsx
 import React, { useEffect, useState } from 'react';
-import { Globe, LayoutText, Search, Type, FolderTree } from 'lucide-react';
+import { Globe, FileText, Search, Type, FolderTree } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 
 interface ProductIdentityProps {
