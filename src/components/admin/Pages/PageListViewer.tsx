@@ -10,7 +10,8 @@ import {
   Globe, 
   Search,
   MoreVertical,
-  Trash2
+  Trash2,
+  Layers
 } from 'lucide-react';
 
 interface PageSummary {
@@ -31,98 +32,91 @@ interface PageListViewerProps {
 
 export const PageListViewer = ({ onAddNew, onEdit, onLink }: PageListViewerProps) => {
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
+  const comicSansNormal = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
 
-  // --- NOTE 9: MOCK DATA (To be replaced with Supabase fetch) ---
+  // --- DATA ---
   const [pages] = useState<PageSummary[]>([
-    { 
-      id: 'p1', 
-      title: 'Our Heritage', 
-      slug: 'heritage', 
-      status: 'active', 
-      searchVisible: true, 
-      googleVisible: true, 
-      lastModified: 'Oct 24, 2023' 
-    },
-    { 
-      id: 'p2', 
-      title: 'Privacy Protocol', 
-      slug: 'privacy', 
-      status: 'draft', 
-      searchVisible: false, 
-      googleVisible: false, 
-      lastModified: 'Oct 28, 2023' 
-    }
+    { id: 'p1', title: 'Our Heritage', slug: 'heritage', status: 'active', searchVisible: true, googleVisible: true, lastModified: 'Oct 24, 2023' },
+    { id: 'p2', title: 'Privacy Protocol', slug: 'privacy', status: 'draft', searchVisible: false, googleVisible: false, lastModified: 'Oct 28, 2023' }
   ]);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8" style={comicSansNormal}>
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-8 border-black pb-8 gap-6">
-        <div>
-          <h1 style={comicSansBold} className="text-6xl uppercase italic tracking-tighter flex items-center gap-4">
-            <FileCode className="text-[#FFD700]" size={56} strokeWidth={2.5} />
-            Page List
-          </h1>
-          <p className="text-gray-400 font-black uppercase text-xs tracking-widest mt-2 bg-black text-white px-3 py-1 inline-block">
-            Managing {pages.length} Custom Entry Points
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-center pb-8 border-b border-slate-200/50 gap-6">
+        <div className="flex items-center gap-5">
+          <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-600 backdrop-blur-xl border border-blue-200/50">
+            <Layers size={32} />
+          </div>
+          <div>
+            <h1 style={comicSansBold} className="text-4xl italic tracking-tight text-slate-800">
+              Page Registry
+            </h1>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mt-1 font-bold">
+              Overseeing {pages.length} entry nodes
+            </p>
+          </div>
         </div>
         
         <button 
           onClick={onAddNew}
           style={comicSansBold}
-          className="bg-[#FFD700] text-black border-4 border-black px-10 py-5 flex items-center gap-3 hover:bg-black hover:text-[#FFD700] transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none uppercase tracking-widest"
+          className="bg-slate-900 text-white px-8 py-4 rounded-2xl flex items-center gap-3 hover:bg-blue-600 transition-all shadow-lg shadow-slate-200 active:scale-95 text-xs uppercase tracking-[0.2em]"
         >
-          <Plus size={24} /> Construct New Page
+          <Plus size={20} /> Construct New Page
         </button>
       </div>
 
-      {/* PAGE TABLE */}
-      <div className="border-8 border-black bg-white shadow-[15px_15px_0px_0px_rgba(0,0,0,0.1)] overflow-hidden">
+      {/* PAGE TABLE: GLASS CONTAINER */}
+      <div className="bg-white/40 backdrop-blur-md border border-white/60 rounded-[2rem] overflow-hidden shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-black text-white uppercase text-[10px] tracking-[0.2em]">
-              <th className="p-6">Page Detail</th>
-              <th className="p-6">Status</th>
-              <th className="p-6 text-center">Visibility</th>
-              <th className="p-6 text-right">Actions</th>
+            <tr className="border-b border-slate-100/50 text-[10px] uppercase tracking-[0.2em] text-slate-400">
+              <th className="p-6 font-bold">Detail</th>
+              <th className="p-6 font-bold text-center">Lifecycle</th>
+              <th className="p-6 font-bold text-center">Visibility</th>
+              <th className="p-6 font-bold text-right">Control</th>
             </tr>
           </thead>
-          <tbody className="divide-y-4 divide-black">
+          <tbody className="divide-y divide-slate-100/50">
             {pages.map((page) => (
-              <tr key={page.id} className="hover:bg-yellow-50/50 transition-colors group">
+              <tr key={page.id} className="hover:bg-white/60 transition-colors group">
                 <td className="p-6">
-                  <p style={comicSansBold} className="text-xl uppercase leading-none">{page.title}</p>
-                  <p className="text-xs font-mono text-gray-400 mt-1">/{page.slug}</p>
+                  <p style={comicSansBold} className="text-lg text-slate-800 leading-none">{page.title}</p>
+                  <p className="text-[11px] font-mono text-blue-500 mt-1 tracking-tight">/{page.slug}</p>
                 </td>
-                <td className="p-6">
-                  <span className={`px-3 py-1 text-[9px] font-black uppercase border-2 ${
-                    page.status === 'active' ? 'bg-green-100 border-green-500 text-green-700' : 
-                    page.status === 'draft' ? 'bg-blue-100 border-blue-500 text-blue-700' : 
-                    'bg-gray-100 border-gray-500 text-gray-700'
+                <td className="p-6 text-center">
+                  <span className={`px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-tighter border ${
+                    page.status === 'active' ? 'bg-green-50 border-green-100 text-green-600' : 
+                    page.status === 'draft' ? 'bg-blue-50 border-blue-200 text-blue-600' : 
+                    'bg-slate-50 border-slate-200 text-slate-500'
                   }`}>
                     {page.status}
                   </span>
                 </td>
                 <td className="p-6">
-                  <div className="flex justify-center gap-4 text-gray-300">
-                    <Search size={18} className={page.searchVisible ? 'text-black' : ''} />
-                    <Globe size={18} className={page.googleVisible ? 'text-black' : ''} />
+                  <div className="flex justify-center gap-4">
+                    <div className={`p-2 rounded-lg ${page.searchVisible ? 'bg-slate-100 text-slate-800' : 'text-slate-200'}`}>
+                      <Search size={16} />
+                    </div>
+                    <div className={`p-2 rounded-lg ${page.googleVisible ? 'bg-slate-100 text-slate-800' : 'text-slate-200'}`}>
+                      <Globe size={16} />
+                    </div>
                   </div>
                 </td>
                 <td className="p-6">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end gap-3">
                     <button 
                       onClick={() => onLink(page.id)}
-                      className="p-3 border-2 border-black hover:bg-[#FFD700] transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                      title="Link to Category"
+                      className="p-3 rounded-xl bg-white border border-slate-100 hover:border-blue-400 hover:text-blue-500 transition-all shadow-sm"
+                      title="Manage Connections"
                     >
                       <Link size={18} />
                     </button>
                     <button 
                       onClick={() => onEdit(page.id)}
-                      className="p-3 border-2 border-black hover:bg-black hover:text-white transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                      title="Edit Content"
+                      className="p-3 rounded-xl bg-slate-800 text-white hover:bg-blue-600 transition-all shadow-sm"
+                      title="Edit Entry"
                     >
                       <Edit3 size={18} />
                     </button>
