@@ -7,7 +7,8 @@ import { Session } from '@supabase/supabase-js';
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
 import { CollectionSupervisor } from './admin/CollectionSupervisor'; 
-import { PageSupervisor } from './admin/PageSupervisor'; // Integrated Page Brain
+import { PageSupervisor } from './admin/PageSupervisor'; 
+import { ProductSupervisor } from './admin/ProductSupervisor'; // NEW: Imported your Product Brain
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
@@ -168,18 +169,14 @@ export const AdminDashboard = () => {
         <div className="min-h-full">
           {activeTab === 'general' && <AdminGeneralSettings />}
           
-          {activeTab === 'gallery' && <AdminGallery />}
+          {/* Standalone mode: isModal is false by default */}
+          {activeTab === 'gallery' && <AdminGallery isModal={false} />}
 
           {activeTab === 'collections' && <CollectionSupervisor />}
 
-          {activeTab === 'products' && (
-            <div className="p-10 flex flex-col items-center justify-center h-full text-center">
-               <Package size={80} className="text-gray-200 mb-4" />
-               <p style={comicSansBold} className="text-gray-400 uppercase">Product Supervisor Coming Soon...</p>
-            </div>
-          )}
+          {/* NEW PRODUCT SUPERVISOR INTEGRATION */}
+          {activeTab === 'products' && <ProductSupervisor />}
 
-          {/* PAGES SUPERVISOR INTEGRATION */}
           {activeTab === 'pages' && <PageSupervisor />}
         </div>
       </main>
