@@ -11,7 +11,7 @@ export const PageSupervisor = () => {
   const [view, setView] = useState<PageView>('list');
   const [activePageId, setActivePageId] = useState<string | null>(null);
 
-  // --- MODERN GLASS STYLES ---
+  // --- COMPACT GLASS STYLES ---
   const comicSansNormal = { 
     fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', 
     fontWeight: 'normal' as const 
@@ -19,20 +19,20 @@ export const PageSupervisor = () => {
 
   const glassContainer = {
     background: "rgba(255, 255, 255, 0.45)",
-    backdropFilter: "blur(16px)",
-    WebkitBackdropFilter: "blur(16px)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
     border: "1px solid rgba(255, 255, 255, 0.5)",
-    boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.05)",
-    borderRadius: "2rem"
+    boxShadow: "0 4px 20px -5px rgba(0, 0, 0, 0.05)",
+    borderRadius: "1.5rem"
   };
 
   return (
-    <div className="p-6 min-h-full bg-gradient-to-br from-slate-50 to-indigo-50/20">
-      {/* 1. GLASS SHELL WRAPPER */}
-      <div style={glassContainer} className="transition-all duration-700 ease-in-out overflow-hidden">
-        <div className="p-4 md:p-8" style={comicSansNormal}>
+    <div className="p-3 md:p-5 min-h-full bg-gradient-to-br from-slate-50 to-indigo-50/20">
+      {/* 1. COMPACT GLASS SHELL */}
+      <div style={glassContainer} className="transition-all duration-500 ease-in-out overflow-hidden max-w-5xl mx-auto">
+        <div className="p-4 md:p-6" style={comicSansNormal}>
           
-          {/* VIEW: LIST (PAGELISTVIEWER) */}
+          {/* VIEW: LIST */}
           {view === 'list' && (
             <PageListViewer 
               onAddNew={() => {
@@ -55,7 +55,7 @@ export const PageSupervisor = () => {
             <PageCreator 
               pageId={activePageId}
               onSave={(data) => {
-                console.log('HQ Data Received:', data);
+                console.log('Data Saved:', data);
                 setView('list');
                 setActivePageId(null);
               }}
@@ -66,12 +66,12 @@ export const PageSupervisor = () => {
             />
           )}
 
-          {/* VIEW: LINKER (ANCHOR SYSTEM) */}
+          {/* VIEW: LINKER */}
           {view === 'link' && (
             <PageLinker 
               pageId={activePageId}
               onSave={(links) => {
-                console.log('Node Links Established:', links);
+                console.log('Links Saved:', links);
                 setView('list');
                 setActivePageId(null);
               }}
@@ -84,11 +84,11 @@ export const PageSupervisor = () => {
         </div>
       </div>
       
-      {/* STATUS INDICATOR (SUBTLE GLASS) */}
-      <div className="mt-6 ml-4 flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-        <span className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">
-          Page Engine Active
+      {/* COMPACT STATUS INDICATOR */}
+      <div className="mt-4 max-w-5xl mx-auto px-2 flex items-center gap-2">
+        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+        <span className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-bold">
+          System Ready
         </span>
       </div>
     </div>
