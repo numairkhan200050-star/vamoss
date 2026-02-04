@@ -6,7 +6,8 @@ import { Session } from '@supabase/supabase-js';
 // DEPARTMENT MANAGERS
 import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
-import { CollectionSupervisor } from './admin/CollectionSupervisor'; // Integrated the Brain
+import { CollectionSupervisor } from './admin/CollectionSupervisor'; 
+import { PageSupervisor } from './admin/PageSupervisor'; // Integrated Page Brain
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
@@ -169,7 +170,6 @@ export const AdminDashboard = () => {
           
           {activeTab === 'gallery' && <AdminGallery />}
 
-          {/* ACTIVE COLLECTION BRAIN */}
           {activeTab === 'collections' && <CollectionSupervisor />}
 
           {activeTab === 'products' && (
@@ -179,12 +179,8 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {activeTab === 'pages' && (
-            <div className="p-10 flex flex-col items-center justify-center h-full text-center">
-               <FileCode size={80} className="text-gray-200 mb-4" />
-               <p style={comicSansBold} className="text-gray-400 uppercase">Pages Supervisor Coming Soon...</p>
-            </div>
-          )}
+          {/* PAGES SUPERVISOR INTEGRATION */}
+          {activeTab === 'pages' && <PageSupervisor />}
         </div>
       </main>
     </div>
