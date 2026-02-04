@@ -15,7 +15,7 @@ import ContentArea from './components/ContentArea';
 // Import Your Real Components
 import { ProductListingPage } from './components/ProductListingPage'; // Make sure path is correct
 import { ProductDetailPage } from './components/ProductDetailPage'; // Make sure path is correct
-import { Checkout } from './components/Checkout'; // Our new Checkout component
+//import { Checkout } from './components/Checkout'; // Our new Checkout component
 import { AdminDashboard } from './components/AdminDashboard';
 
 // Placeholder for Track Order (if you haven't built it yet)
