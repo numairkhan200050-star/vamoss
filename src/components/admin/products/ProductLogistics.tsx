@@ -1,4 +1,4 @@
-// src/components/admin/products/Logistics.tsx
+// src/components/admin/products/ProductLogistics.tsx
 import React from 'react';
 import { Palette, Trash2, Plus, Image as ImageIcon, Check } from 'lucide-react';
 
