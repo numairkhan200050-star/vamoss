@@ -1,122 +1,223 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Truck, Phone, MapPin, User, Send, ShieldCheck } from 'lucide-react';
+import { Truck, Send, ShieldCheck, PackageCheck, AlertCircle } from 'lucide-react';
 
-export const CheckoutForm = ({ cartItems, totalAmount }: any) => {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
+export const Checkout = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const productData = location.state?.product;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shippingCost, setShippingCost] = useState(0);
+  
+  // Form State
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    whatsapp: '',
+    address: '',
+    province: 'Sindh',
+    city: ''
+  });
 
-  // Function to generate a Professional Tracking ID
-  const generateTrackingId = () => `K11-${Math.floor(1000 + Math.random() * 9000)}`;
+  const provinces = ['Sindh', 'Punjab', 'KPK', 'Balochistan', 'Gilgit Baltistan', 'AJK'];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Safety: If no product data, go back
+  useEffect(() => {
+    if (!productData) {
+      alert("No product selected!");
+      navigate('/');
+    }
+  }, [productData]);
+
+  // Logic: Calculate Shipping from Supabase
+  useEffect(() => {
+    const calculateShipping = async () => {
+      if (!productData) return;
+
+      const { data } = await supabase
+        .from('shipping_rates')
+        .select('rate_per_kg')
+        .eq('province', formData.province)
+        .single();
+
+      if (data) {
+        const weightInKg = productData.weight / 1000;
+        const cost = Math.max(250, weightInKg * data.rate_per_kg); // Min 250 PKR
+        setShippingCost(Math.ceil(cost));
+      }
+    };
+    calculateShipping();
+  }, [formData.province, productData]);
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Validate Pakistani Phone
+    // Validate Phone (03xxxxxxxxx)
     const phoneRegex = /^03\d{9}$/;
-    if (!phoneRegex.test(phone)) return alert("Enter valid 11-digit number (03xxxxxxxxx)");
+    if (!phoneRegex.test(formData.phone)) {
+      return alert("Enter valid 11-digit number (03xxxxxxxxx)");
+    }
 
     setIsSubmitting(true);
-    const trackingId = generateTrackingId();
 
     try {
-      // 2. Save to Supabase 'orders' table
-      const { error } = await supabase.from('orders').insert([{
-        tracking_id: trackingId,
-        customer_name: fullName,
-        phone: phone,
-        address: address,
-        city: city,
-        total_price: totalAmount,
-        status: 'pending', // Default status
-        items: cartItems // Stores the list of products bought
-      }]);
+      // 1. Generate Professional Tracking ID
+      const trackingId = `K11-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      if (error) throw error;
+      // 2. Insert into Orders Table
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          tracking_id: trackingId,
+          customer_name: formData.name,
+          phone: formData.phone,
+          whatsapp_number: formData.whatsapp || formData.phone,
+          address: formData.address,
+          province: formData.province,
+          city: formData.city,
+          total_weight_grams: productData.weight,
+          shipping_cost: shippingCost,
+          total_amount: productData.price + shippingCost,
+          status: 'pending'
+        })
+        .select().single();
 
-      // 3. Trigger WhatsApp Confirmation
-      const message = `*ORDER CONFIRMED - KEVIN11*\n\n` +
-                      `*Tracking ID:* ${trackingId}\n` +
-                      `*Customer:* ${fullName}\n` +
-                      `*Amount:* Rs. ${totalAmount}\n` +
-                      `*Status:* Pending (Wait for confirmation call)\n\n` +
-                      `Thank you for shopping at KEVIN11! We will ship your order to ${city} soon.`;
+      if (orderError) throw orderError;
 
-      const whatsappUrl = `https://wa.me/923282519507?text=${encodeURIComponent(message)}`;
+      // 3. Insert Order Items
+      const { error: itemsError } = await supabase.from('order_items').insert({
+        order_id: order.id,
+        product_id: productData.id,
+        product_title: productData.title,
+        variant_info: productData.variant,
+        quantity: 1,
+        price_per_unit: productData.price
+      });
+
+      if (itemsError) throw itemsError;
+
+      // 4. Trigger WhatsApp Confirmation
+      const message = `*ORDER CONFIRMED - KEVIN11*%0A%0A` +
+                      `*Tracking ID:* ${trackingId}%0A` +
+                      `*Customer:* ${formData.name}%0A` +
+                      `*Product:* ${productData.title} (${productData.variant})%0A` +
+                      `*Total Amount:* Rs. ${productData.price + shippingCost}%0A%0A` +
+                      `Thank you! We will ship your order to ${formData.city} soon.`;
+
+      const whatsappUrl = `https://wa.me/923282519507?text=${message}`;
       
-      alert(`Order Placed! Your Tracking ID is ${trackingId}. Opening WhatsApp to confirm...`);
+      alert(`Order Placed! ID: ${trackingId}`);
       window.open(whatsappUrl, '_blank');
+      navigate('/');
       
-    } catch (err) {
-      alert("Error placing order. Please try again.");
+    } catch (err: any) {
+      alert("Error: " + err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!productData) return null;
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-black uppercase italic flex items-center gap-3">
-          <Truck size={32} /> Checkout
-        </h2>
-        <div className="bg-black text-[#FFD700] px-3 py-1 text-[10px] font-black uppercase rounded">
-          COD Only
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Input Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-3 border-2 border-black">
-            <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Full Name</label>
-            <input required type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full font-bold outline-none" placeholder="Ahmed Khan" />
-          </div>
-          <div className="p-3 border-2 border-black">
-            <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Phone (03xxxxxxxxx)</label>
-            <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full font-bold outline-none" placeholder="03282519507" />
-          </div>
-        </div>
-
-        <div className="p-3 border-2 border-black">
-          <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Shipping Address</label>
-          <textarea required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full font-bold outline-none h-20 resize-none" placeholder="House/Street/Area" />
-        </div>
-
-        <div className="p-3 border-2 border-black">
-          <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">City</label>
-          <select required value={city} onChange={(e) => setCity(e.target.value)} className="w-full font-bold outline-none bg-white">
-            <option value="">Select City</option>
-            <option value="Karachi">Karachi</option>
-            <option value="Lahore">Lahore</option>
-            <option value="Islamabad">Islamabad</option>
-            {/* ... other cities */}
-          </select>
-        </div>
-
-        {/* ORDER SUMMARY */}
-        <div className="bg-gray-50 p-4 border-2 border-black border-dashed">
-          <div className="flex justify-between font-black uppercase text-sm">
-            <span>Total to Pay:</span>
-            <span>Rs. {totalAmount}</span>
-          </div>
-        </div>
-
-        <button 
-          disabled={isSubmitting}
-          type="submit" 
-          className="w-full bg-black text-[#FFD700] py-6 font-black uppercase tracking-widest text-xl hover:bg-[#FFD700] hover:text-black transition-all flex items-center justify-center gap-3 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)]"
-        >
-          {isSubmitting ? "Processing..." : <><Send size={20} /> Confirm Order & WhatsApp</>}
-        </button>
+    <div className="max-w-6xl mx-auto p-6 md:p-12 font-sans text-black">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        <p className="text-[9px] text-center font-bold text-gray-400 uppercase">
-          <ShieldCheck size={10} className="inline mr-1" /> Verified Secure Cash on Delivery
-        </p>
-      </form>
+        {/* LEFT: SHIPPING FORM (Old UI Style) */}
+        <div className="lg:col-span-7 space-y-8">
+          <div className="border-b-4 border-black pb-4">
+            <h2 className="text-4xl font-black uppercase italic flex items-center gap-3">
+              <Truck size={36} /> Checkout
+            </h2>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Complete your order details below</p>
+          </div>
+
+          <form onSubmit={handleSubmitOrder} className="space-y-4">
+            <div className="p-3 border-2 border-black">
+              <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Full Name</label>
+              <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full font-bold outline-none uppercase" placeholder="AHMED KHAN" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-3 border-2 border-black">
+                <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Phone (03xxxxxxxxx)</label>
+                <input required type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full font-bold outline-none" placeholder="03XXXXXXXXX" />
+              </div>
+              <div className="p-3 border-2 border-black">
+                <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">WhatsApp (Optional)</label>
+                <input type="tel" value={formData.whatsapp} onChange={(e) => setFormData({...formData, whatsapp: e.target.value})} className="w-full font-bold outline-none" placeholder="03XXXXXXXXX" />
+              </div>
+            </div>
+
+            <div className="p-3 border-2 border-black">
+              <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Shipping Address</label>
+              <textarea required rows={3} value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full font-bold outline-none resize-none" placeholder="HOUSE NO, STREET, AREA NAME" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-3 border-2 border-black">
+                <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">Province</label>
+                <select className="w-full font-bold outline-none bg-white" value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value})}>
+                  {provinces.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div className="p-3 border-2 border-black">
+                <label className="text-[10px] font-black uppercase text-gray-400 block mb-1">City</label>
+                <input required type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full font-bold outline-none uppercase" placeholder="KARACHI" />
+              </div>
+            </div>
+
+            <button 
+              disabled={isSubmitting}
+              type="submit" 
+              className="w-full bg-black text-[#FFD700] py-6 font-black uppercase tracking-widest text-2xl hover:bg-[#FFD700] hover:text-black transition-all flex items-center justify-center gap-3 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] active:translate-y-2 active:shadow-none"
+            >
+              {isSubmitting ? "Processing..." : <><Send size={24} /> Confirm Order (COD)</>}
+            </button>
+          </form>
+        </div>
+
+        {/* RIGHT: ORDER SUMMARY (New UI Style) */}
+        <div className="lg:col-span-5">
+          <div className="bg-white border-4 border-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] sticky top-8">
+            <h3 className="text-2xl font-black uppercase italic flex items-center gap-2 mb-8">
+              <PackageCheck size={28} /> Summary
+            </h3>
+            
+            <div className="flex gap-4 mb-8 pb-6 border-b-2 border-dashed border-gray-200">
+              <img src={productData.image} alt="" className="w-20 h-20 border-2 border-black object-cover rounded-xl" />
+              <div>
+                <h4 className="font-black uppercase text-sm leading-tight">{productData.title}</h4>
+                <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase">Variant: {productData.variant}</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase">Weight: {productData.weight}g</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between font-bold text-gray-600 uppercase text-xs">
+                <span>Subtotal</span>
+                <span>Rs. {productData.price}</span>
+              </div>
+              <div className="flex justify-between font-bold text-gray-600 uppercase text-xs">
+                <span>Shipping ({formData.province})</span>
+                <span>Rs. {shippingCost}</span>
+              </div>
+              <div className="flex justify-between text-2xl font-black border-t-4 border-black pt-4">
+                <span>TOTAL</span>
+                <span className="text-black">Rs. {productData.price + shippingCost}</span>
+              </div>
+            </div>
+
+            <div className="mt-8 bg-yellow-100 p-4 border-2 border-black flex items-center gap-3">
+              <ShieldCheck className="shrink-0 text-black" size={24} />
+              <p className="text-[9px] font-black leading-tight uppercase">Pay cash only when you receive and open the parcel at your doorstep.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
