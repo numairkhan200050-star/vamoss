@@ -1,21 +1,21 @@
 // src/components/admin/products/ProductIdentity.tsx
-import React from 'react';
-import { Globe, LayoutText, Search, Type } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Globe, LayoutText, Search, Type, FolderTree } from 'lucide-react';
+import { supabase } from '../../../lib/supabase';
 
 interface ProductIdentityProps {
-  // Storefront Data
   title: string;
   setTitle: (val: string) => void;
   description: string;
   setDescription: (val: string) => void;
-  
-  // SEO Data
   slug: string;
   setSlug: (val: string) => void;
   metaTitle: string;
   setMetaTitle: (val: string) => void;
   metaDescription: string;
   setMetaDescription: (val: string) => void;
+  categoryId: string | null;
+  setCategoryId: (val: string) => void;
 }
 
 export const ProductIdentity: React.FC<ProductIdentityProps> = ({
@@ -23,12 +23,24 @@ export const ProductIdentity: React.FC<ProductIdentityProps> = ({
   description, setDescription,
   slug, setSlug,
   metaTitle, setMetaTitle,
-  metaDescription, setMetaDescription
+  metaDescription, setMetaDescription,
+  categoryId, setCategoryId
 }) => {
-
+  const [categories, setCategories] = useState<any[]>([]);
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
 
-  // Helper to auto-generate slug
+  // --- FETCH CATEGORIES FROM SUPABASE ---
+  useEffect(() => {
+    const fetchCats = async () => {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name, parent_id')
+        .order('name', { ascending: true });
+      if (data) setCategories(data);
+    };
+    fetchCats();
+  }, []);
+
   const handleTitleChange = (val: string) => {
     setTitle(val);
     setSlug(val.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''));
@@ -42,33 +54,57 @@ export const ProductIdentity: React.FC<ProductIdentityProps> = ({
           <LayoutText size={20} /> Storefront Display
         </h2>
         
-        <div className="space-y-4">
-          <div>
-            <label className="text-[10px] font-black uppercase text-gray-400">Public Product Title</label>
-            <input 
-              type="text"
-              value={title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              className="w-full p-4 border-4 border-black font-bold text-xl outline-none focus:bg-yellow-50"
-              placeholder="e.g. Vintage Denim Jacket"
-            />
-          </div>
-
-          <div>
-            <label className="text-[10px] font-black uppercase text-gray-400">Product Description (Rich Text Enabled)</label>
-            <div className="border-4 border-black">
-              {/* Simple Toolset Mockup for Rich Text */}
-              <div className="bg-gray-100 border-b-2 border-black p-2 flex gap-4 text-xs font-black italic">
-                <span>BOLD</span> <span>ITALIC</span> <span>• BULLETS</span> <span>🚀 EMOJI</span>
-              </div>
-              <textarea 
-                rows={8}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-4 outline-none font-medium text-sm leading-relaxed"
-                placeholder="Tell your customers about the fabric, fit, and style..."
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* TITLE INPUT */}
+          <div className="md:col-span-2 space-y-4">
+            <div>
+              <label className="text-[10px] font-black uppercase text-gray-400">Public Product Title</label>
+              <input 
+                type="text"
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                className="w-full p-4 border-4 border-black font-bold text-xl outline-none focus:bg-yellow-50"
+                placeholder="e.g. Vintage Denim Jacket"
               />
             </div>
+
+            <div>
+              <label className="text-[10px] font-black uppercase text-gray-400">Description</label>
+              <div className="border-4 border-black">
+                <div className="bg-gray-100 border-b-2 border-black p-2 flex gap-4 text-xs font-black italic">
+                  <span>BOLD</span> <span>ITALIC</span> <span>🚀 EMOJI</span>
+                </div>
+                <textarea 
+                  rows={6}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-4 outline-none font-medium text-sm leading-relaxed"
+                  placeholder="Fabric, fit, and style details..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CATEGORY SELECTOR */}
+          <div className="md:col-span-1 bg-yellow-50 border-4 border-black p-4">
+            <label className="text-[10px] font-black uppercase flex items-center gap-1 mb-2">
+              <FolderTree size={14} /> Assign Category
+            </label>
+            <select 
+              value={categoryId || ''}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="w-full p-3 border-2 border-black font-bold text-xs bg-white cursor-pointer uppercase"
+            >
+              <option value="">-- No Category --</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.parent_id ? `↳ ${cat.name}` : cat.name.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <p className="text-[9px] mt-4 font-bold text-gray-500 italic">
+              * Note: Products linked to sub-categories appear in parent collections automatically.
+            </p>
           </div>
         </div>
       </div>
