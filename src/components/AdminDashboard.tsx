@@ -10,7 +10,7 @@ import { CollectionSupervisor } from './admin/CollectionSupervisor';
 import { PageSupervisor } from './admin/PageSupervisor'; 
 import { ProductSupervisor } from './admin/ProductSupervisor';
 import { OrderSupervisor } from './admin/OrderSupervisor'; // Connected your existing supervisor
-import { ShippingSupervisor } from './admin/ShippingSupervisor'; // New Weight-based logic
+//import { ShippingSupervisor } from './admin/ShippingSupervisor'; // New Weight-based logic
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
