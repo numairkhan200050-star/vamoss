@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Truck, Send, ShieldCheck, PackageCheck, AlertCircle } from 'lucide-react';
+import { Truck, Send, ShieldCheck, PackageCheck } from 'lucide-react';
 
 export const Checkout = () => {
   const location = useLocation();
@@ -23,38 +23,53 @@ export const Checkout = () => {
 
   const provinces = ['Sindh', 'Punjab', 'KPK', 'Balochistan', 'Gilgit Baltistan', 'AJK'];
 
-  // Safety: If no product data, go back
+  // Safety: Redirect if no product is selected
   useEffect(() => {
     if (!productData) {
       alert("No product selected!");
       navigate('/');
     }
-  }, [productData]);
+  }, [productData, navigate]);
 
-  // Logic: Calculate Shipping from Supabase
+  /**
+   * SHIPPING CALCULATION LOGIC
+   * Fetches rates from Supabase and finds the correct block based on product weight.
+   */
   useEffect(() => {
     const calculateShipping = async () => {
       if (!productData) return;
 
-      const { data } = await supabase
-        .from('shipping_rates')
-        .select('rate_per_kg')
-        .eq('province', formData.province)
-        .single();
+      try {
+        const { data: rates, error } = await supabase
+          .from('shipping_rates')
+          .select('*')
+          .order('max_weight_grams', { ascending: true });
 
-      if (data) {
-        const weightInKg = productData.weight / 1000;
-        const cost = Math.max(250, weightInKg * data.rate_per_kg); // Min 250 PKR
-        setShippingCost(Math.ceil(cost));
+        if (error) throw error;
+
+        if (rates && rates.length > 0) {
+          // Find the first block that covers our product weight
+          const applicableRate = rates.find(r => productData.weight <= r.max_weight_grams) 
+                                 || rates[rates.length - 1]; // Fallback to max block
+          
+          setShippingCost(Number(applicableRate.charge_pkr));
+        } else {
+          // Default fallback if table is empty
+          setShippingCost(250); 
+        }
+      } catch (err) {
+        console.error("Shipping Calc Error:", err);
+        setShippingCost(250); // Safe fallback
       }
     };
+
     calculateShipping();
-  }, [formData.province, productData]);
+  }, [productData]);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate Phone (03xxxxxxxxx)
+    // Pakistani Phone Validation (03xxxxxxxxx)
     const phoneRegex = /^03\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       return alert("Enter valid 11-digit number (03xxxxxxxxx)");
@@ -63,7 +78,7 @@ export const Checkout = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Generate Professional Tracking ID
+      // 1. Generate Tracking ID
       const trackingId = `K11-${Math.floor(1000 + Math.random() * 9000)}`;
 
       // 2. Insert into Orders Table
@@ -98,13 +113,13 @@ export const Checkout = () => {
 
       if (itemsError) throw itemsError;
 
-      // 4. Trigger WhatsApp Confirmation
+      // 4. WhatsApp Message Formatting
       const message = `*ORDER CONFIRMED - KEVIN11*%0A%0A` +
                       `*Tracking ID:* ${trackingId}%0A` +
                       `*Customer:* ${formData.name}%0A` +
                       `*Product:* ${productData.title} (${productData.variant})%0A` +
-                      `*Total Amount:* Rs. ${productData.price + shippingCost}%0A%0A` +
-                      `Thank you! We will ship your order to ${formData.city} soon.`;
+                      `*Amount:* Rs. ${productData.price + shippingCost}%0A%0A` +
+                      `Shipping to ${formData.city}, ${formData.province}.`;
 
       const whatsappUrl = `https://wa.me/923282519507?text=${message}`;
       
@@ -113,7 +128,7 @@ export const Checkout = () => {
       navigate('/');
       
     } catch (err: any) {
-      alert("Error: " + err.message);
+      alert("Order Error: " + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -125,13 +140,13 @@ export const Checkout = () => {
     <div className="max-w-6xl mx-auto p-6 md:p-12 font-sans text-black">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        {/* LEFT: SHIPPING FORM (Old UI Style) */}
+        {/* LEFT: SHIPPING FORM */}
         <div className="lg:col-span-7 space-y-8">
           <div className="border-b-4 border-black pb-4">
             <h2 className="text-4xl font-black uppercase italic flex items-center gap-3">
               <Truck size={36} /> Checkout
             </h2>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Complete your order details below</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cash on Delivery Details</p>
           </div>
 
           <form onSubmit={handleSubmitOrder} className="space-y-4">
@@ -179,7 +194,7 @@ export const Checkout = () => {
           </form>
         </div>
 
-        {/* RIGHT: ORDER SUMMARY (New UI Style) */}
+        {/* RIGHT: ORDER SUMMARY */}
         <div className="lg:col-span-5">
           <div className="bg-white border-4 border-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] sticky top-8">
             <h3 className="text-2xl font-black uppercase italic flex items-center gap-2 mb-8">
@@ -201,7 +216,7 @@ export const Checkout = () => {
                 <span>Rs. {productData.price}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-600 uppercase text-xs">
-                <span>Shipping ({formData.province})</span>
+                <span>Shipping ({productData.weight}g)</span>
                 <span>Rs. {shippingCost}</span>
               </div>
               <div className="flex justify-between text-2xl font-black border-t-4 border-black pt-4">
@@ -216,7 +231,6 @@ export const Checkout = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
