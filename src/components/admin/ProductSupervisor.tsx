@@ -4,55 +4,72 @@ import { ProductIdentity } from './products/ProductIdentity';
 import { ProductVisuals } from './products/ProductVisuals';
 import { ProductLogistics } from './products/ProductLogistics';
 import { ProductProfitSidebar } from './products/ProductProfitSidebar';
+import { ProductList } from './products/ProductList'; // New Labor
 import { AdminGallery } from './AdminGallery'; 
 import { supabase } from '../../lib/supabase';
+import { ArrowLeft } from 'lucide-react';
 
 export const ProductSupervisor: React.FC = () => {
-  // --- 1. MASTER STATE ---
+  // --- VIEW CONTROL ---
+  const [view, setView] = useState<'list' | 'editor'>('list');
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // --- MASTER STATE ---
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [slug, setSlug] = useState('');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDescription, setMetaDescription] = useState('');
   const [status, setStatus] = useState('draft');
-  const [categoryId, setCategoryId] = useState<string | null>(null); // For Category Selection
-  
-  // Media State
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [mainImage, setMainImage] = useState('');
   const [gallery, setGallery] = useState<string[]>([]);
-  const [isVaultOpen, setIsVaultOpen] = useState(false); 
-  
-  // Variants State
+  const [isVaultOpen, setIsVaultOpen] = useState(false);
   const [variants, setVariants] = useState<any[]>([]);
 
-  // --- 2. CALCULATED TOTALS FOR SIDEBAR ---
-  const basePrice = variants.length > 0 ? variants[0].sellingPrice : 0;
-  const baseCost = variants.length > 0 ? variants[0].costPrice : 0;
-  const baseWeight = variants.length > 0 ? variants[0].weight : 0;
+  // --- RESET FORM ---
+  const resetForm = () => {
+    setTitle(''); setDescription(''); setSlug('');
+    setMetaTitle(''); setMetaDescription(''); setStatus('draft');
+    setCategoryId(null); setMainImage(''); setGallery([]);
+    setVariants([]); setEditingId(null);
+    setView('list');
+  };
 
-  // --- 3. THE SAVE LOGIC ---
+  // --- EDIT LOGIC ---
+  const handleEditProduct = (product: any) => {
+    setEditingId(product.id);
+    setTitle(product.title || '');
+    setDescription(product.description || '');
+    setSlug(product.slug || '');
+    setMetaTitle(product.meta_title || '');
+    setMetaDescription(product.meta_description || '');
+    setStatus(product.status || 'draft');
+    setCategoryId(product.category_id || null);
+    setMainImage(product.main_image || '');
+    setGallery(product.gallery_images || []);
+    // Note: Variants fetch karne ka logic yahan add ho sakta hai
+    setView('editor');
+  };
+
+  // --- SAVE LOGIC ---
   const handleSaveProduct = async () => {
     try {
-      // Step A: Insert/Update Product
       const { data: product, error: pError } = await supabase
         .from('products')
         .upsert({
-          title, 
-          slug, 
-          description, 
-          status,
-          category_id: categoryId, // Linking Category
+          id: editingId || undefined, // Use existing ID if editing
+          title, slug, description, status,
+          category_id: categoryId,
           main_image: mainImage,
           gallery_images: gallery,
           meta_title: metaTitle,
           meta_description: metaDescription
         })
-        .select()
-        .single();
+        .select().single();
 
       if (pError) throw pError;
 
-      // Step B: Insert Variants
       if (variants.length > 0) {
         const variantsToSave = variants.map(v => ({
           product_id: product.id,
@@ -63,90 +80,83 @@ export const ProductSupervisor: React.FC = () => {
           selling_price: v.sellingPrice,
           weight_grams: v.weight
         }));
-
-        const { error: vError } = await supabase
-          .from('product_variants')
-          .upsert(variantsToSave);
-          
+        const { error: vError } = await supabase.from('product_variants').upsert(variantsToSave);
         if (vError) throw vError;
       }
 
-      alert("🚀 Product, Variants & Category Link Saved!");
+      alert("🚀 Product Saved Successfully!");
+      resetForm();
     } catch (err: any) {
       alert("Error: " + err.message);
     }
   };
 
-  const handleDiscard = () => {
-    if(confirm("Discard all changes?")) window.location.reload();
-  };
-
-  // --- 4. MEDIA VAULT LOGIC ---
-  const openMediaVault = () => setIsVaultOpen(true);
-
+  // --- MEDIA VAULT ---
   const handleGallerySelect = (urls: string[]) => {
     const uniqueUrls = Array.from(new Set([...gallery, ...urls]));
     setGallery(uniqueUrls);
-    if (!mainImage && uniqueUrls.length > 0) {
-      setMainImage(uniqueUrls[0]);
-    }
+    if (!mainImage && uniqueUrls.length > 0) setMainImage(uniqueUrls[0]);
     setIsVaultOpen(false);
   };
 
+  // --- RENDER LOGIC ---
+  if (view === 'list') {
+    return (
+      <div className="p-8">
+        <ProductList 
+          onEdit={handleEditProduct} 
+          onAddNew={() => { resetForm(); setView('editor'); }} 
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6 relative">
+      {/* HEADER WITH BACK BUTTON */}
+      <div className="flex items-center gap-4 mb-8">
+        <button onClick={() => setView('list')} className="p-2 border-4 border-black hover:bg-black hover:text-white transition-all">
+          <ArrowLeft size={24} />
+        </button>
+        <h1 className="text-3xl font-black uppercase italic">
+          {editingId ? 'Edit Product' : 'Create New Product'}
+        </h1>
+      </div>
+
       <div className="grid grid-cols-12 gap-8">
-        
-        {/* LEFT COLUMN: THE LABORS (70%) */}
         <div className="col-span-12 lg:col-span-8 space-y-10">
-          
           <ProductIdentity 
             title={title} setTitle={setTitle}
             description={description} setDescription={setDescription}
             slug={slug} setSlug={setSlug}
             metaTitle={metaTitle} setMetaTitle={setMetaTitle}
             metaDescription={metaDescription} setMetaDescription={setMetaDescription}
-            categoryId={categoryId} setCategoryId={setCategoryId} // Added Category Prop
+            categoryId={categoryId} setCategoryId={setCategoryId}
           />
-
           <ProductVisuals 
             mainImage={mainImage} setMainImage={setMainImage}
             gallery={gallery} setGallery={setGallery}
-            openMediaVault={openMediaVault}
+            openMediaVault={() => setIsVaultOpen(true)}
           />
-
-          <ProductLogistics 
-            variants={variants} 
-            setVariants={setVariants}
-            availableImages={gallery} 
-          />
-          
+          <ProductLogistics variants={variants} setVariants={setVariants} availableImages={gallery} />
         </div>
 
-        {/* RIGHT COLUMN: THE COMMANDER (30%) */}
         <div className="col-span-12 lg:col-span-4">
           <ProductProfitSidebar 
-            sellingPrice={basePrice}
-            costPrice={baseCost}
-            weightGrams={baseWeight}
-            status={status}
-            setStatus={setStatus}
+            sellingPrice={variants.length > 0 ? variants[0].sellingPrice : 0}
+            costPrice={variants.length > 0 ? variants[0].costPrice : 0}
+            weightGrams={variants.length > 0 ? variants[0].weight : 0}
+            status={status} setStatus={setStatus}
             onSave={handleSaveProduct}
-            onDiscard={handleDiscard}
+            onDiscard={resetForm}
           />
         </div>
-
       </div>
 
-      {/* MEDIA VAULT POPUP */}
       {isVaultOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="w-full max-w-6xl max-h-[90vh] overflow-hidden">
-             <AdminGallery 
-                isModal={true} 
-                onClose={() => setIsVaultOpen(false)} 
-                onSelect={handleGallerySelect} 
-             />
+             <AdminGallery isModal={true} onClose={() => setIsVaultOpen(false)} onSelect={handleGallerySelect} />
           </div>
         </div>
       )}
