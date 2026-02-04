@@ -4,7 +4,7 @@ import { ProductIdentity } from './products/ProductIdentity';
 import { ProductVisuals } from './products/ProductVisuals';
 import { ProductLogistics } from './products/ProductLogistics';
 import { ProductProfitSidebar } from './products/ProductProfitSidebar';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 export const ProductSupervisor: React.FC = () => {
   // --- 1. MASTER STATE ---
