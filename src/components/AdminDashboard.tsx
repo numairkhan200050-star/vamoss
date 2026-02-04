@@ -8,7 +8,9 @@ import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
 import { CollectionSupervisor } from './admin/CollectionSupervisor'; 
 import { PageSupervisor } from './admin/PageSupervisor'; 
-import { ProductSupervisor } from './admin/ProductSupervisor'; // NEW: Imported your Product Brain
+import { ProductSupervisor } from './admin/ProductSupervisor';
+import { OrderSupervisor } from './admin/OrderSupervisor'; // Connected your existing supervisor
+import { ShippingSupervisor } from './admin/ShippingSupervisor'; // New Weight-based logic
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
@@ -20,10 +22,13 @@ import {
   FolderTree, 
   FileCode,
   ShieldCheck,
-  Image as ImageIcon 
+  Image as ImageIcon,
+  ShoppingBag, // Icon for Orders
+  Truck        // Icon for Shipping
 } from 'lucide-react';
 
-type AdminTab = 'general' | 'collections' | 'pages' | 'products' | 'gallery';
+// Added 'orders' and 'shipping' to the type
+type AdminTab = 'general' | 'collections' | 'pages' | 'products' | 'gallery' | 'orders' | 'shipping';
 
 export const AdminDashboard = () => {
   // STYLES
@@ -87,43 +92,21 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        <nav className="flex-grow p-4 space-y-3 mt-6">
+        <nav className="flex-grow p-4 space-y-2 mt-4 overflow-y-auto">
+          {/* ORDERS SECTION - NEW */}
           <button
             style={comicSansBold}
             className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
-              activeTab === 'general' 
+              activeTab === 'orders' 
               ? 'bg-[#FFD700] text-black border-black translate-x-2' 
               : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
             }`}
-            onClick={() => setActiveTab('general')}
+            onClick={() => setActiveTab('orders')}
           >
-            <Settings size={20} /> General Settings
+            <ShoppingBag size={20} /> Orders
           </button>
 
-          <button
-            style={comicSansBold}
-            className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
-              activeTab === 'gallery' 
-              ? 'bg-[#FFD700] text-black border-black translate-x-2' 
-              : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('gallery')}
-          >
-            <ImageIcon size={20} /> Media Vault
-          </button>
-
-          <button
-            style={comicSansBold}
-            className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
-              activeTab === 'collections' 
-              ? 'bg-[#FFD700] text-black border-black translate-x-2' 
-              : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
-            }`}
-            onClick={() => setActiveTab('collections')}
-          >
-            <FolderTree size={20} /> Collections
-          </button>
-
+          {/* PRODUCTS SECTION */}
           <button
             style={comicSansBold}
             className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
@@ -139,14 +122,66 @@ export const AdminDashboard = () => {
           <button
             style={comicSansBold}
             className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
-              activeTab === 'pages' 
+              activeTab === 'collections' 
               ? 'bg-[#FFD700] text-black border-black translate-x-2' 
               : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
             }`}
-            onClick={() => setActiveTab('pages')}
+            onClick={() => setActiveTab('collections')}
           >
-            <FileCode size={20} /> Custom Pages
+            <FolderTree size={20} /> Collections
           </button>
+
+          {/* SHIPPING SECTION - NEW */}
+          <button
+            style={comicSansBold}
+            className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
+              activeTab === 'shipping' 
+              ? 'bg-[#FFD700] text-black border-black translate-x-2' 
+              : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
+            }`}
+            onClick={() => setActiveTab('shipping')}
+          >
+            <Truck size={20} /> Shipping Rates
+          </button>
+
+          {/* OTHER SETTINGS */}
+          <div className="pt-4 mt-4 border-t border-zinc-800">
+             <button
+              style={comicSansBold}
+              className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
+                activeTab === 'general' 
+                ? 'bg-[#FFD700] text-black border-black translate-x-2' 
+                : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
+              }`}
+              onClick={() => setActiveTab('general')}
+            >
+              <Settings size={20} /> General Settings
+            </button>
+
+            <button
+              style={comicSansBold}
+              className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
+                activeTab === 'gallery' 
+                ? 'bg-[#FFD700] text-black border-black translate-x-2' 
+                : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
+              }`}
+              onClick={() => setActiveTab('gallery')}
+            >
+              <ImageIcon size={20} /> Media Vault
+            </button>
+
+            <button
+              style={comicSansBold}
+              className={`w-full flex items-center gap-4 p-4 uppercase text-xs tracking-wider transition-all border-2 ${
+                activeTab === 'pages' 
+                ? 'bg-[#FFD700] text-black border-black translate-x-2' 
+                : 'border-transparent text-gray-400 hover:text-white hover:bg-zinc-900'
+              }`}
+              onClick={() => setActiveTab('pages')}
+            >
+              <FileCode size={20} /> Custom Pages
+            </button>
+          </div>
         </nav>
 
         {/* LOGOUT AREA */}
@@ -167,15 +202,17 @@ export const AdminDashboard = () => {
       {/* MAIN VIEWPORT */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="min-h-full">
-          {activeTab === 'general' && <AdminGeneralSettings />}
+          {activeTab === 'orders' && <OrderSupervisor />}
           
-          {/* Standalone mode: isModal is false by default */}
-          {activeTab === 'gallery' && <AdminGallery isModal={false} />}
+          {activeTab === 'products' && <ProductSupervisor />}
 
           {activeTab === 'collections' && <CollectionSupervisor />}
 
-          {/* NEW PRODUCT SUPERVISOR INTEGRATION */}
-          {activeTab === 'products' && <ProductSupervisor />}
+          {activeTab === 'shipping' && <ShippingSupervisor />}
+
+          {activeTab === 'general' && <AdminGeneralSettings />}
+          
+          {activeTab === 'gallery' && <AdminGallery isModal={false} />}
 
           {activeTab === 'pages' && <PageSupervisor />}
         </div>
