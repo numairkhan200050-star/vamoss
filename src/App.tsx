@@ -18,7 +18,7 @@ import { ProductListingPage } from './components/ProductListingPage';
 import { ProductDetailPage } from './components/ProductDetailPage';
 import { Checkout } from './components/Checkout'; // Import enabled
 import { AdminDashboard } from './components/AdminDashboard';
-import { OrderSuccess } from './components/OrderSuccess'; // Optional: Thank you page
+//import { OrderSuccess } from './components/OrderSuccess'; // Optional: Thank you page
 
 // Track Order Component
 const TrackOrder = () => (
