@@ -11,38 +11,35 @@ import ReviewTicker from './components/ReviewTicker';
 // Public Pages
 import HeroSlider from './components/HeroSlider';
 import ContentArea from './components/ContentArea';
- 
 
-// Private Admin Area
+// Import Your Real Components
+import { ProductListingPage } from './components/ProductListingPage'; // Make sure path is correct
+import { ProductDetailPage } from './components/ProductDetailPage'; // Make sure path is correct
+import { Checkout } from './components/Checkout'; // Our new Checkout component
 import { AdminDashboard } from './components/AdminDashboard';
 
-// Placeholder components (Update these imports when you create the actual files)
-const ProductListingPage = () => <div className="p-20 text-center font-bold uppercase italic">Product Listing Coming Soon</div>;
-const ProductDetailPage = ({ productId }: { productId: string }) => <div className="p-20 text-center font-bold uppercase italic">Product Detail Coming Soon</div>;
+// Placeholder for Track Order (if you haven't built it yet)
+const TrackOrder = () => <div className="p-20 text-center font-bold uppercase italic">Tracking Coming Soon</div>;
 
 /**
  * PAGE WRAPPER
  * Effectively hides all storefront elements when the URL contains 'admin'.
- * Works with HashRouter by checking both pathname and window.location.hash.
  */
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
-  // Aggressive check for Admin path
   const isAdminPage = 
     location.pathname.toLowerCase().includes('admin') || 
     window.location.hash.toLowerCase().includes('admin');
 
   return (
     <>
-      {/* Show Header ONLY if NOT in Admin */}
       {!isAdminPage && <Header />}
       
       <main className={isAdminPage ? "w-full" : "min-h-screen"}>
         {children}
       </main>
 
-      {/* Show Storefront Bars ONLY if NOT in Admin */}
       {!isAdminPage && (
         <>
           <ReviewTicker />
@@ -68,8 +65,16 @@ function App() {
               <ContentArea />
             </>
           } />
+          
+          {/* Shop & Product Routes */}
           <Route path="/shop" element={<ProductListingPage />} />
-          <Route path="/product/:id" element={<ProductDetailPage productId="" />} />
+          
+          {/* Note: We use :slug because your ProductDetail uses useParams().slug */}
+          <Route path="/product/:slug" element={<ProductDetailPage />} />
+          
+          {/* NEW: Checkout Route */}
+          <Route path="/checkout" element={<Checkout />} />
+          
           <Route path="/track" element={<TrackOrder />} />
 
           {/* ADMIN HQ ROUTE */}
