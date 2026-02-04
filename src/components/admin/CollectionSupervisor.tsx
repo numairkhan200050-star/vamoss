@@ -19,7 +19,7 @@ export const CollectionSupervisor = () => {
       
       {/* 1. THE VIEWER (LIST) */}
       {currentView === 'VIEW_ALL' && (
-        <CollectionViewr 
+        <CollectionViewer 
           onAddNew={() => setCurrentView('CREATE_NEW')}
           onEdit={(id) => {
             console.log("Editing Collection:", id);
