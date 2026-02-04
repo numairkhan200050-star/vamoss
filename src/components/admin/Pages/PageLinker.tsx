@@ -1,3 +1,4 @@
+// src/components/admin/Pages/PageLinker.tsx
 import React, { useState } from 'react';
 import { 
   Link, 
@@ -7,7 +8,8 @@ import {
   CheckCircle2, 
   ChevronRight, 
   Zap,
-  Layout
+  Layout,
+  Share2
 } from 'lucide-react';
 
 interface LinkableItem {
@@ -23,12 +25,14 @@ interface PageLinkerProps {
 }
 
 export const PageLinker = ({ pageId, onSave, onCancel }: PageLinkerProps) => {
+  // TYPOGRAPHY
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
+  const comicSansNormal = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
   
   // --- STATE ---
   const [selectedLinks, setSelectedLinks] = useState<string[]>([]);
 
-  // --- NOTE 9: MOCK DATA (Available targets to link the page to) ---
+  // --- MOCK DATA ---
   const linkVault: LinkableItem[] = [
     { id: 'cat1', name: 'Summer Essentials', type: 'category' },
     { id: 'cat2', name: 'Limited Drops', type: 'category' },
@@ -48,59 +52,65 @@ export const PageLinker = ({ pageId, onSave, onCancel }: PageLinkerProps) => {
   };
 
   return (
-    <div className="bg-white border-8 border-black p-8 shadow-[20px_20px_0px_0px_rgba(255,215,0,1)] max-w-4xl mx-auto">
-      {/* HEADER */}
-      <div className="flex justify-between items-start border-b-4 border-black pb-6 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="bg-[#FFD700] p-3 border-2 border-black">
-            <Link size={32} className="text-black" />
+    <div className="max-w-4xl mx-auto">
+      {/* HEADER: GLASS STYLE */}
+      <div className="flex justify-between items-center pb-8 mb-8 border-b border-slate-200/50">
+        <div className="flex items-center gap-5">
+          <div className="bg-indigo-500/10 p-4 rounded-2xl text-indigo-600 backdrop-blur-xl border border-indigo-200/50">
+            <Share2 size={28} />
           </div>
           <div>
-            <h2 style={comicSansBold} className="text-3xl uppercase italic leading-none">Page Linker</h2>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-              Establishing Node Connections
+            <h2 style={comicSansBold} className="text-3xl italic tracking-tight leading-none">Node Linker</h2>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mt-1 font-bold">
+              Establishing Navigation Anchors
             </p>
           </div>
         </div>
-        <button onClick={onCancel} className="p-2 border-4 border-black hover:bg-black hover:text-white transition-all">
+        <button 
+          onClick={onCancel} 
+          className="hover:bg-slate-100 p-3 rounded-full transition-colors text-slate-400"
+        >
           <X size={20} />
         </button>
       </div>
 
       <div className="space-y-6">
-        <label style={comicSansBold} className="block uppercase text-xs tracking-widest flex items-center gap-2">
-          <Zap size={16} className="text-[#FFD700]" /> Select Navigation Anchors
+        <label style={comicSansBold} className="block uppercase text-[10px] tracking-[0.2em] text-slate-400 ml-2 flex items-center gap-2">
+          <Zap size={14} className="text-yellow-500 fill-yellow-500" /> Connection Targets
         </label>
 
-        <div className="grid grid-cols-1 gap-4">
+        {/* LIST OF ANCHORS */}
+        <div className="grid grid-cols-1 gap-3">
           {linkVault.map((item) => {
             const isSelected = selectedLinks.includes(item.id);
             return (
               <button
                 key={item.id}
                 onClick={() => toggleLink(item.id)}
-                className={`flex items-center justify-between p-6 border-4 transition-all group ${
+                className={`flex items-center justify-between p-5 rounded-2xl transition-all duration-300 border ${
                   isSelected 
-                  ? 'border-black bg-black text-[#FFD700] -translate-y-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]' 
-                  : 'border-gray-100 hover:border-black bg-white text-black'
+                  ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200 -translate-y-1' 
+                  : 'bg-white/40 backdrop-blur-md border-white/60 text-slate-600 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-5">
-                  <div className={`p-3 border-2 ${isSelected ? 'border-[#FFD700]' : 'border-black'}`}>
+                  <div className={`p-3 rounded-xl ${isSelected ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-400'}`}>
                     {item.type === 'category' ? <Layout size={20} /> : <FolderTree size={20} />}
                   </div>
                   <div className="text-left">
-                    <p className="font-black uppercase text-sm tracking-tight">{item.name}</p>
-                    <p className={`text-[9px] uppercase font-bold ${isSelected ? 'text-[#FFD700]/60' : 'text-gray-400'}`}>
-                      System Type: {item.type}
+                    <p style={comicSansBold} className="uppercase text-sm tracking-tight leading-none">{item.name}</p>
+                    <p className={`text-[9px] uppercase font-bold mt-1 opacity-60`}>
+                      {item.type}
                     </p>
                   </div>
                 </div>
                 
                 {isSelected ? (
-                  <CheckCircle2 size={24} className="text-[#FFD700]" />
+                  <div className="bg-green-400 p-1 rounded-full text-white">
+                    <CheckCircle2 size={20} />
+                  </div>
                 ) : (
-                  <ChevronRight size={24} className="text-gray-200 group-hover:text-black" />
+                  <ChevronRight size={20} className="text-slate-300" />
                 )}
               </button>
             );
@@ -108,21 +118,27 @@ export const PageLinker = ({ pageId, onSave, onCancel }: PageLinkerProps) => {
         </div>
       </div>
 
-      {/* FOOTER ACTION */}
-      <div className="mt-10 pt-8 border-t-4 border-black flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex flex-col">
-          <span className="text-[10px] font-black text-gray-400 uppercase">Active Links</span>
-          <span style={comicSansBold} className="text-4xl text-black">
-            {selectedLinks.length < 10 ? `0${selectedLinks.length}` : selectedLinks.length}
-          </span>
+      {/* FOOTER ACTION: GLASS PANEL */}
+      <div className="mt-10 p-8 bg-white/30 backdrop-blur-xl border border-white/60 rounded-[2.5rem] flex flex-col sm:flex-row items-center justify-between gap-8">
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Links</span>
+            <span style={comicSansBold} className="text-5xl text-slate-800 tabular-nums">
+              {selectedLinks.length}
+            </span>
+          </div>
+          <div className="h-10 w-[1px] bg-slate-200 hidden sm:block" />
+          <p className="text-[11px] text-slate-400 max-w-[120px] leading-relaxed hidden sm:block" style={comicSansNormal}>
+            Page will appear in these {selectedLinks.length} locations.
+          </p>
         </div>
 
         <button 
           onClick={handleFinalDeployment}
           style={comicSansBold}
-          className="w-full sm:w-auto bg-black text-[#FFD700] border-4 border-black px-16 py-6 uppercase tracking-[0.2em] hover:bg-[#FFD700] hover:text-black transition-all shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-y-2"
+          className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-12 py-5 rounded-2xl uppercase tracking-[0.2em] text-xs hover:shadow-2xl hover:shadow-blue-200 transition-all active:scale-95"
         >
-          Inject Links
+          Inject Connections
         </button>
       </div>
     </div>
