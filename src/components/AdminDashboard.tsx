@@ -8,7 +8,7 @@ import { AdminGeneralSettings } from './admin/AdminGeneralSettings';
 import { AdminGallery } from './admin/AdminGallery';
 import { CollectionSupervisor } from './admin/CollectionSupervisor'; 
 import { PageSupervisor } from './admin/PageSupervisor'; 
-import { ProductSupervisor } from './admin/ProductSupervisor'; // NEW: Imported your Product Brain
+//import { ProductSupervisor } from './admin/ProductSupervisor'; // NEW: Imported your Product Brain
 import { LoginPortal } from './LoginPortal';
 
 // ICONS
