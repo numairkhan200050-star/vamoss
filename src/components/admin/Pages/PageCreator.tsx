@@ -1,5 +1,4 @@
 // src/components/admin/Pages/PageCreator.tsx
-
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -10,7 +9,8 @@ import {
   Globe, 
   FileText, 
   AlertCircle,
-  Trash2
+  Trash2,
+  Sparkles
 } from 'lucide-react';
 
 interface PageCreatorProps {
@@ -20,7 +20,12 @@ interface PageCreatorProps {
 }
 
 export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
+  // TYPOGRAPHY
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
+  const comicSansNormal = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
+
+  // GLASS THEME HELPER
+  const glassInput = "bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl focus:ring-4 focus:ring-blue-400/20 transition-all outline-none";
 
   // --- PAGE STATE ---
   const [title, setTitle] = useState("");
@@ -55,74 +60,84 @@ export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
   };
 
   return (
-    <div className="bg-white border-8 border-black p-8 shadow-[20px_20px_0px_0px_rgba(0,0,0,1)] max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto text-slate-800">
       {/* HEADER */}
-      <div className="flex justify-between items-center border-b-8 border-black pb-6 mb-8">
+      <div className="flex justify-between items-center pb-8 mb-8 border-b border-slate-200/50">
         <div className="flex items-center gap-4">
-          <div className="bg-black p-3 text-[#FFD700]">
-            <FileText size={32} />
+          <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-600 backdrop-blur-xl border border-blue-200/50">
+            <FileText size={28} />
           </div>
-          <h2 style={comicSansBold} className="text-4xl uppercase italic tracking-tighter">
-            {pageId ? 'Edit Page' : 'New Page Creator'}
-          </h2>
+          <div>
+            <h2 style={comicSansBold} className="text-3xl italic tracking-tight leading-none">
+              {pageId ? 'Refine Page' : 'New Page Canvas'}
+            </h2>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mt-1 font-bold">Content Architect</p>
+          </div>
         </div>
-        <button onClick={onCancel} className="hover:rotate-90 transition-transform p-2 border-4 border-black">
-          <X size={24} />
+        <button 
+          onClick={onCancel} 
+          className="hover:bg-red-50 hover:text-red-500 transition-colors p-3 rounded-full bg-white/50 border border-slate-200"
+        >
+          <X size={20} />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT COLUMN: MAIN CONTENT */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-xs tracking-widest">Page Title</label>
+            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">Page Identity</label>
             <input 
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. ABOUT OUR JOURNEY"
-              className="w-full p-5 border-4 border-black text-2xl font-black uppercase outline-none focus:bg-yellow-50"
+              placeholder="Give your page a name..."
+              className={`w-full p-6 text-xl font-medium ${glassInput}`}
+              style={comicSansNormal}
             />
           </div>
 
           <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-xs tracking-widest">URL Slug</label>
-            <div className="flex items-center gap-2 font-mono text-sm bg-gray-100 p-4 border-2 border-dashed border-black">
-              <span>yoursite.com/pages/</span>
+            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">URL Gateway</label>
+            <div className={`flex items-center gap-2 p-4 font-mono text-sm ${glassInput} border-dashed`}>
+              <span className="opacity-40 select-none">/pages/</span>
               <input 
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                className="bg-transparent border-b-2 border-black outline-none font-bold flex-1"
+                className="bg-transparent outline-none font-bold flex-1 text-blue-600"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-xs tracking-widest">Page Contents (HTML/Text)</label>
+            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">Main Body Content</label>
             <textarea 
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={12}
-              className="w-full p-5 border-4 border-black font-mono text-sm outline-none focus:bg-gray-50 resize-none"
-              placeholder="Start writing your page content here..."
+              rows={10}
+              className={`w-full p-6 font-mono text-sm resize-none ${glassInput}`}
+              placeholder="Start your story here..."
             />
           </div>
         </div>
 
         {/* RIGHT COLUMN: SETTINGS & TOGGLES */}
         <div className="space-y-6">
-          {/* STATUS BOX */}
-          <div className="border-4 border-black p-6 bg-gray-50">
-            <label style={comicSansBold} className="block uppercase text-xs tracking-widest mb-4">Publishing Status</label>
-            <div className="flex flex-col gap-2">
+          {/* STATUS SELECTION */}
+          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-6 rounded-3xl shadow-sm">
+            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest mb-4 text-slate-400">Lifecycle Status</label>
+            <div className="grid grid-cols-3 gap-2">
               {(['draft', 'active', 'disabled'] as const).map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
-                  className={`p-3 border-2 font-black uppercase text-xs tracking-tighter transition-all ${
-                    status === s ? 'bg-black text-[#FFD700] border-black' : 'bg-white border-gray-200'
+                  className={`py-3 rounded-xl font-bold uppercase text-[9px] transition-all ${
+                    status === s 
+                    ? 'bg-slate-800 text-white shadow-lg shadow-slate-200' 
+                    : 'bg-white/50 text-slate-400 border border-slate-100'
                   }`}
+                  style={comicSansBold}
                 >
                   {s}
                 </button>
@@ -130,166 +145,56 @@ export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
             </div>
           </div>
 
-          {/* VISIBILITY TOGGLES */}
-          <div className="border-4 border-black p-6 space-y-6">
-            <label style={comicSansBold} className="block uppercase text-xs tracking-widest mb-2 border-b-2 border-black pb-2">Visibility Settings</label>
+          {/* VISIBILITY CONTROLS */}
+          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-6 rounded-3xl space-y-5 shadow-sm">
+            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest mb-2 text-slate-400 border-b border-slate-100 pb-2">Discovery Settings</label>
             
-            {/* SITE SEARCH TOGGLE */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Search size={18} />
-                <span className="text-[10px] font-black uppercase">Internal Search</span>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg"><Search size={16} /></div>
+                <span className="text-[11px] font-bold uppercase tracking-tight">On-Site Search</span>
               </div>
               <button 
                 onClick={() => setSearchVisible(!searchVisible)}
-                className={`w-12 h-6 border-2 border-black relative transition-colors ${searchVisible ? 'bg-green-500' : 'bg-gray-300'}`}
+                className={`w-11 h-6 rounded-full relative transition-all ${searchVisible ? 'bg-green-400' : 'bg-slate-200'}`}
               >
-                <div className={`absolute top-0 w-5 h-full bg-black transition-all ${searchVisible ? 'right-0' : 'left-0'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${searchVisible ? 'right-1' : 'left-1'}`} />
               </button>
             </div>
 
-            {/* GOOGLE TOGGLE */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Globe size={18} />
-                <span className="text-[10px] font-black uppercase">Google Index</span>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg"><Globe size={16} /></div>
+                <span className="text-[11px] font-bold uppercase tracking-tight">Global Indexing</span>
               </div>
               <button 
                 onClick={() => setGoogleVisible(!googleVisible)}
-                className={`w-12 h-6 border-2 border-black relative transition-colors ${googleVisible ? 'bg-green-500' : 'bg-gray-300'}`}
+                className={`w-11 h-6 rounded-full relative transition-all ${googleVisible ? 'bg-indigo-400' : 'bg-slate-200'}`}
               >
-                <div className={`absolute top-0 w-5 h-full bg-black transition-all ${googleVisible ? 'right-0' : 'left-0'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${googleVisible ? 'right-1' : 'left-1'}`} />
               </button>
             </div>
           </div>
 
-          {/* DANGER ZONE (If Editing) */}
           {pageId && (
-            <button className="w-full flex items-center justify-center gap-2 p-4 text-red-500 border-2 border-dashed border-red-500 hover:bg-red-50 transition-all uppercase text-[10px] font-black">
-              <Trash2 size={16} /> Delete Page Permanently
+            <button className="w-full flex items-center justify-center gap-2 p-4 text-red-400 border border-red-100 rounded-2xl hover:bg-red-50 transition-all uppercase text-[9px] font-bold">
+              <Trash2 size={14} /> Remove Permanent Entry
             </button>
           )}
         </div>
       </div>
 
       {/* FOOTER ACTIONS */}
-      <div className="mt-12 flex gap-4">
+      <div className="mt-10 pt-8 border-t border-slate-200/50 flex gap-4">
         <button 
           onClick={handleFinalSave}
           style={comicSansBold}
-          className="flex-1 bg-black text-[#FFD700] py-6 border-4 border-black uppercase tracking-[0.2em] hover:bg-[#FFD700] hover:text-black transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
+          className="flex-1 bg-gradient-to-r from-slate-800 to-slate-900 text-white py-5 rounded-2xl uppercase tracking-[0.2em] text-sm hover:shadow-xl hover:shadow-slate-200 transition-all flex items-center justify-center gap-3"
         >
-          {pageId ? 'Update Page' : 'Deploy Page to Site'}
+          <Sparkles size={18} className="text-yellow-400" />
+          {pageId ? 'Commit Changes' : 'Initialize Page'}
         </button>
       </div>
-    </div>
-  );
-};
-// ================= LABOUR VIEW =================
-export const LabourPageForm: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [content, setContent] = useState("");
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [linkedCollections, setLinkedCollections] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchCollections = async () => {
-      const { data } = await supabase.from("collections").select("*");
-      if (data) setCollections(data);
-    };
-    fetchCollections();
-  }, []);
-
-  useEffect(() => { setSlug(title.toLowerCase().replace(/\s+/g, "-")); }, [title]);
-
-  const handleSave = async () => {
-    const payload: Page = {
-      title, slug, content,
-      linkedCollections, linkedCategories: [], menuLevel: undefined,
-      seoTitle: "", seoDescription: "", status: "draft", searchable: true
-    };
-    await supabase.from("pages").insert([payload]);
-    alert("Labour page saved!");
-  };
-
-  return (
-    <div className="space-y-4">
-      <h2 className="font-bold text-lg">Labour Page Creation</h2>
-      <input placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} className="border p-2 w-full"/>
-      <textarea placeholder="Content" value={content} onChange={(e)=>setContent(e.target.value)} className="border p-2 w-full"/>
-      <select multiple value={linkedCollections} onChange={e=>setLinkedCollections(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
-        {collections.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
-      </select>
-      <button onClick={handleSave} className="bg-green-600 text-white px-4 py-2">Save Page</button>
-    </div>
-  );
-};
-
-// ================= SUPERVISOR VIEW =================
-export const SupervisorPageForm: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [content, setContent] = useState("");
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [linkedCollections, setLinkedCollections] = useState<string[]>([]);
-  const [linkedCategories, setLinkedCategories] = useState<string[]>([]);
-  const [menuLevel, setMenuLevel] = useState<string>("");
-  const [seoTitle, setSeoTitle] = useState("");
-  const [seoDescription, setSeoDescription] = useState("");
-  const [status, setStatus] = useState<Page["status"]>("draft");
-  const [searchable, setSearchable] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data: colData } = await supabase.from("collections").select("*");
-      if (colData) setCollections(colData);
-      const { data: catData } = await supabase.from("categories").select("*");
-      if (catData) setCategories(catData);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => { setSlug(title.toLowerCase().replace(/\s+/g, "-")); }, [title]);
-
-  const handleSave = async () => {
-    const payload: Page = {
-      title, slug, content, linkedCollections, linkedCategories,
-      menuLevel, seoTitle, seoDescription, status, searchable
-    };
-    await supabase.from("pages").insert([payload]);
-    alert("Supervisor page saved!");
-  };
-
-  return (
-    <div className="space-y-4">
-      <h2 className="font-bold text-lg">Supervisor Page Management</h2>
-      <input placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} className="border p-2 w-full"/>
-      <textarea placeholder="Content" value={content} onChange={(e)=>setContent(e.target.value)} className="border p-2 w-full"/>
-      <select multiple value={linkedCollections} onChange={e=>setLinkedCollections(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
-        {collections.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
-      </select>
-      <select multiple value={linkedCategories} onChange={e=>setLinkedCategories(Array.from(e.target.selectedOptions, o=>o.value))} className="border p-2 w-full">
-        {categories.map(c=> <option key={c.id} value={c.id}>{c.name}</option>)}
-      </select>
-      <select value={menuLevel} onChange={e=>setMenuLevel(e.target.value)} className="border p-2 w-full">
-        <option value="">None</option>
-        <option value="main">Main</option>
-        <option value="sub">Sub</option>
-        <option value="sub-sub">Sub-Sub</option>
-      </select>
-      <input placeholder="SEO Title" value={seoTitle} onChange={(e)=>setSeoTitle(e.target.value)} className="border p-2 w-full"/>
-      <textarea placeholder="SEO Description" value={seoDescription} onChange={(e)=>setSeoDescription(e.target.value)} className="border p-2 w-full"/>
-      <select value={status} onChange={(e)=>setStatus(e.target.value as Page["status"])} className="border p-2 w-full">
-        <option value="draft">Draft</option>
-        <option value="published">Published</option>
-        <option value="archived">Archived</option>
-      </select>
-      <label className="flex items-center gap-2">
-        <input type="checkbox" checked={searchable} onChange={e=>setSearchable(e.target.checked)}/> Searchable
-      </label>
-      <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2">Save</button>
     </div>
   );
 };
