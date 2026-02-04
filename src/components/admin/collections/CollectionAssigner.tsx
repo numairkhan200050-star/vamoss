@@ -14,7 +14,7 @@ interface CollectionAssignerProps {
   onCancel: () => void;
 }
 
-export const CollectionAssignerProps = ({ collectionName, onSave, onCancel }: CollectionAssignerProps) => {
+export const CollectionAssigner = ({ collectionName, onSave, onCancel }: CollectionAssignerProps) => {
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
 
