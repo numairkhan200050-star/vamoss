@@ -3,12 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Save, 
-  Eye, 
-  EyeOff, 
   Search, 
   Globe, 
   FileText, 
-  AlertCircle,
   Trash2,
   Sparkles
 } from 'lucide-react';
@@ -20,24 +17,19 @@ interface PageCreatorProps {
 }
 
 export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
-  // TYPOGRAPHY
   const comicSansBold = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'bold' as const };
   const comicSansNormal = { fontFamily: '"Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive', fontWeight: 'normal' as const };
 
-  // GLASS THEME HELPER
-  const glassInput = "bg-white/40 backdrop-blur-md border border-white/50 rounded-2xl focus:ring-4 focus:ring-blue-400/20 transition-all outline-none";
+  // COMPACT GLASS THEME HELPER
+  const glassInput = "bg-white/40 backdrop-blur-md border border-white/50 rounded-xl focus:ring-2 focus:ring-blue-400/20 transition-all outline-none";
 
-  // --- PAGE STATE ---
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<'draft' | 'active' | 'disabled'>('draft');
-  
-  // --- TOGGLE SETTINGS ---
   const [searchVisible, setSearchVisible] = useState(true);
   const [googleVisible, setGoogleVisible] = useState(true);
 
-  // Auto-generate slug from title
   useEffect(() => {
     if (!pageId) {
       setSlug(title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''));
@@ -46,61 +38,47 @@ export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
 
   const handleFinalSave = () => {
     if (!title || !slug) return alert("Title and Slug are required!");
-    
-    onSave({
-      title,
-      slug,
-      content,
-      status,
-      settings: {
-        searchVisible,
-        googleVisible
-      }
-    });
+    onSave({ title, slug, content, status, settings: { searchVisible, googleVisible } });
   };
 
   return (
-    <div className="max-w-6xl mx-auto text-slate-800">
-      {/* HEADER */}
-      <div className="flex justify-between items-center pb-8 mb-8 border-b border-slate-200/50">
-        <div className="flex items-center gap-4">
-          <div className="bg-blue-500/10 p-4 rounded-2xl text-blue-600 backdrop-blur-xl border border-blue-200/50">
-            <FileText size={28} />
+    <div className="max-w-4xl mx-auto text-slate-800 px-2" style={comicSansNormal}>
+      {/* HEADER: COMPACT */}
+      <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-200/50">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-500/10 p-2.5 rounded-xl text-blue-600 border border-blue-200/50">
+            <FileText size={20} />
           </div>
           <div>
-            <h2 style={comicSansBold} className="text-3xl italic tracking-tight leading-none">
-              {pageId ? 'Refine Page' : 'New Page Canvas'}
+            <h2 style={comicSansBold} className="text-xl italic leading-none">
+              {pageId ? 'Edit Page' : 'New Page'}
             </h2>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mt-1 font-bold">Content Architect</p>
+            <p className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mt-0.5">CONTENT EDITOR</p>
           </div>
         </div>
-        <button 
-          onClick={onCancel} 
-          className="hover:bg-red-50 hover:text-red-500 transition-colors p-3 rounded-full bg-white/50 border border-slate-200"
-        >
-          <X size={20} />
+        <button onClick={onCancel} className="hover:bg-slate-100 p-2 rounded-full transition-colors text-slate-400">
+          <X size={18} />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT COLUMN: MAIN CONTENT */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">Page Identity</label>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* MAIN CONTENT (3 COLUMNS) */}
+        <div className="lg:col-span-3 space-y-4">
+          <div className="space-y-1.5">
+            <label style={comicSansBold} className="block uppercase text-[9px] tracking-widest text-slate-400 ml-1">Identity</label>
             <input 
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Give your page a name..."
-              className={`w-full p-6 text-xl font-medium ${glassInput}`}
-              style={comicSansNormal}
+              placeholder="Page title..."
+              className={`w-full px-4 py-3 text-sm font-medium ${glassInput}`}
             />
           </div>
 
-          <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">URL Gateway</label>
-            <div className={`flex items-center gap-2 p-4 font-mono text-sm ${glassInput} border-dashed`}>
-              <span className="opacity-40 select-none">/pages/</span>
+          <div className="space-y-1.5">
+            <label style={comicSansBold} className="block uppercase text-[9px] tracking-widest text-slate-400 ml-1">URL Path</label>
+            <div className={`flex items-center gap-2 px-3 py-2 font-mono text-[11px] ${glassInput} border-dashed`}>
+              <span className="opacity-40">/pages/</span>
               <input 
                 type="text"
                 value={slug}
@@ -110,34 +88,31 @@ export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest text-slate-400 ml-2">Main Body Content</label>
+          <div className="space-y-1.5">
+            <label style={comicSansBold} className="block uppercase text-[9px] tracking-widest text-slate-400 ml-1">Content</label>
             <textarea 
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              className={`w-full p-6 font-mono text-sm resize-none ${glassInput}`}
-              placeholder="Start your story here..."
+              rows={8}
+              className={`w-full p-4 font-mono text-xs resize-none ${glassInput}`}
+              placeholder="Enter content..."
             />
           </div>
         </div>
 
-        {/* RIGHT COLUMN: SETTINGS & TOGGLES */}
-        <div className="space-y-6">
-          {/* STATUS SELECTION */}
-          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-6 rounded-3xl shadow-sm">
-            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest mb-4 text-slate-400">Lifecycle Status</label>
-            <div className="grid grid-cols-3 gap-2">
+        {/* SIDEBAR (1 COLUMN) */}
+        <div className="space-y-4">
+          {/* STATUS */}
+          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-4 rounded-2xl">
+            <label style={comicSansBold} className="block uppercase text-[9px] tracking-widest mb-3 text-slate-400">Status</label>
+            <div className="flex flex-col gap-1.5">
               {(['draft', 'active', 'disabled'] as const).map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
-                  className={`py-3 rounded-xl font-bold uppercase text-[9px] transition-all ${
-                    status === s 
-                    ? 'bg-slate-800 text-white shadow-lg shadow-slate-200' 
-                    : 'bg-white/50 text-slate-400 border border-slate-100'
+                  className={`py-2 px-3 rounded-lg font-bold uppercase text-[8px] transition-all border ${
+                    status === s ? 'bg-slate-800 text-white shadow-md' : 'bg-white/50 text-slate-400 border-slate-100'
                   }`}
-                  style={comicSansBold}
                 >
                   {s}
                 </button>
@@ -145,54 +120,52 @@ export const PageCreator = ({ pageId, onSave, onCancel }: PageCreatorProps) => {
             </div>
           </div>
 
-          {/* VISIBILITY CONTROLS */}
-          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-6 rounded-3xl space-y-5 shadow-sm">
-            <label style={comicSansBold} className="block uppercase text-[10px] tracking-widest mb-2 text-slate-400 border-b border-slate-100 pb-2">Discovery Settings</label>
-            
+          {/* VISIBILITY */}
+          <div className="bg-white/30 backdrop-blur-xl border border-white/60 p-4 rounded-2xl space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg"><Search size={16} /></div>
-                <span className="text-[11px] font-bold uppercase tracking-tight">On-Site Search</span>
+              <div className="flex items-center gap-2">
+                <Search size={14} className="text-slate-400" />
+                <span className="text-[10px] font-bold uppercase">Search</span>
               </div>
               <button 
                 onClick={() => setSearchVisible(!searchVisible)}
-                className={`w-11 h-6 rounded-full relative transition-all ${searchVisible ? 'bg-green-400' : 'bg-slate-200'}`}
+                className={`w-8 h-4 rounded-full relative transition-all ${searchVisible ? 'bg-green-400' : 'bg-slate-200'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${searchVisible ? 'right-1' : 'left-1'}`} />
+                <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${searchVisible ? 'right-0.5' : 'left-0.5'}`} />
               </button>
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg"><Globe size={16} /></div>
-                <span className="text-[11px] font-bold uppercase tracking-tight">Global Indexing</span>
+              <div className="flex items-center gap-2">
+                <Globe size={14} className="text-slate-400" />
+                <span className="text-[10px] font-bold uppercase">Google</span>
               </div>
               <button 
                 onClick={() => setGoogleVisible(!googleVisible)}
-                className={`w-11 h-6 rounded-full relative transition-all ${googleVisible ? 'bg-indigo-400' : 'bg-slate-200'}`}
+                className={`w-8 h-4 rounded-full relative transition-all ${googleVisible ? 'bg-indigo-400' : 'bg-slate-200'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${googleVisible ? 'right-1' : 'left-1'}`} />
+                <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${googleVisible ? 'right-0.5' : 'left-0.5'}`} />
               </button>
             </div>
           </div>
 
           {pageId && (
-            <button className="w-full flex items-center justify-center gap-2 p-4 text-red-400 border border-red-100 rounded-2xl hover:bg-red-50 transition-all uppercase text-[9px] font-bold">
-              <Trash2 size={14} /> Remove Permanent Entry
+            <button className="w-full py-3 text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-all uppercase text-[8px] font-bold flex items-center justify-center gap-1.5">
+              <Trash2 size={12} /> Delete Page
             </button>
           )}
         </div>
       </div>
 
-      {/* FOOTER ACTIONS */}
-      <div className="mt-10 pt-8 border-t border-slate-200/50 flex gap-4">
+      {/* FOOTER */}
+      <div className="mt-6 pt-6 border-t border-slate-200/50">
         <button 
           onClick={handleFinalSave}
           style={comicSansBold}
-          className="flex-1 bg-gradient-to-r from-slate-800 to-slate-900 text-white py-5 rounded-2xl uppercase tracking-[0.2em] text-sm hover:shadow-xl hover:shadow-slate-200 transition-all flex items-center justify-center gap-3"
+          className="w-full bg-slate-900 text-white py-3.5 rounded-xl uppercase tracking-widest text-xs hover:bg-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-100"
         >
-          <Sparkles size={18} className="text-yellow-400" />
-          {pageId ? 'Commit Changes' : 'Initialize Page'}
+          <Sparkles size={16} className="text-yellow-400" />
+          {pageId ? 'Save Changes' : 'Create Page'}
         </button>
       </div>
     </div>
